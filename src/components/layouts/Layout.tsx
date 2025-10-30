@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-
+import Footer from "../ui/Footer"; 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen bg-primary text-white font-sans">
@@ -23,26 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <main className="flex-1">{children}</main>
 {/* Footer */}
-<footer className="bg-black/50 py-8 sm:py-12 mt-0">
-  <div className="container mx-auto px-4 sm:px-6 text-center text-sm text-gray-400 space-y-4 sm:space-y-6">
-    <div className="flex flex-row flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 text-muted text-sm sm:text-base">
-      <Link href="#" className="hover:text-primary transition-colors py-2 sm:py-0">
-        Terms
-      </Link>
-      <Link href="#" className="hover:text-primary transition-colors py-2 sm:py-0">
-        Privacy
-      </Link>
-      <Link href="#" className="hover:text-primary transition-colors py-2 sm:py-0">
-        Help
-      </Link>
-    </div>
-
-    <p className="text-muted text-xs sm:text-sm">
-      © {new Date().getFullYear()}{" "}
-      <span className="text-primary">NextFlix</span>. All rights reserved.
-    </p>
-  </div>
-</footer>
+<Footer />
     </div>
   );
 }

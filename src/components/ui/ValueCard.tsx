@@ -3,7 +3,7 @@ import { Card } from "./Card";
 import { cn } from "@/lib/utils";
 
 interface ValueCardProps {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   description: string;
   className?: string;

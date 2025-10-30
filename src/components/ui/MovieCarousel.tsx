@@ -18,8 +18,6 @@ export default function MovieCarousel({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isScrollingRef = useRef(false);
 
-  const cardWidth = 280; // Fixed card width
-  const gap = 16; // Gap between cards (var(--space-4))
 
   // Responsive card sizing
   const getCardDimensions = useCallback(() => {

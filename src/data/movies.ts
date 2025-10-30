@@ -139,28 +139,28 @@ export const getMoviesByCategory = (category: string): Movie[] =>
 export const valueProps: ValueProp[] = [
   {
     icon: "📺",
-    title: "Vast Library",
+    title: "Extensive Catalogue",
     description:
-      "Blockbusters and classics across 6 genres — always something to watch.",
+      "A curated library of blockbusters and enduring classics across multiple genres — endless choices for every mood.",
   },
   {
     icon: "🎯",
-    title: "Personalized",
-    description: "Smart recommendations that learn your taste.",
+    title: "Personalized Recommendations",
+    description: "Tailored suggestions powered by intelligent algorithms that adapt to your viewing preferences.",
   },
   {
     icon: "🎁",
-    title: "Ad-Free",
-    description: "Pure entertainment without interruptions.",
+    title: "Ad-Free Experience",
+    description: "Seamless, uninterrupted playback with a premium, ad-free viewing experience.",
   },
   {
     icon: "📱",
-    title: "Multi-Device",
-    description: "Watch on TV, phone, tablet, or laptop.",
+    title: "Multi‑Device Access",
+    description: "Stream in high quality on TVs, phones, tablets, and desktops — pick up where you left off on any device.",
   },
   {
     icon: "🔄",
-    title: "Flexible",
-    description: "Cancel anytime. No hidden fees or contracts.",
+    title: "Flexible Plans",
+    description: "Flexible subscription options — cancel or modify anytime with transparent pricing and no hidden fees.",
   },
 ];

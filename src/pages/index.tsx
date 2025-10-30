@@ -37,8 +37,8 @@ export default function Home() {
     <>
       {/* HERO SECTION */}
       <Hero
-        title="Stream Without Limits"
-        subtitle="Unlimited entertainment at your fingertips."
+        title="Unlimited Streaming, Curated for You"
+        subtitle="Access a vast catalogue of films and series — expertly curated and ready to stream on any device."
         primaryAction="▶ Start Watching"
       />
 
@@ -46,7 +46,7 @@ export default function Home() {
       {visibleSections.featured && (
         <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-[#0a0a0a] animate-fadeInUp overflow-visible">
           <div className="container mx-auto px-2 sm:px-4 md:px-6 overflow-visible">
-            <MovieCarousel movies={topMovies} title="Trending Now" />
+            <MovieCarousel movies={topMovies} title="Trending Now — Popular & Recommended" />
           </div>
         </section>
       )}
@@ -57,10 +57,10 @@ export default function Home() {
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-6 sm:mb-8 md:mb-12">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 gradient-text">
-                Why Join NextFlix?
+                Why Choose NextFlix?
               </h2>
               <p className="text-muted max-w-xs sm:max-w-xl mx-auto text-sm sm:text-base md:text-lg px-4">
-                Everything you need for the ultimate streaming experience
+                A comprehensive catalogue, tailored recommendations, and premium playback quality — everything required for a superior, effortless viewing experience.
               </p>
             </div>
 

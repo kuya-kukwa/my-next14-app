@@ -8,9 +8,8 @@ export interface Movie {
   image: string;
   thumbnail: string;
 }
-
 export interface ValueProp {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   description: string;
 }

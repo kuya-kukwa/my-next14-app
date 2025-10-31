@@ -2,21 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { ButtonProps } from "@/types";
 
-/**
- * Button component with multiple variants, sizes, and states.
- *
- * @component
- * @example
- * ```tsx
- * <Button variant="cta" size="md" onClick={handleClick}>
- *   Click me
- * </Button>
- *
- * <Button variant="outline" size="lg" loading>
- *   Loading...
- * </Button>
- * ```
- */
+
 const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>>(function ButtonComponent({
   variant = "cta",
   size = "md",

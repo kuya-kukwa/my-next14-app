@@ -105,7 +105,6 @@ export default function MovieCarousel({
       const el = scrollRef.current;
       if (!el) return;
       
-      const paddingLeft = el.clientWidth / 2 - dimensions.cardWidth / 2;
       const targetScrollLeft = centerIndex * (dimensions.cardWidth + dimensions.gap);
       
       // Only snap if not already close enough

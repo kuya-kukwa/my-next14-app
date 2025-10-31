@@ -14,7 +14,6 @@ export default function Hero({
   title,
   subtitle,
   primaryAction = "Get Started",
-  secondaryAction = "Learn More",
   children,
 }: HeroProps) {
   return (

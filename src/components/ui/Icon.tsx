@@ -42,7 +42,6 @@ const IconComponent = React.forwardRef<HTMLSpanElement, IconProps & React.HTMLAt
         color && `text-${color}`,
         className
       )}
-      style={color ? { color } : undefined}
       {...props}
     >
       {iconChar}

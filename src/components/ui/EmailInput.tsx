@@ -40,7 +40,7 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
       try {
         await (onSubmit ? onSubmit(val) : Promise.resolve());
         setEmail("");
-      } catch (err) {
+      } catch {
         setError("Submission failed. Please try again.");
       } finally {
         setIsSubmitting(false);
@@ -82,7 +82,7 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
               onKeyDown={handleKeyDown}
               className="w-full rounded-lg border-2 border-transparent px-4 py-3 text-sm bg-white/10 text-white transition-all duration-200 focus:outline-none focus:border-red-500 focus:bg-white/15 placeholder:text-white/50 backdrop-blur-md"
               placeholder={typeof label === "string" ? label : "Enter your email"}
-              aria-invalid={!!error}
+              aria-invalid={error ? "true" : undefined}
               aria-describedby={error ? `${id}-error` : undefined}
             />
 

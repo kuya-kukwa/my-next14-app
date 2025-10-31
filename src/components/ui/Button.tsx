@@ -26,6 +26,8 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
     lg: "px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg min-w-[140px] sm:min-w-[200px]",
   };
 
+  const isDisabled = disabled || loading;
+
   return (
     <button
       ref={ref}
@@ -37,9 +39,9 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
-      disabled={disabled || loading}
-      aria-label={props["aria-label"] || (loading ? "Loading..." : undefined)}
-      aria-disabled={disabled || loading}
+      disabled={isDisabled}
+  aria-label={props["aria-label"] || (loading ? "Loading..." : undefined)}
+  aria-disabled={isDisabled ? "true" : undefined}
       {...props}
     >
       {loading && (

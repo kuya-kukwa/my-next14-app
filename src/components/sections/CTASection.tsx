@@ -22,8 +22,7 @@ function CTASection() {
         {/* right blob (smaller on small screens) */}
         <div
           className="absolute bottom-1/3 right-1/4 transform translate-x-1/2 translate-y-1/2 rounded-full bg-purple-600 opacity-12 blur-3xl
-                     w-36 sm:w-48 md:w-64 lg:w-80 h-36 sm:h-48 md:h-64 lg:h-80"
-          style={{ animationDelay: "1s" }}
+                     w-36 sm:w-48 md:w-64 lg:w-80 h-36 sm:h-48 md:h-64 lg:h-80 animate-delay-1s"
           aria-hidden="true"
         />
       </div>
@@ -40,27 +39,12 @@ function CTASection() {
           </p>
         </div>
 
-        <div className="flex justify-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div className="flex justify-center animate-fade-in animate-delay-200ms">
           <EmailInput onSubmit={handleSubmit} />
         </div>
 
       </div>
 
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-      `}</style>
     </section>
   );
 }

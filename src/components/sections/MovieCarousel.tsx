@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useEffect, useCallback } from "react";
-import MovieCard from "./MovieCard";
+import MovieCard from "../ui/MovieCard";
 import { Movie } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -26,7 +26,7 @@ export default function MovieCarousel({
     
     if (width < 640) {
       // Mobile: smaller cards
-      return { cardWidth: 160, gap: 12 };
+      return { cardWidth: 120, gap: 10 };
     } else if (width < 1024) {
       // Tablet: medium cards
       return { cardWidth: 220, gap: 16 };

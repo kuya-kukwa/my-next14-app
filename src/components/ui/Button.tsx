@@ -12,7 +12,7 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
   children,
   ...props
 }, ref) {
-  const baseClasses = "btn font-semibold transition-all duration-300 rounded-lg inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black";
+  const baseClasses = "btn font-semibold transition-all duration-300 rounded-md inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black";
 
   const variantClasses = {
     cta: "btn-cta",
@@ -40,8 +40,8 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
         className
       )}
       disabled={isDisabled}
-  aria-label={props["aria-label"] || (loading ? "Loading..." : undefined)}
-  aria-disabled={isDisabled ? "true" : undefined}
+      aria-label={props["aria-label"] || (loading ? "Loading..." : undefined)}
+      aria-disabled={isDisabled ? "true" : "false"}
       {...props}
     >
       {loading && (

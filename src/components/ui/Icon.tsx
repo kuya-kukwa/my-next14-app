@@ -1,6 +1,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { IconProps } from "@/types";
+import { off } from "process";
+import { EyeOff } from "lucide-react";
 
 // Simple icon mapping - you can expand this with more icons
 const iconMap = {
@@ -15,6 +17,7 @@ const iconMap = {
   chevronRight: "›",
   check: "✓",
   arrowRight: "→",
+  eye : "👁",
 };
 
 const IconComponent = React.forwardRef<HTMLSpanElement, IconProps & React.HTMLAttributes<HTMLSpanElement>>(function IconComponent({

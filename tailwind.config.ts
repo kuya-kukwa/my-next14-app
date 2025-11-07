@@ -157,11 +157,11 @@ const config = {
       },
       borderRadius: {
         sm: 'var(--radius-sm)',
-        md: 'var(--radius-md)',
-        lg: 'var(--radius-lg)',
+        md: '0.5rem',
+        lg: '1rem',
         xl: 'var(--radius-xl)',
         '2xl': 'var(--radius-2xl)',
-        '3xl': 'var(--radius-3xl)',
+        '3xl': '1.5rem',
         full: 'var(--radius-full)',
       },
       boxShadow: {

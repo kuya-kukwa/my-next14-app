@@ -1,7 +1,6 @@
 import React from "react";
 import { Container } from "../ui";
-import Button from "../ui/Button";
-
+import CTASection from "./CTASection";
 interface HeroProps {
   title?: string;
   subtitle?: string;
@@ -11,9 +10,7 @@ interface HeroProps {
 }
 
 export default function Hero({
-  title,
-  subtitle,
-  primaryAction = "Get Started",
+ 
   children,
 }: HeroProps) {
   return (
@@ -39,17 +36,8 @@ export default function Hero({
       <Container className="relative z-10 animate-fadeInUp text-center max-w-4xl px-4">
         {children ?? (
           <>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 md:mb-6 gradient-text leading-tight">
-              {title ?? "🎬 Stream Without Limits"}
-            </h1>
-
-            <p className="text-gray-300 max-w-xs sm:max-w-md md:max-w-2xl mx-auto text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed mb-4 sm:mb-6 md:mb-8 lg:mb-10 px-2">
-              {subtitle ?? "Unlimited entertainment at your fingertips. Watch thousands of movies and shows, anytime, anywhere."}
-            </p>
-
-            <div className="flex flex-row flex-nowrap gap-3 sm:gap-4 md:gap-6 justify-center items-center px-4">
-              <Button variant="cta" size="sm" className="min-w-[110px] sm:min-w-[140px] md:min-w-[160px]">{primaryAction}</Button>
-            </div>
+            
+            <CTASection/>
           </>
         )}
       </Container>

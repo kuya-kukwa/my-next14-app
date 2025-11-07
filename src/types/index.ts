@@ -1,3 +1,4 @@
+// Data Types
 export interface Movie {
   id: number;
   title: string;
@@ -8,6 +9,8 @@ export interface Movie {
   image: string;
   thumbnail: string;
 }
+
+// Value Proposition Types
 export interface ValueProp {
   icon: React.ReactNode;
   title: string;
@@ -62,4 +65,16 @@ export interface InputProps extends ComponentBaseProps {
   onChange?: (value: string) => void;
   error?: string;
   disabled?: boolean;
+}
+ 
+// Team Member Types
+export interface TeamMember extends ComponentBaseProps {
+    id: number;
+    name: string;
+    role: string;
+    avatar: string;
+    bio: string;
+  /** Optional CSS object-position value to control focal point of avatar images (e.g. 'center 30%') */
+  objectPosition?: string;
+  
 }

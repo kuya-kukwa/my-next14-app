@@ -2,21 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { ButtonProps } from "@/types";
 
-/**
- * Button component with multiple variants, sizes, and states.
- *
- * @component
- * @example
- * ```tsx
- * <Button variant="cta" size="md" onClick={handleClick}>
- *   Click me
- * </Button>
- *
- * <Button variant="outline" size="lg" loading>
- *   Loading...
- * </Button>
- * ```
- */
+
 const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>>(function ButtonComponent({
   variant = "cta",
   size = "md",
@@ -26,7 +12,7 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
   children,
   ...props
 }, ref) {
-  const baseClasses = "btn font-semibold transition-all duration-300 rounded-lg inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black";
+  const baseClasses = "btn font-semibold transition-all duration-300 rounded-md inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black";
 
   const variantClasses = {
     cta: "btn-cta",
@@ -40,6 +26,8 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
     lg: "px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg min-w-[140px] sm:min-w-[200px]",
   };
 
+  const isDisabled = disabled || loading;
+
   return (
     <button
       ref={ref}
@@ -51,9 +39,9 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
-      disabled={disabled || loading}
+      disabled={isDisabled}
       aria-label={props["aria-label"] || (loading ? "Loading..." : undefined)}
-      aria-disabled={disabled || loading}
+      aria-disabled={isDisabled ? "true" : "false"}
       {...props}
     >
       {loading && (

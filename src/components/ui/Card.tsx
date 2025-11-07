@@ -25,7 +25,7 @@ const CardComponent = React.forwardRef<HTMLDivElement, CardProps & React.HTMLAtt
     <div
       ref={ref}
       className={cn(
-        "container-query rounded-xl border border-white/10 bg-black/30 backdrop-blur-sm",
+        "container-query rounded-md border border-white/10 bg-black/30 backdrop-blur-sm",
         variantClasses[variant],
         paddingClasses[padding],
         className

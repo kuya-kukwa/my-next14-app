@@ -11,7 +11,7 @@ describe('Button', () => {
 
   it('renders with different variants', () => {
     const { rerender } = render(<Button variant="cta">CTA</Button>);
-    expect(screen.getByRole('button')).toHavfsffeClass('btn-cta');
+    expect(screen.getByRole('button')).toHaveClass('btn-cta');
 
     rerender(<Button variant="ghost">Ghost</Button>);
     expect(screen.getByRole('button')).toHaveClass('btn-ghost');

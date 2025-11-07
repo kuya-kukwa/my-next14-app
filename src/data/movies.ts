@@ -1,13 +1,4 @@
-import { Movie, ValueProp } from "@/types";
-
-export const categories = [
-  "Action",
-  "Comedy",
-  "Drama",
-  "Horror",
-  "Romance",
-  "Sci-Fi",
-];
+import { Movie } from "@/types";
 
 // 🎬 All-time popular & modern hits (verified poster URLs)
 export const movies: Movie[] = [
@@ -133,34 +124,4 @@ export const movies: Movie[] = [
   },
 ];
 
-export const getMoviesByCategory = (category: string): Movie[] =>
-  movies.filter((movie) => movie.category === category);
 
-export const valueProps: ValueProp[] = [
-  {
-    icon: "📺",
-    title: "Vast Library",
-    description:
-      "Blockbusters and classics across 6 genres — always something to watch.",
-  },
-  {
-    icon: "🎯",
-    title: "Personalized",
-    description: "Smart recommendations that learn your taste.",
-  },
-  {
-    icon: "🎁",
-    title: "Ad-Free",
-    description: "Pure entertainment without interruptions.",
-  },
-  {
-    icon: "📱",
-    title: "Multi-Device",
-    description: "Watch on TV, phone, tablet, or laptop.",
-  },
-  {
-    icon: "🔄",
-    title: "Flexible",
-    description: "Cancel anytime. No hidden fees or contracts.",
-  },
-];

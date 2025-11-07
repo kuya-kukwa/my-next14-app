@@ -1,66 +1,35 @@
 // CTA Section Component
 import React from "react";
-import { EmailInput } from "@/components/ui/EmailInput";
+import Button from "../ui/Button";
 
 function CTASection() {
-  const handleSubmit = async (email: string) => {
-    console.log("CTA email submitted:", email);
-    await new Promise((res) => setTimeout(res, 300));
-    alert(`Thanks — we'll send details to ${email}`);
-  };
-
   return (
-    <section className="relative min-h-[10vh] sm:min-h-[40vh] md:min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-red-950">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* left blob (smaller on small screens) */}
-        <div
-          className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-600 opacity-12 blur-3xl
-                     w-36 sm:w-48 md:w-64 lg:w-80 h-36 sm:h-48 md:h-64 lg:h-80"
-          aria-hidden="true"
-        />
-        {/* right blob (smaller on small screens) */}
-        <div
-          className="absolute bottom-1/3 right-1/4 transform translate-x-1/2 translate-y-1/2 rounded-full bg-purple-600 opacity-12 blur-3xl
-                     w-36 sm:w-48 md:w-64 lg:w-80 h-36 sm:h-48 md:h-64 lg:h-80"
-          style={{ animationDelay: "1s" }}
-          aria-hidden="true"
-        />
-      </div>
+    <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 bg-gradient-to-br from-primary via-red-800 to-red-900 overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_70%)]" />
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <div className="mb-8 animate-fade-in">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-gray-100 to-red-400 bg-clip-text text-transparent leading-tight">
+        <div className="mb-8 animate-fade-in animate-delay-200ms">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 gradient-text">
             Ready to Start?
           </h2>
           <p className="text-white/80 max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-relaxed">
-            Join millions of viewers worldwide. Start your free trial today with
+            Join millions of viewers worldwide. Start your nonstop streaming today with
             access to our entire library.
           </p>
         </div>
 
-        <div className="flex justify-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <EmailInput onSubmit={handleSubmit} />
+        <div className="animate-fade-in animate-delay-400ms">
+          <Button
+            size="lg"
+            onClick={() => console.log("Get Started clicked")}
+          >
+            Get Started
+          </Button>
         </div>
-
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-      `}</style>
     </section>
   );
 }

@@ -1,11 +1,12 @@
 import React from "react";
 import Link from "next/link";
+import Footer from "../ui/Footer"; 
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen bg-primary text-white font-sans">
+    <div className="flex flex-col min-h-screen text-white font-sans">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-md">
+      <header className="absolute top-0 left-0 right-0 z-50 w-full">
         <nav className="container mx-auto flex items-center justify-between py-4 sm:py-6 md:py-8 px-4 sm:px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -16,33 +17,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Navigation - can add menu items here later */}
-          <div></div>
+          <div>
+            <Link href="/signin" className="mr-4 text-primary hover:text-primary/80 transition-colors">Sign In</Link>
+          </div>
         </nav>
       </header>
 
       {/* Main content */}
       <main className="flex-1">{children}</main>
-{/* Footer */}
-<footer className="bg-black/50 py-8 sm:py-12 mt-0">
-  <div className="container mx-auto px-4 sm:px-6 text-center text-sm text-gray-400 space-y-4 sm:space-y-6">
-    <div className="flex flex-row flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 text-muted text-sm sm:text-base">
-      <Link href="#" className="hover:text-primary transition-colors py-2 sm:py-0">
-        Terms
-      </Link>
-      <Link href="#" className="hover:text-primary transition-colors py-2 sm:py-0">
-        Privacy
-      </Link>
-      <Link href="#" className="hover:text-primary transition-colors py-2 sm:py-0">
-        Help
-      </Link>
-    </div>
-
-    <p className="text-muted text-xs sm:text-sm">
-      © {new Date().getFullYear()}{" "}
-      <span className="text-primary">NextFlix</span>. All rights reserved.
-    </p>
-  </div>
-</footer>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

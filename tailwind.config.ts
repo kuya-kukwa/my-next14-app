@@ -1,14 +1,193 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        accent: "#e50914",
-        dark: "#0a0a0a",
+        // Primary colors
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          foreground: 'var(--color-primary-foreground)',
+        },
+        'primary-hover': 'var(--color-primary-hover)',
+        'primary-dark': 'var(--color-primary-dark)',
+
+        // Neutral colors
+        black: 'var(--color-black)',
+        gray: {
+          900: 'var(--color-gray-900)',
+          800: 'var(--color-gray-800)',
+          700: 'var(--color-gray-700)',
+          600: 'var(--color-gray-600)',
+          500: 'var(--color-gray-500)',
+          400: 'var(--color-gray-400)',
+          300: 'var(--color-gray-300)',
+          200: 'var(--color-gray-200)',
+          100: 'var(--color-gray-100)',
+        },
+        white: 'var(--color-white)',
+
+        // Semantic colors
+        'text-primary': 'var(--color-text-primary)',
+        'text-secondary': 'var(--color-text-secondary)',
+        'text-muted': 'var(--color-text-muted)',
+        'text-accent': 'var(--color-text-accent)',
+
+        'bg-primary': 'var(--color-bg-primary)',
+        'bg-secondary': 'var(--color-bg-secondary)',
+        'bg-tertiary': 'var(--color-bg-tertiary)',
+
+        'border-light': 'var(--color-border-light)',
+        'border-medium': 'var(--color-border-medium)',
+        'border-accent': 'var(--color-border-accent)',
+
+        // Additional colors from new theme
+        secondary: {
+          DEFAULT: 'var(--color-secondary)',
+          foreground: 'var(--color-secondary-foreground)',
+        },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          foreground: 'var(--color-accent-foreground)',
+        },
+        background: 'var(--color-background)',
+        foreground: 'var(--color-foreground)',
+        card: {
+          DEFAULT: 'var(--color-card)',
+          foreground: 'var(--color-card-foreground)',
+        },
+        popover: {
+          DEFAULT: 'var(--color-popover)',
+          foreground: 'var(--color-popover-foreground)',
+        },
+        muted: {
+          DEFAULT: 'var(--color-muted)',
+          foreground: 'var(--color-muted-foreground)',
+        },
+        destructive: {
+          DEFAULT: 'var(--color-destructive)',
+          foreground: 'var(--color-destructive-foreground)',
+        },
+        border: 'var(--color-border)',
+        input: 'var(--color-input)',
+        ring: 'var(--color-ring)',
+        chart: {
+          1: 'var(--color-chart-1)',
+          2: 'var(--color-chart-2)',
+          3: 'var(--color-chart-3)',
+          4: 'var(--color-chart-4)',
+          5: 'var(--color-chart-5)',
+        },
+        dark: {
+          primary: 'var(--color-dark-primary)',
+          'primary-foreground': 'var(--color-dark-primary-foreground)',
+          secondary: 'var(--color-dark-secondary)',
+          'secondary-foreground': 'var(--color-dark-secondary-foreground)',
+          accent: 'var(--color-dark-accent)',
+          'accent-foreground': 'var(--color-dark-accent-foreground)',
+          background: 'var(--color-dark-background)',
+          foreground: 'var(--color-dark-foreground)',
+          card: 'var(--color-dark-card)',
+          'card-foreground': 'var(--color-dark-card-foreground)',
+          popover: 'var(--color-dark-popover)',
+          'popover-foreground': 'var(--color-dark-popover-foreground)',
+          muted: 'var(--color-dark-muted)',
+          'muted-foreground': 'var(--color-dark-muted-foreground)',
+          destructive: 'var(--color-dark-destructive)',
+          'destructive-foreground': 'var(--color-dark-destructive-foreground)',
+          border: 'var(--color-dark-border)',
+          input: 'var(--color-dark-input)',
+          ring: 'var(--color-dark-ring)',
+        },
+      },
+      spacing: {
+        1: 'var(--space-1)',
+        2: 'var(--space-2)',
+        3: 'var(--space-3)',
+        4: 'var(--space-4)',
+        5: 'var(--space-5)',
+        6: 'var(--space-6)',
+        7: 'var(--space-7)',
+        8: 'var(--space-8)',
+        9: 'var(--space-9)',
+        10: 'var(--space-10)',
+        12: 'var(--space-12)',
+        14: 'var(--space-14)',
+        16: 'var(--space-16)',
+        18: 'var(--space-18)',
+        20: 'var(--space-20)',
+        24: 'var(--space-24)',
+        28: 'var(--space-28)',
+        32: 'var(--space-32)',
+      },
+      fontSize: {
+        xs: 'var(--font-size-xs)',
+        sm: 'var(--font-size-sm)',
+        base: 'var(--font-size-base)',
+        lg: 'var(--font-size-lg)',
+        xl: 'var(--font-size-xl)',
+        '2xl': 'var(--font-size-2xl)',
+        '3xl': 'var(--font-size-3xl)',
+        '4xl': 'var(--font-size-4xl)',
+        '5xl': 'var(--font-size-5xl)',
+        '6xl': 'var(--font-size-6xl)',
+        '7xl': 'var(--font-size-7xl)',
+      },
+      fontWeight: {
+        normal: 'var(--font-weight-normal)',
+        medium: 'var(--font-weight-medium)',
+        semibold: 'var(--font-weight-semibold)',
+        bold: 'var(--font-weight-bold)',
+      },
+      lineHeight: {
+        tight: 'var(--line-height-tight)',
+        normal: 'var(--line-height-normal)',
+        relaxed: 'var(--line-height-relaxed)',
+        loose: 'var(--line-height-loose)',
+      },
+      letterSpacing: {
+        tight: 'var(--letter-spacing-tight)',
+        normal: 'var(--letter-spacing-normal)',
+        wide: 'var(--letter-spacing-wide)',
+      },
+      borderRadius: {
+        sm: 'var(--radius-sm)',
+        md: '0.5rem',
+        lg: '1rem',
+        xl: 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
+        '3xl': '1.5rem',
+        full: 'var(--radius-full)',
+      },
+      boxShadow: {
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
+        '2xl': 'var(--shadow-2xl)',
+        primary: 'var(--shadow-primary)',
+        'primary-hover': 'var(--shadow-primary-hover)',
+        card: 'var(--shadow-card)',
+      },
+      transitionDuration: {
+        fast: '150ms',
+        normal: '250ms',
+        slow: '350ms',
+      },
+      zIndex: {
+        dropdown: 'var(--z-dropdown)',
+        sticky: 'var(--z-sticky)',
+        fixed: 'var(--z-fixed)',
+        'modal-backdrop': 'var(--z-modal-backdrop)',
+        modal: 'var(--z-modal)',
+        popover: 'var(--z-popover)',
+        tooltip: 'var(--z-tooltip)',
+        toast: 'var(--z-toast)',
       },
       backgroundImage: {
         "section-1": "linear-gradient(135deg, #0a0a0a, #1a1a1a)",
@@ -20,3 +199,5 @@ module.exports = {
   },
   plugins: [],
 };
+
+export default config;

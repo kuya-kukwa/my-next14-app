@@ -10,6 +10,8 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   inputSize?: 'sm' | 'md' | 'lg';
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  hideHelperWhenValid?: boolean; // hide helper when field is filled and has no error
+  showHelperOnFocusOnly?: boolean; // show helper only when input is focused (minimalist)
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -27,16 +29,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       type = "text",
       required,
       disabled,
+      hideHelperWhenValid = true,
+      showHelperOnFocusOnly = true,
       ...props
     },
     ref
   ) => {
     const [isFocused, setIsFocused] = useState(false);
+    const [hasContent, setHasContent] = useState<boolean>(
+      String((props.value as unknown as string | number | undefined) ?? (props.defaultValue as unknown as string | number | undefined) ?? '').length > 0
+    );
     const inputId = id || `input-${props.name}`;
 
     // Base classes for all inputs
+    // use a small radius by default and keep a small radius on focus so the
+    // focus border looks tighter (less rounded)
     const baseClasses = cn(
-      "w-full rounded-xl transition-all duration-300",
+      "w-full rounded-sm focus:rounded-sm transition-all duration-300",
       "focus:outline-none focus:ring-2",
       "placeholder:text-white/50",
       disabled && "opacity-50 cursor-not-allowed"
@@ -105,6 +114,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               setIsFocused(false);
               props.onBlur?.(e);
             }}
+            onChange={(e) => {
+              setHasContent((e.target as HTMLInputElement).value?.length > 0);
+              props.onChange?.(e);
+            }}
             aria-invalid={error ? "true" : "false"}
             aria-describedby={
               error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined
@@ -124,53 +137,129 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {/* Error Message */}
         {error && (
-          <p id={`${inputId}-error`} className="mt-2 text-sm text-red-400">
+          <p
+            id={`${inputId}-error`}
+            className="mt-2 text-[13px] text-red-400 flex items-start gap-2"
+            role="alert"
+            aria-live="polite"
+          >
             {error}
           </p>
         )}
 
         {/* Helper Text */}
-        {helperText && !error && (
-          <p id={`${inputId}-helper`} className="mt-2 text-sm text-gray-400">
-            {helperText}
-          </p>
-        )}
+        {(() => {
+          // Show helper when:
+          // - there's helperText
+          // - no error
+          // - if showHelperOnFocusOnly => only when focused
+          // - hideHelperWhenValid hides when filled, BUT NOT while focused
+          const passesFocusRule = showHelperOnFocusOnly ? isFocused : true;
+          const passesHideWhenValidRule = hideHelperWhenValid ? (!hasContent || isFocused) : true;
+          const shouldShowHelper = Boolean(helperText) && !error && passesFocusRule && passesHideWhenValidRule;
+
+          if (!shouldShowHelper) return null;
+
+          return (
+            <p
+              id={`${inputId}-helper`}
+              className={cn(
+                "mt-1.5 text-[12px] transition-colors",
+                isFocused ? "text-white/85" : "text-white/70"
+              )}
+              role="note"
+              aria-live="polite"
+            >
+              {helperText}
+            </p>
+          );
+        })()}
 
       </div>
     );
   }
 );
 
+Input.displayName = "Input";
+
 
 // Password Input Component
-export interface PasswordInputProps extends Omit<InputProps, 'type' | 'rightIcon'> {}
+export interface PasswordInputProps extends Omit<InputProps, 'type' | 'rightIcon'> {
+  showStrength?: boolean;
+}
 
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  (props, ref) => {
+  ({ showStrength = false, onChange, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
+    const [pwdValue, setPwdValue] = useState("");
+
+    const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+      setPwdValue(e.target.value ?? "");
+      onChange?.(e);
+    };
+
+    const scorePassword = (value: string) => {
+      let score = 0;
+      if (value.length >= 8) score++;
+      if (/[A-Z]/.test(value)) score++;
+      if (/[a-z]/.test(value)) score++;
+      if (/[0-9]/.test(value)) score++;
+      if (/[^A-Za-z0-9]/.test(value)) score++;
+      return Math.min(score, 5);
+    };
+
+    const strength = scorePassword(pwdValue);
+    const strengthLabel = ["Very weak", "Weak", "Fair", "Good", "Strong"][
+      Math.max(0, strength - 1)
+    ] || "Very weak";
+    const strengthColor = [
+      "bg-red-500",
+      "bg-orange-500",
+      "bg-yellow-500",
+      "bg-green-500",
+      "bg-emerald-500",
+    ][Math.max(0, strength - 1)] || "bg-red-500";
 
     return (
-      <Input
-        {...props}
-        ref={ref}
-        type={showPassword ? "text" : "password"}
-        rightIcon={
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="text-gray-400 hover:text-white transition-colors duration-200 p-1 rounded-lg hover:bg-white/10 -mr-1"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            tabIndex={-1}
-          >
-            {showPassword ? (
-              <EyeOff className="w-4 h-4" />
-            ) : (
-              <Eye className="w-4 h-4" />
-            )}
-          </button>
-        }
-      />
+      <div className="w-full">
+        <Input
+          {...props}
+          ref={ref}
+          type={showPassword ? "text" : "password"}
+          onChange={handleChange}
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-gray-400 hover:text-white transition-colors duration-200 p-1 rounded-lg hover:bg-white/10 -mr-1"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          }
+        />
+
+        {showStrength && (
+          <div className="mt-2" aria-live="polite">
+            <div className="h-1 w-full bg-white/10 rounded">
+              <div
+                className={`h-1 rounded ${strengthColor}`}
+                style={{ width: `${(strength / 5) * 100}%` }}
+                aria-hidden
+              />
+            </div>
+            <p className="mt-1.5 text-[12px] text-white/70">Password strength: {strengthLabel}</p>
+          </div>
+        )}
+      </div>
     );
   }
 );
+
+PasswordInput.displayName = "PasswordInput";
 

@@ -14,7 +14,7 @@ export default function Hero({
   children,
 }: HeroProps) {
   return (
-    <section className="relative h-[100vh] sm:h-[110vh] md:min-h-screen flex items-center justify-center text-center overflow-hidden py-6 md:py-0 animate-fadeInUp">
+    <section className="relative h-[100vh] sm:h-[110vh] md:min-h-screen flex items-center justify-center text-center overflow-hidden py-6 md:py-0">
       {/* Video background - using public/video/hero.mp4 */}
       <video
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -33,7 +33,7 @@ export default function Hero({
       <div className="absolute inset-0 bg-primary/8 mix-blend-overlay" />
 
       {/* Content (children takes priority) */}
-      <Container className="relative z-10 animate-fadeInUp text-center max-w-4xl px-4">
+      <Container className="relative z-10 text-center max-w-4xl px-4">
         {children ?? (
           <>
             

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Footer = memo(() => {
   return (
-    <footer className="relative z-10 bg-[#0a0a0a] overflow-hidden pb-0 pt-20 lg:pb-0 lg:pt-[100px]">
+    <footer className="relative z-10 bg-[rgb(28,17,17)] overflow-hidden pb-0 pt-20 lg:pb-0 lg:pt-[100px]">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
         <div className="flex flex-wrap justify-between gap-8 lg:gap-0">

@@ -15,7 +15,7 @@ export default function ContactSection() {
             Get In Touch
           </h2>
           <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
-            Have a question or need help? We're here to assist you.
+            Have a question or need help? We&rsquo;re here to assist you.
           </p>
         </div>
 

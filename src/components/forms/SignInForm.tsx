@@ -24,7 +24,7 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInFormData>();
+  } = useForm<SignInFormData>({ mode: "onChange" });
 
   const handleFormSubmit = async (data: SignInFormData) => {
     if (onSubmit) {
@@ -66,6 +66,12 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
                     label="Email Address"
                     type="email"
                     placeholder="your.email@example.com"
+                    autoComplete="email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    helperText="Your account email."
                     error={errors.email?.message}
                     required
                   />
@@ -83,6 +89,11 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
                     })}
                     label="Password"
                     placeholder="Enter your password"
+                    autoComplete="current-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    helperText="6+ characters."
                     error={errors.password?.message}
                     required
                   />
@@ -127,7 +138,7 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
             {/* Register Link */}
             <div className="mt-10 pt-8 border-t border-gray-700/30 text-center space-y-4">
               <p className="text-gray-300 text-sm">
-                Don't have an account yet?
+                Don&rsquo;t have an account yet?
               </p>
 
               <Link href="/signup" className="block">

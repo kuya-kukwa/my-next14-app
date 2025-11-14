@@ -15,57 +15,134 @@ export default function MovieCarousel({
   const [centerIndex, setCenterIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isScrollingRef = useRef(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // --- layout helpers -------------------------------------------------
 
-  // Responsive card sizing
-  const getCardDimensions = useCallback(() => {
-    if (typeof window === 'undefined') return { cardWidth: 280, gap: 16 };
-    const width = window.innerWidth;
-    
-    if (width < 640) {
-      // Mobile: smaller cards
-      return { cardWidth: 120, gap: 10 };
-    } else if (width < 1024) {
-      // Tablet: medium cards
-      return { cardWidth: 220, gap: 16 };
+  const getIsMobile = () =>
+    typeof window !== "undefined" && window.innerWidth < 640;
+
+  const getScale = ({
+    isMobile,
+    isCenterCard,
+    distance,
+  }: {
+    isMobile: boolean;
+    isCenterCard: boolean;
+    distance: number;
+  }) => {
+    if (isMobile) {
+      // Keep 3 cards visible with subtle emphasis on the center card
+      if (isCenterCard) return 1.0;
+      if (distance === 1) return 0.95;
+      return 0.9;
     }
-    // Desktop: full size
-    return { cardWidth: 280, gap: 16 };
+
+    if (isCenterCard) return 1.15;
+    if (distance === 1) return 0.9;
+    if (distance === 2) return 0.75;
+    return 0.6;
+  };
+
+  const getOpacity = ({
+    isMobile,
+    distance,
+  }: {
+    isMobile: boolean;
+    distance: number;
+  }) => {
+    if (isMobile) {
+      if (distance === 0) return 1;
+      if (distance === 1) return 0.95;
+      if (distance === 2) return 0.85;
+      return 0.7;
+    }
+
+    if (distance === 0) return 1;
+    if (distance === 1) return 0.85;
+    if (distance === 2) return 0.6;
+    return 0.4;
+  };
+
+  const getTranslateY = ({
+    isMobile,
+    isCenterCard,
+    distance,
+  }: {
+    isMobile: boolean;
+    isCenterCard: boolean;
+    distance: number;
+  }) => {
+    if (isCenterCard) return isMobile ? -2 : -8;
+    if (distance === 1) return isMobile ? 1 : 4;
+    return isMobile ? 2 : 8;
+  };
+
+  const getCardDimensions = useCallback(() => {
+    if (typeof window === "undefined") return { cardWidth: 260, gap: 8 };
+
+    const width = window.innerWidth;
+
+    // Always show 3 cards on mobile: compute width from viewport - padding - gaps
+    if (width < 640) {
+      const sidePadding = 12 * 2; // 12px each side on real device (≈ space-3)
+      const gaps = 6 * 2; // 2 gaps between 3 cards
+      const available = width - sidePadding - gaps;
+
+      const rawWidth = Math.floor(available / 3);
+      const cardWidth = Math.max(96, Math.min(rawWidth, 130));
+
+      return { cardWidth, gap: 6 };
+    }
+
+    if (width < 1024) {
+      return { cardWidth: 220, gap: 12 };
+    }
+
+    return { cardWidth: 260, gap: 14 };
   }, []);
 
-  const [dimensions, setDimensions] = useState(getCardDimensions());
+  // Start with server-safe defaults to match SSR
+  const [dimensions, setDimensions] = useState({ cardWidth: 280, gap: 16 });
+  const [containerWidth, setContainerWidth] = useState(0);
 
+  // Hydration + dimension setup
   useEffect(() => {
+    setIsHydrated(true);
+    setDimensions(getCardDimensions());
+    setContainerWidth(scrollRef.current?.clientWidth ?? window.innerWidth);
+
     const handleResize = () => {
       setDimensions(getCardDimensions());
+      setContainerWidth(scrollRef.current?.clientWidth ?? window.innerWidth);
     };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [getCardDimensions]);
 
   const updateCenterCard = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    
+
     const { scrollLeft, clientWidth, scrollWidth } = el;
     setCanScrollLeft(scrollLeft > 10);
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
 
-    // Calculate which card is closest to the center of the viewport
+    // Calculate which card is closest to the center of the viewport.
     const viewportCenter = scrollLeft + clientWidth / 2;
+
+    // Use a uniform padding formula so first/last can center on all screens
     const paddingLeft = clientWidth / 2 - dimensions.cardWidth / 2;
-    
+
     // Position of each card's center
-    const cardCenterPosition = (index: number) => 
+    const cardCenterPosition = (index: number) =>
       paddingLeft + index * (dimensions.cardWidth + dimensions.gap) + dimensions.cardWidth / 2;
-    
+
     // Find the card closest to viewport center
     let closestIndex = 0;
     let minDistance = Infinity;
-    
+
     for (let i = 0; i < movies.length; i++) {
       const distance = Math.abs(cardCenterPosition(i) - viewportCenter);
       if (distance < minDistance) {
@@ -73,44 +150,50 @@ export default function MovieCarousel({
         closestIndex = i;
       }
     }
-    
+
     setCenterIndex(closestIndex);
   }, [movies.length, dimensions]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    
+
+    const scrollTimeoutRef: { current: NodeJS.Timeout | null } = { current: null };
+    let isScrolling = false;
+
     const handleScroll = () => {
-      // Clear existing timeout
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
-      
-      isScrollingRef.current = true;
+
+      isScrolling = true;
       updateCenterCard();
-      
-      // Set new timeout to detect scroll end
+
       scrollTimeoutRef.current = setTimeout(() => {
-        isScrollingRef.current = false;
-        
-        // Snap to center card after scroll ends
-        if (!isScrollingRef.current) {
+        isScrolling = false;
+
+        // On small screens: don't auto-snap, let the user keep their scroll position
+        if (getIsMobile()) {
+          return;
+        }
+
+        // Snap to center card after scroll ends on larger screens only
+        if (!isScrolling) {
           snapToCenter();
         }
       }, 150);
     };
-    
+
     const snapToCenter = () => {
       const el = scrollRef.current;
       if (!el) return;
-      
-      const targetScrollLeft = centerIndex * (dimensions.cardWidth + dimensions.gap);
-      
-      // Only snap if not already close enough
+
+      const targetScrollLeft =
+        centerIndex * (dimensions.cardWidth + dimensions.gap);
+
       const currentScroll = el.scrollLeft;
       const diff = Math.abs(currentScroll - targetScrollLeft);
-      
+
       if (diff > 5) {
         el.scrollTo({
           left: targetScrollLeft,
@@ -118,11 +201,11 @@ export default function MovieCarousel({
         });
       }
     };
-    
+
     updateCenterCard();
     el.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", updateCenterCard);
-    
+
     return () => {
       el.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", updateCenterCard);
@@ -135,23 +218,24 @@ export default function MovieCarousel({
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
-    
-    isScrollingRef.current = true;
-    
-    // Calculate the next center index
-    const nextIndex = dir === "left" 
-      ? Math.max(0, centerIndex - 1)
-      : Math.min(movies.length - 1, centerIndex + 1);
-    
-    // Scroll to position that centers the target card
-    const targetScrollLeft = nextIndex * (dimensions.cardWidth + dimensions.gap);
-    
+
+    const step = dimensions.cardWidth + dimensions.gap;
+
+    // Derive current index from actual scroll position to avoid skipping
+    const currentIndex = Math.round(el.scrollLeft / step);
+
+    const nextIndex =
+      dir === "left"
+        ? Math.max(0, currentIndex - 1)
+        : Math.min(movies.length - 1, currentIndex + 1);
+
+    const targetScrollLeft = nextIndex * step;
+
     el.scrollTo({
       left: targetScrollLeft,
       behavior: "smooth",
     });
-    
-    // Update center index immediately for smoother state updates
+
     setCenterIndex(nextIndex);
   };
 
@@ -185,23 +269,27 @@ export default function MovieCarousel({
               ['--card-width']: `${dimensions.cardWidth}px`,
               ['--gap']: `${dimensions.gap}px`,
             };
-            return vars as React.CSSProperties;
+            const isMobile = isHydrated && getIsMobile();
+            // Dynamic edge padding so first/last can be centered on small screens
+            const edgePad = Math.max(12, Math.floor(containerWidth / 2 - dimensions.cardWidth / 2));
+
+            const style: React.CSSProperties = { ...(vars as React.CSSProperties) };
+            if (isMobile) {
+              style.paddingLeft = `${edgePad}px`;
+              style.paddingRight = `${edgePad}px`;
+            }
+            return style;
           })()}
         >
           {movies.slice(0, 15).map((m, index) => {
             const isCenterCard = index === centerIndex;
             const distance = Math.abs(index - centerIndex);
-            
-            // Mobile: less aggressive scaling
-            const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-            const scale = isCenterCard ? (isMobile ? 1.1 : 1.15) : 
-                         distance === 1 ? (isMobile ? 0.95 : 0.9) : 
-                         distance === 2 ? (isMobile ? 0.85 : 0.75) : (isMobile ? 0.75 : 0.6);
-            const opacity = distance > 2 ? 0.4 : 
-                           distance === 2 ? 0.6 : 
-                           distance === 1 ? 0.85 : 1;
-            const translateY = isCenterCard ? (isMobile ? -4 : -8) : 
-                              distance === 1 ? (isMobile ? 2 : 4) : (isMobile ? 4 : 8);
+
+            const isMobile = isHydrated && getIsMobile();
+
+            const scale = getScale({ isMobile, isCenterCard, distance });
+            const opacity = getOpacity({ isMobile, distance });
+            const translateY = getTranslateY({ isMobile, isCenterCard, distance });
 
             return (
               <div

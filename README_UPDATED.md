@@ -1,6 +1,6 @@
-# My Next14 App
+# My Next.js App (Next 15 / React 19)
 
-This repository contains a Next.js + Tailwind CSS starter configured for a small marketing site with modular UI components and form pages (sign in / sign up).
+This repository contains a Next.js (v15) + Tailwind CSS starter configured for a marketing site with modular UI components and auth forms (sign in / sign up). It uses TypeScript and the `pages` router pattern by default.
 
 ## Quick start
 
@@ -15,7 +15,7 @@ Install dependencies
 npm install
 ```
 
-Run development server
+Run development server (Turbopack)
 
 ```powershell
 npm run dev
@@ -41,42 +41,21 @@ Run lint
 npm run lint
 ```
 
-## Project structure (important folders)
+This project includes several custom conventions: design tokens in `src/styles/globals.css`, components in `src/components/*`, a Tailwind v4 config in `tailwind.config.ts`, and forms with React Hook Form. This README captures the project's quick-start steps and common troubleshooting tips.
 
-- `src/components/` — UI components (forms, sections, layout)
-- `src/styles/` — global CSS and design tokens (Tailwind tokens live here)
-- `public/images/` — static images used by the site (backgrounds, avatars)
+### Notes
 
-## Notes & troubleshooting
-
-- Background images and static assets should be placed under `public/`. For example, the site expects a hot accent image at `public/images/signin/HOT_RED.png`. If you see 404s like `/images/signin/HOT_RED.png`, add the file to that folder or update the component path.
-
-- Tailwind and CSS token changes (for example the `--radius-lg` token) sometimes require restarting the dev server and clearing Next's cache. If styles don't update after editing `tailwind.config.ts` or `src/styles/globals.css`, try:
+- Background images and static assets should live under `public/`. For example `public/images/signin/HOT_RED.png` is used on the sign-in background.
+- To clear the local Next.js cache on Windows PowerShell:
 
 ```powershell
 rm -Recurse -Force .next; npm run dev
 ```
 
-- If a global CSS rule (for example a global `h3` color) is overriding Tailwind utilities, look in `src/styles/globals.css` for the rule and either remove it or increase utility specificity where appropriate.
+- If a global CSS rule is overriding Tailwind utilities, look in `src/styles/globals.css` and increase specificity if needed.
 
-## Contributing / git workflow
+### Quick UI note
 
-- Branch naming: use short descriptive branches like `feature/inputs-rounded` or `fix/avatar-border`.
-- The current working branch used during UI work is `week-1`.
-- To create a pull request from the command line you can use GitHub CLI or open the PR on the web. Example:
-
-```powershell
-git checkout -b feature/update-readme
-git add README.md
-git commit -m "docs: update README with project quick-start"
-git push -u origin feature/update-readme
-# then open a PR on GitHub or run: gh pr create --base main --head feature/update-readme --web
-```
-
-## Why this README was updated
-
-The previous README contained the default create-next-app text. This project includes several custom conventions (design tokens in `src/styles/globals.css`, component patterns in `src/components/*`, and a Tailwind config in `tailwind.config.ts`) so this file was updated to capture the project's quick-start steps and common troubleshooting tips.
-
-## Contact
+- Inputs in forms use `rounded-xl` and a subtle glass border `border-2 border-red-500/60` by default. Focus rings use the main red token (`focus:ring-2 focus:ring-red-600`).
 
 If you want me to commit and push this README to `week-1` and open a PR, reply "Please commit & push" and I'll run the git commands for you.

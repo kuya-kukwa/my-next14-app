@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-Complete form system for your NextFlix movie streaming app built with React Hook Form.
+Complete form system for your NextFlix demo app built with React Hook Form (v7.x). This repo uses TypeScript and Tailwind CSS v4.
 
 ## 🎯 What's Included
 
@@ -79,6 +79,7 @@ import { SignUpForm, SignInForm, ContactForm } from '@/components/forms';
 ```tsx
 import { TextInput, PasswordInput, TextArea } from '@/components/ui';
 
+// Important: Inputs follow the app style tokens
 // In your form
 <TextInput
   label="Full Name"
@@ -86,6 +87,8 @@ import { TextInput, PasswordInput, TextArea } from '@/components/ui';
   error={errors.name?.message}
   required
 />
+
+// Design tokens: inputs use `rounded-xl` and `border-2 border-red-500/60` for a glass look.
 ```
 
 ## 📖 Examples
@@ -134,6 +137,7 @@ const handleContact = async (data) => {
 All forms use your existing NextFlix theme:
 - Glassmorphism effects (`bg-white/10`, `backdrop-blur-md`)
 - Red primary color for focus states
+- Inputs use `rounded-xl` and a 2px red-accent border by default
 - Responsive design (mobile-first)
 - Smooth transitions and animations
 
@@ -193,7 +197,8 @@ Update the validation rules in each form component's `register()` calls
 
 ## 📦 Dependencies
 
-- `react-hook-form` - Form state management and validation (already installed ✅)
+- `react-hook-form` - Form state management and validation (v7.x installed ✅)
+- `tailwindcss` v4 (project style tokens)
 
 ---
 

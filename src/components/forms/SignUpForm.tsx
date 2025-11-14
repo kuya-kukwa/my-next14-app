@@ -39,11 +39,11 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
   return (
     <div className={className}>
       {/* Form Header - Outside Container */}
-      <div className="mb-6 sm:mb-8 text-center">
+      <div className="mb-4 text-center">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 gradient-text leading-tight">
           Join Us Today
         </h1>
-        <p className="text-base sm:text-lg text-gray-400">
+        <p className="text-base sm:text-lg text-gray-300">
           Create your account and start your cinematic journey
         </p>
       </div>
@@ -131,8 +131,8 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                 </Button>
               </FormActions>
 
-            <div className="mt-12 text-center space-y-6">
-              <p className="text-gray-400 text-sm">
+            <div className="mt-10 text-center space-y-4">
+              <p className="text-gray-300 text-sm">
                 Already have an account?
               </p>
               <a href="/signin">

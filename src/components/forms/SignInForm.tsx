@@ -37,11 +37,11 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
   return (
     <div className={className}>
       {/* Form Header */}
-      <div className="mb-8 text-center">
+      <div className="mb-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text leading-tight">
           Welcome Back
         </h1>
-        <p className="text-lg text-gray-400">
+        <p className="text-lg text-gray-300">
           Sign in to continue your cinematic journey
         </p>
       </div>
@@ -93,7 +93,7 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
               <div className="flex justify-end -mt-3">
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-gray-400 hover:text-primary transition-colors duration-200 hover:underline underline-offset-2"
+                  className="text-sm text-gray-200 hover:text-white transition-colors duration-200 hover:underline underline-offset-2"
                 >
                   Forgot password?
                 </Link>
@@ -115,18 +115,18 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
             </form>
 
             {/* Divider */}
-            <div className="mt-8">
+            <div className="mt-6">
               <FormDivider text="Or continue with" />
             </div>
 
             {/* Google Sign In */}
-            <div className="mt-6">
+            <div className="mt-4">
               <SocialButton provider="google" />
             </div>
 
             {/* Register Link */}
-            <div className="mt-10 pt-8 border-t border-gray-700/30 text-center space-y-5">
-              <p className="text-gray-400 text-sm">
+            <div className="mt-10 pt-8 border-t border-gray-700/30 text-center space-y-4">
+              <p className="text-gray-300 text-sm">
                 Don't have an account yet?
               </p>
 

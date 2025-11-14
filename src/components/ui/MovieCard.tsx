@@ -15,7 +15,7 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
   priority = false,
   ...props
 }, ref) => {
-  return (
+  return (  
     <div
       ref={ref}
       className={cn(

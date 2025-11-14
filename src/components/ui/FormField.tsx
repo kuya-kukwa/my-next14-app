@@ -41,7 +41,7 @@ export interface FormFieldsProps {
 export const FormFields = React.forwardRef<HTMLDivElement, FormFieldsProps>(
   ({ children, className }, ref) => {
     return (
-      <div ref={ref} className={cn("space-y-6", className)}>
+      <div ref={ref} className={cn(className)}>
         {children}
       </div>
     );

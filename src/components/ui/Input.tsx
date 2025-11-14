@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import { useState, forwardRef, InputHTMLAttributes, ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   helperText?: string;
   variant?: 'filled' | 'outlined';
   inputSize?: 'sm' | 'md' | 'lg';
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,
@@ -36,7 +36,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     // Base classes for all inputs
     const baseClasses = cn(
-      "w-full rounded-lg transition-all duration-300",
+      "w-full rounded-xl transition-all duration-300",
       "focus:outline-none focus:ring-2",
       "placeholder:text-white/50",
       disabled && "opacity-50 cursor-not-allowed"
@@ -45,17 +45,18 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     // Variant styles
     const variantClasses = {
       filled: cn(
-        "bg-white/10 backdrop-blur-md border-2 border-white/40",
+        "bg-white/10 backdrop-blur-md border-2 border-red-500/60",
         "text-white",
-        "hover:bg-white/15 hover:border-white/50",
-        "focus:bg-white/15 focus:border-red-500 focus:ring-red-500/50",
+        "hover:bg-white/15 hover:border-red-500/70",
+        "focus:bg-white/15 focus:border-red-500 focus:ring-2 focus:ring-red-600",
         error && "border-red-500 focus:border-red-500 focus:ring-red-500/50"
       ),
       outlined: cn(
         "bg-white/95 border-2 border-gray-300 text-gray-900",
         "hover:border-gray-400",
-        "focus:border-red-500 focus:ring-red-500/50",
-        error && "border-red-500 focus:border-red-500 focus:ring-red-500/50"
+        "focus:border-primary focus:ring-2 focus:ring-red-600",
+        error && "border-red-500 focus:border-red-500 focus:ring-red-500/50",
+        isFocused && !error && "border-primary ring-2 ring-red-600"
       ),
     };
 
@@ -71,7 +72,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-300 mb-2 ml-1"
+            className="block text-sm font-medium text-white/90 mb-2 ml-1"
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
@@ -121,18 +122,30 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <p id={`${inputId}-error`} className="mt-2 text-sm text-red-400">
+            {error}
+          </p>
+        )}
+
+        {/* Helper Text */}
+        {helperText && !error && (
+          <p id={`${inputId}-helper`} className="mt-2 text-sm text-gray-400">
+            {helperText}
+          </p>
+        )}
 
       </div>
     );
   }
 );
 
-Input.displayName = "Input";
 
 // Password Input Component
 export interface PasswordInputProps extends Omit<InputProps, 'type' | 'rightIcon'> {}
 
-export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
+export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   (props, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -161,4 +174,3 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
   }
 );
 
-PasswordInput.displayName = "PasswordInput";

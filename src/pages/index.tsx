@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Hero from "@/components/sections/Hero";
 import ValuePropositionSection from "@/components/sections/ValuePropositionSection";
 import MovieCarousel from "@/components/sections/MovieCarousel";
 import TeamSection from "@/components/sections/TeamSection";
-import ContactSection from "@/components/sections/ContactSection";
 import { movies } from "@/data/movies";
 
 export default function Home() {

@@ -80,17 +80,17 @@ export const SocialButton = React.forwardRef<HTMLButtonElement, SocialButtonProp
         className={cn(
           // Base styles
           "w-full flex justify-center items-center gap-3",
-          "rounded-lg font-medium text-sm",
+          "rounded-xl font-medium text-sm",
           "transition-all duration-200",
-          "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black",
-          // Visual styles
-          "bg-white/95 border border-gray-300",
-          "text-gray-800",
+          "focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-black",
+          // Dark theme consistency
+          "bg-black/50 border-2 border-white/20",
+          "text-white",
           "shadow-md",
           // Padding
           "px-6 py-4",
           // Hover effects
-          "hover:bg-gray-50 hover:shadow-lg",
+          "hover:bg-black/70 hover:border-white/30 hover:shadow-lg",
           "hover:scale-[1.02] active:scale-[0.98]",
           // Group for icon animation
           "group",

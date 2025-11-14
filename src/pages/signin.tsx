@@ -24,8 +24,8 @@ export default function SignInPage() {
         />
       </div>
 
-      {/* Blurred overlay for better readability */}
-      <div className="absolute inset-0 backdrop-blur-sm bg-black/30 pointer-events-none" />
+      {/* Enhanced overlay for better readability and reduced background competition */}
+      <div className="absolute inset-0 backdrop-blur-sm bg-black/60 pointer-events-none" />
 
       <SignInForm onSubmit={handleSignIn} />
     </section>

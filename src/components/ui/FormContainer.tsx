@@ -16,20 +16,20 @@ export const FormContainer = React.forwardRef<HTMLDivElement, FormContainerProps
       <div
         ref={ref}
         className={cn(
-          // Base styles - removed overflow-hidden to show rounded corners
-          "relative max-w-5xl mx-auto",
-          // Modern rounded corners - 32px (2rem)
-          "rounded-[2rem]",
+          // Base styles with responsive width constraints
+          "relative w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto",
+          // Reduced border radius for cinema streaming aesthetic
+          "rounded-xl",
           // Border with glass effect - modern 2px border
           "border-2 border-red-500/60",
-          // Enhanced shadows for depth
-          "shadow-2xl shadow-black/50",
-          // Responsive Padding - Reduced on mobile for better background visibility
+          // Softer shadows for natural depth
+          "shadow-xl shadow-black/30",
+          // Responsive Padding
           "p-4 sm:p-6 md:p-8 lg:p-10",
           // Smooth transitions
           "transition-all duration-500",
-          // Glass effect
-          "bg-white/[0.02] backdrop-blur-[20px]",
+          // Glass effect - increased opacity for better readability
+          "bg-white/[0.08] backdrop-blur-[20px]",
           className
         )}
       >

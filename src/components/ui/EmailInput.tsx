@@ -60,7 +60,7 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
         aria-label={ariaLabel}
         className={`w-full max-w-md ${className}`}
       >
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 backdrop-blur-sm bg-white/5 p-2 rounded-md border border-white/10 shadow-2xl">
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 backdrop-blur-sm bg-white/5 p-2 rounded-md border-2 border-red-500/60 shadow-2xl">
           <label htmlFor={`${id}-input`} className="sr-only">
             {typeof label === "string" ? label : "Email address"}
           </label>
@@ -76,9 +76,9 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
   onKeyDown={handleKeyDown}
   className="
     w-full 
-    rounded-lg
-    border-2 border-white/40 
-    hover:border-white/50 
+    rounded-xl
+    border-2 border-red-500/60 
+    hover:border-red-500/70 
     focus:border-red-500  
     focus:ring-2 focus:ring-red-500/40
     px-4 py-3 pr-10 
@@ -93,7 +93,8 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
   placeholder={typeof label === "string" ? label : "Enter your email"}
   aria-invalid={!!error}
   aria-describedby={error ? `${id}-error` : undefined}
-/>
+/
+>
 
             
           </div>

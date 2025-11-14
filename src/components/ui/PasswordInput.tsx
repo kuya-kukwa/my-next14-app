@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, forwardRef, InputHTMLAttributes } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 export type PasswordInputProps = {
@@ -9,9 +9,9 @@ export type PasswordInputProps = {
   error?: string;
   className?: string;
   required?: boolean;
-} & React.InputHTMLAttributes<HTMLInputElement>;
+} & InputHTMLAttributes<HTMLInputElement>;
 
-export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
+export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   (
     {
       id,
@@ -33,7 +33,7 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-300 mb-2"
+            className="block text-sm font-medium text-white/90 mb-2"
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
@@ -46,10 +46,10 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
             name={name}
             type={showPassword ? "text" : "password"}
             placeholder={placeholder}
-            className={`w-full rounded-lg border-2 px-4 py-3 pr-12 text-sm text-gray-900 placeholder-gray-500 transition-all duration-300 focus:outline-none focus:ring-2 ${className} ${
+            className={`w-full rounded-xl border-2 px-4 py-3 pr-12 text-sm text-gray-900 placeholder-gray-500 transition-all duration-300 focus:outline-none focus:ring-2 ${className} ${
               error 
                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/50" 
-                : "border-gray-300 hover:border-gray-400 focus:border-red-500 focus:ring-red-500/50"
+                : "border-red-500/60 hover:border-red-500/70 focus:border-red-500 focus:ring-red-500/50"
             }`}
             aria-invalid={error ? "true" : "false"}
             aria-describedby={error ? `${inputId}-error` : undefined}
@@ -69,6 +69,13 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
             )}
           </button>
         </div>
+        
+        {/* Error Message */}
+        {error && (
+          <p id={`${inputId}-error`} className="mt-2 text-sm text-red-400">
+            {error}
+          </p>
+        )}
       </div>
     );
   }

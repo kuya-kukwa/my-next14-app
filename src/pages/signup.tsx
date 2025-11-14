@@ -2,8 +2,15 @@ import React from "react";
 import Image from "next/image";
 import SignUpForm from "@/components/forms/SignUpForm";
 
+type SignUpData = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
 export default function SignUpPage() {
-  const handleSignUp = async (data: any) => {
+  const handleSignUp = async (data: SignUpData) => {
     // Add your API call here
     console.log("Sign Up Data:", data);
     alert("Account created successfully! Check console for data.");
@@ -21,6 +28,7 @@ export default function SignUpPage() {
           fill
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 1200px"
+          priority
         />
       </div>
 

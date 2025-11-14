@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { TextInput } from "../ui/TextInput";
+import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
 import Button from "../ui/Button";
 
@@ -41,23 +41,24 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
     >
       {isSubmitSuccessful && (
         <div className="p-4 rounded-md bg-green-500/20 border border-green-500/50 text-green-400 text-sm">
-          ✓ Thank you! Your message has been sent successfully. We'll get back to you soon.
+          ✓ Thank you! Your message has been sent successfully. We&rsquo;ll get back to you soon.
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TextInput
+        <Input
           {...register("name", {
             required: "Name is required",
             minLength: { value: 2, message: "Name must be at least 2 characters" },
           })}
           label="Full Name"
           placeholder="Enter your full name"
+          autoComplete="name"
           error={errors.name?.message}
           required
         />
 
-        <TextInput
+        <Input
           {...register("email", {
             required: "Email is required",
             pattern: {
@@ -68,18 +69,20 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
           type="email"
           label="Email Address"
           placeholder="Enter your email address"
+          autoComplete="email"
           error={errors.email?.message}
           required
         />
       </div>
 
-      <TextInput
+      <Input
         {...register("subject", {
           required: "Subject is required",
           minLength: { value: 3, message: "Subject must be at least 3 characters" },
         })}
         label="Subject"
         placeholder="Enter message subject"
+        autoComplete="off"
         error={errors.subject?.message}
         required
       />

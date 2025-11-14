@@ -6,9 +6,7 @@ export { Icon } from "./Icon";
 export { Section } from "./Section";
 
 // Form Components
-export { TextInput } from "./TextInput";
 export { TextArea } from "./TextArea";
-export { EmailInput } from "./EmailInput";
 
 // New unified form components
 export { Input, PasswordInput } from "./Input";
@@ -25,9 +23,7 @@ export type {
   SectionProps,
 } from "@/types";
 
-export type { TextInputProps } from "./TextInput";
 export type { TextAreaProps } from "./TextArea";
-export type { EmailInputProps } from "./EmailInput";
 export type { InputProps, PasswordInputProps } from "./Input";
 export type { FormFieldProps, FormFieldsProps, FormActionsProps, FormDividerProps } from "./FormField";
 export type { FormContainerProps, FormHeaderProps, FormImageSectionProps } from "./FormContainer";

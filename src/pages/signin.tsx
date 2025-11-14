@@ -2,8 +2,13 @@ import React from "react";
 import Image from "next/image";
 import SignInForm from "@/components/forms/SignInForm";
 
+type SignInData = {
+  email: string;
+  password: string;
+};
+
 export default function SignInPage() {
-  const handleSignIn = async (data: any) => {
+  const handleSignIn = async (data: SignInData) => {
     // Add your API call here
     console.log("Sign In Data:", data);
     alert("Sign in successful! Check console for data.");
@@ -21,6 +26,7 @@ export default function SignInPage() {
           fill
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 1200px"
+          priority
         />
       </div>
 

@@ -1,8 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { IconProps } from "@/types";
-import { off } from "process";
-import { EyeOff } from "lucide-react";
 
 // Simple icon mapping - you can expand this with more icons
 const iconMap = {

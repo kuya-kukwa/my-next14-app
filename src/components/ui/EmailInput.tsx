@@ -20,9 +20,8 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
     },
     ref
   ) => {
-    const [email, setEmail] = React.useState("");
-    const [error, setError] = React.useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [error, setError] = React.useState<string | null>(null);
 
     const validate = (value: string) => {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -35,14 +34,11 @@ const EmailInput = React.forwardRef<HTMLDivElement, EmailInputProps>(
         return;
       }
       setError(null);
-      setIsSubmitting(true);
       try {
         await (onSubmit ? onSubmit(val) : Promise.resolve());
         setEmail("");
       } catch {
         setError("Submission failed. Please try again.");
-      } finally {
-        setIsSubmitting(false);
       }
     };
 

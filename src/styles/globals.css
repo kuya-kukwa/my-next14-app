@@ -392,7 +392,7 @@ select:focus-visible {
   padding: var(--space-3) var(--space-8);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-base);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   border: none;
   cursor: pointer;
@@ -802,21 +802,23 @@ p {
   padding: var(--space-2) 0;
 }
 
-.carousel-scrollable {
+ .carousel-scrollable {
   display: flex;
-  gap: var(--gap, var(--space-4));
+  gap: var(--gap, 0.75rem); /* default ~12px, overridden by CSS var */
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
-  padding-left: calc(50% - var(--card-width, 140px) / 2);
-  padding-right: calc(50% - var(--card-width, 140px) / 2);
-  padding-top: clamp(var(--space-8), 4vw, var(--space-12));
-  padding-bottom: clamp(var(--space-8), 4vw, var(--space-12));
+  /* Mobile: very small side padding so 3 cards fit even on 360px */
+  padding-left: 0.75rem;  /* ≈ 12px */
+  padding-right: 0.75rem;
+  padding-top: clamp(var(--space-6), 4vw, var(--space-10));
+  padding-bottom: clamp(var(--space-6), 4vw, var(--space-10));
 }
 
 @media (min-width: 640px) {
   .carousel-scrollable {
     gap: var(--space-4);
+    /* Tablet: center focus */
     padding-left: calc(50% - 110px);
     padding-right: calc(50% - 110px);
   }
@@ -825,6 +827,7 @@ p {
 @media (min-width: 1024px) {
   .carousel-scrollable {
     gap: var(--space-4);
+    /* Desktop: center focus */
     padding-left: calc(50% - 140px);
     padding-right: calc(50% - 140px);
   }

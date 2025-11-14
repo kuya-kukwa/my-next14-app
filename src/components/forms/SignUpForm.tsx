@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { Input, PasswordInput } from "../ui/Input";
 import { FormFields, FormField, FormActions } from "../ui/FormField";
@@ -23,9 +24,11 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpFormData>();
+  } = useForm<SignUpFormData>({ mode: "onChange" });
 
   const password = watch("password");
+  const confirmPasswordValue = watch("confirmPassword");
+  const passwordsMatch = !!password && !!confirmPasswordValue && password === confirmPasswordValue;
 
   const handleFormSubmit = async (data: SignUpFormData) => {
     if (onSubmit) {
@@ -57,10 +60,15 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                   <Input
                     {...register("name", {
                       required: "Name is required",
-                      minLength: { value: 2, message: "Name must be at least 2 characters" },
+                      minLength: { value: 4, message: "Name must be at least 4 characters" },
                     })}
                     label="Full Name"
                     placeholder="Enter your full name"
+                    autoComplete="name"
+                    autoCapitalize="words"
+                    autoCorrect="on"
+                    spellCheck={true}
+                    helperText="At least 4 characters."
                     error={errors.name?.message}
                     variant="filled"
                     required
@@ -79,6 +87,12 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                     type="email"
                     label="Email Address"
                     placeholder="Enter your email address"
+                    autoComplete="email"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    helperText="Use a valid email."
                     error={errors.email?.message}
                     variant="filled"
                     required
@@ -97,6 +111,12 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                     })}
                     label="Password"
                     placeholder="Create a strong password"
+                    autoComplete="new-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    showStrength
+                    helperText="8+ chars with upper, lower, number."
                     error={errors.password?.message}
                     variant="filled"
                     required
@@ -111,6 +131,11 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                     })}
                     label="Confirm Password"
                     placeholder="Confirm your password"
+                    autoComplete="new-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    helperText={passwordsMatch ? undefined : "Must match password."}
                     error={errors.confirmPassword?.message}
                     variant="filled"
                     required
@@ -135,7 +160,7 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
               <p className="text-gray-300 text-sm">
                 Already have an account?
               </p>
-              <a href="/signin">
+              <Link href="/signin" className="block">
                 <Button
                   type="button"
                   variant="outline"
@@ -144,7 +169,7 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                 >
                   Sign In
                 </Button>
-              </a>
+              </Link>
             </div>
           </form>
           </div>

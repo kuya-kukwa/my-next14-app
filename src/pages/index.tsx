@@ -4,43 +4,42 @@ import ValuePropositionSection from "@/components/sections/ValuePropositionSecti
 import MovieCarousel from "@/components/sections/MovieCarousel";
 import TeamSection from "@/components/sections/TeamSection";
 import { movies } from "@/data/movies";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function Home() {
   const topMovies = [...movies].sort((a, b) => b.rating - a.rating).slice(0, 15);
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
 
   return (
     <>
       {/* HERO SECTION */}
       <Hero/>
 
-        {/* Base dark overlay */}
-        <div className="absolute inset-0 bg-black/70 z-0" />
+      {/* TOP MOVIES SECTION */}
+      <section 
+        className="relative z-10 py-8 sm:py-12 md:py-16 lg:py-20 animate-fadeInUp overflow-visible transition-colors duration-500"
+        style={{
+          backgroundColor: isDark ? '#0a0a0a' : '#e8e8e8'
+        }}
+      >
+        <div className="container mx-auto px-2 sm:px-4 md:px-6 overflow-visible">
+          <MovieCarousel movies={topMovies} title="Trending Now: Popular & Recommended" />
+        </div>
+      </section>
 
-        {/* TOP MOVIES SECTION */}
-        <section className="relative z-10 py-8 sm:py-12 md:py-16 lg:py-20 bg-[#0a0a0a] animate-fadeInUp overflow-visible">
-          <div className="container mx-auto px-2 sm:px-4 md:px-6 overflow-visible">
-            <MovieCarousel movies={topMovies} title="Trending Now: Popular & Recommended" />
-          </div>
-        </section>
+      {/* Content wrapper */}
+      <div className="relative z-20">
+        <div className="relative z-10">
+          {/* VALUE PROPOSITION SECTION */}
+          <ValuePropositionSection visible={true} />
 
-        {/* Content wrapper with gradient overlay */}
-        <div className="relative z-20">
-          {/* Gradient overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none" />
-          
-          <div className="relative z-10">
-            {/* VALUE PROPOSITION SECTION */}
-            <ValuePropositionSection visible={true} />
-
-            {/* TEAM SECTION */}
-            <div className="animate-fadeInUp">
-              <TeamSection />
-            </div>
-
-            {/* CONTACT SECTION */}
-           
+          {/* TEAM SECTION */}
+          <div className="animate-fadeInUp">
+            <TeamSection />
           </div>
         </div>
+      </div>
     </>
   );
 }

@@ -1,39 +1,50 @@
 import React from "react";
-import Image from "next/image";
-import SignInForm from "@/components/forms/SignInForm";
-
-type SignInData = {
-  email: string;
-  password: string;
-};
+import SignInForm from "@/components/forms/SignInForm.mui";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import GeometricPattern from "@/components/ui/illustrations/GeometricPattern";
+import CirclePattern from "@/components/ui/illustrations/CirclePattern";
 
 export default function SignInPage() {
-  const handleSignIn = async (data: SignInData) => {
-    // Add your API call here
-    console.log("Sign In Data:", data);
-    alert("Sign in successful! Check console for data.");
-  };
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
 
   return (
     <section
       className="py-16 sm:py-20 md:py-16 lg:py-20 animate-fadeInUp relative min-h-screen flex items-center justify-center overflow-hidden px-4"
     >
-      {/* Background image handled by Next/Image for optimization */}
-      <div className="absolute inset-0 -z-10 w-screen min-h-screen">
-        <Image
-          src="/images/signin/Untitled_design.png"
-          alt="Sign in background"
-          fill
-          className="object-cover"
-          sizes="(max-width: 1024px) 100vw, 1200px"
-          priority
-        />
-      </div>
+      {/* Theme-aware gradient background */}
+      <div 
+        className="absolute inset-0 -z-10 w-screen min-h-screen transition-colors duration-500"
+        style={{
+          background: isDark 
+            ? 'radial-gradient(circle at top right, #2a0a0e 0%, #141414 50%, #1f1f1f 100%)'
+            : 'radial-gradient(circle at top right, #ffe5e7 0%, #f5f5f5 50%, #ffffff 100%)'
+        }}
+      />
 
-      {/* Enhanced overlay for better readability and reduced background competition */}
-      <div className="absolute inset-0 backdrop-blur-sm bg-black/60 pointer-events-none" />
+      {/* SVG Illustrations */}
+      <GeometricPattern />
+      <CirclePattern />
 
-      <SignInForm onSubmit={handleSignIn} />
+      {/* Decorative gradient orbs */}
+      <div 
+        className="absolute top-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none"
+        style={{
+          background: isDark 
+            ? 'radial-gradient(circle, #e50914 0%, transparent 70%)'
+            : 'radial-gradient(circle, #ff1a1f 0%, transparent 70%)'
+        }}
+      />
+      <div 
+        className="absolute bottom-20 left-20 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none"
+        style={{
+          background: isDark 
+            ? 'radial-gradient(circle, #b20710 0%, transparent 70%)'
+            : 'radial-gradient(circle, #e50914 0%, transparent 70%)'
+        }}
+      />
+
+      <SignInForm />
     </section>
   );
 }

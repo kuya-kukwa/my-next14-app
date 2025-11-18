@@ -196,6 +196,7 @@ body {
   line-height: var(--line-height-normal);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
+  transition: background-color 500ms ease, color 500ms ease;
 }
 
 *,
@@ -393,7 +394,7 @@ select:focus-visible {
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-base);
   border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
+  transition: all 500ms ease;
   border: none;
   cursor: pointer;
   text-decoration: none;
@@ -467,7 +468,7 @@ select:focus-visible {
   /* remove visual borderline by default; use accent on hover */
   border: none;
   border-radius: var(--radius-xl);
-  transition: all var(--transition-normal);
+  transition: all 500ms ease;
   padding: var(--space-8);
   text-align: center;
 }
@@ -614,6 +615,56 @@ select:focus-visible {
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-40px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-20px) rotate(-5deg);
+  }
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 .animate-fadeInUp {
   animation: slideUp 0.8s ease-out both;
 }
@@ -630,8 +681,36 @@ select:focus-visible {
   animation-delay: 0.2s;
 }
 
+.animate-delay-400ms {
+  animation-delay: 0.4s;
+}
+
+.animate-delay-600ms {
+  animation-delay: 0.6s;
+}
+
+.animate-delay-800ms {
+  animation-delay: 0.8s;
+}
+
 .animate-blob {
   animation: blob 7s infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-particle {
+  animation: float-particle 15s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
 }
 
 .animation-delay-2000 {
@@ -661,6 +740,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: var(--letter-spacing-tight);
   line-height: var(--line-height-tight);
   margin: 0;
+  transition: color 500ms ease;
 }
 
 h1 {
@@ -697,6 +777,7 @@ p {
   color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
   margin: 0 0 var(--space-4) 0;
+  transition: color 500ms ease;
 }
 
 .text-xs { font-size: var(--font-size-xs); }
@@ -855,6 +936,7 @@ p {
   background: linear-gradient(to right, var(--color-bg-primary) 30%, var(--color-bg-primary) 50%, transparent);
   pointer-events: none;
   z-index: var(--z-dropdown);
+  transition: background 500ms ease;
 }
 
 .carousel-fade-right {
@@ -872,7 +954,7 @@ p {
   padding: var(--space-3);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 500ms ease;
   z-index: var(--z-sticky);
   display: flex;
   align-items: center;

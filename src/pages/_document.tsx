@@ -1,15 +1,18 @@
-import { Html, Head, Main, NextScript } from 'next/document'
+import { Html, Head, Main, NextScript } from 'next/document';
+import { DocumentHeadTags, documentGetInitialProps } from '@mui/material-nextjs/v15-pagesRouter';
 
-export default function Document() {
+export default function Document(props: any) {
   return (
-    // Add `data-scroll-behavior="smooth"` so Next.js can preserve smooth scrolling
-    // behavior during route transitions in future Next.js versions.
     <Html lang="en" data-scroll-behavior="smooth">
-      <Head />
+      <Head>
+        <DocumentHeadTags {...props} />
+      </Head>
       <body>
         <Main />
         <NextScript />
       </body>
     </Html>
-  )
+  );
 }
+
+Document.getInitialProps = documentGetInitialProps;

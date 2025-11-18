@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/Input";
 import { TextArea } from "../ui/TextArea";
 import Button from "../ui/Button";
-
-type ContactFormData = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
+import { contactSchema, type ContactInput } from "@/lib/validation";
 
 export type ContactFormProps = {
-  onSubmit?: (data: ContactFormData) => void | Promise<void>;
+  onSubmit?: (data: ContactInput) => void | Promise<void>;
   className?: string;
 };
 
@@ -20,16 +15,31 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting, isSubmitSuccessful },
-  } = useForm<ContactFormData>();
+    reset,
+  } = useForm<ContactInput>({ resolver: zodResolver(contactSchema), mode: "onChange" });
 
-  const handleFormSubmit = async (data: ContactFormData) => {
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const handleFormSubmit = async (data: ContactInput) => {
     if (onSubmit) {
       await onSubmit(data);
     } else {
-      console.log("Contact Form Data:", data);
-      // Default behavior - you can add API call here
+      setServerError(null);
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.error ? JSON.stringify(body.error) : "Failed to send message");
+        }
+      } catch (e: any) {
+        setServerError(e?.message ?? "Something went wrong");
+        return;
+      }
     }
     reset(); // Clear form after successful submission
   };
@@ -39,6 +49,11 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
       onSubmit={handleSubmit(handleFormSubmit)}
       className={`space-y-6 w-full max-w-xl mx-auto ${className}`}
     >
+      {serverError && (
+        <div className="p-4 rounded-md bg-red-500/20 border border-red-500/50 text-red-400 text-sm">
+          {serverError}
+        </div>
+      )}
       {isSubmitSuccessful && (
         <div className="p-4 rounded-md bg-green-500/20 border border-green-500/50 text-green-400 text-sm">
           ✓ Thank you! Your message has been sent successfully. We&rsquo;ll get back to you soon.

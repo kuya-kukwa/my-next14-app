@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Movie } from "@/types";
 import { cn } from "@/lib/utils";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 interface MovieCardProps {
   movie: Movie;
@@ -15,13 +16,20 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
   priority = false,
   ...props
 }, ref) => {
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
+  
   return (  
     <div
       ref={ref}
       className={cn(
-        "relative group rounded-2xl overflow-hidden bg-black/30 border border-white/10 hover:border-[#e50914] transition-all duration-300 hover:shadow-xl hover:shadow-[#e50914]/25",
+        "relative group rounded-2xl overflow-hidden border hover:border-[#e50914] transition-all duration-500 hover:shadow-xl hover:shadow-[#e50914]/25",
         className
       )}
+      style={{
+        backgroundColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)',
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+      }}
       {...props}
     >
       <div className="aspect-[3/4] relative">

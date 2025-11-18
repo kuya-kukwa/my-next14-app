@@ -3,23 +3,39 @@ import ValueCard from "@/components/ui/ValueCard";
 import { valueProps } from "@/data/values";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 type Props = {
   visible?: boolean;
 };
 
 export default function ValuePropositionSection({ visible = false }: Props) {
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
+
   return (
-  <Section className={`py-8 sm:py-12 md:py-16 lg:py-20 bg-transparent ${visible ? "animate-fadeInUp" : ""}`}>
+    <Section 
+      className={`py-8 sm:py-12 md:py-16 lg:py-20 transition-colors duration-500 ${visible ? "animate-fadeInUp" : ""}`}
+      style={{
+        backgroundColor: isDark ? 'transparent' : 'rgba(245, 245, 245, 0.5)'
+      }}
+    >
       <Container>
-        {/* Gradient overlay - positioned inside container for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40 pointer-events-none -z-10" />
-        
         <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 gradient-text">
-            Why Choose NextFlix?
+          <h2 
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 transition-colors duration-500"
+            style={{
+              color: isDark ? '#ffffff' : '#212121'
+            }}
+          >
+            Why Choose <span className="text-primary">NextFlix</span>?
           </h2>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
+          <p 
+            className="text-sm sm:text-base md:text-lg max-w-2xl mx-auto transition-colors duration-500"
+            style={{
+              color: isDark ? '#b3b3b3' : '#757575'
+            }}
+          >
             Various reasons make NextFlix the best choice for your streaming needs
           </p>
         </div>

@@ -3,6 +3,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import MovieCard from "../ui/MovieCard";
 import { Movie } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function MovieCarousel({
   movies,
@@ -11,6 +12,8 @@ export default function MovieCarousel({
   movies: Movie[];
   title: string;
 }) {
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [centerIndex, setCenterIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -242,7 +245,12 @@ export default function MovieCarousel({
   return (
     <section className="carousel-section">
       <div className="carousel-title-container">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold gradient-text mx-auto max-w-3xl">
+        <h2 
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mx-auto max-w-3xl transition-colors duration-500"
+          style={{
+            color: isDark ? '#ffffff' : '#212121'
+          }}
+        >
           {title}
         </h2>
       </div>
@@ -253,7 +261,12 @@ export default function MovieCarousel({
         <button
           onClick={() => scroll("left")}
           disabled={!canScrollLeft}
-          className={`carousel-btn carousel-btn-left carousel-btn-size ${!canScrollLeft ? 'carousel-btn-disabled' : ''}`}
+          className={`carousel-btn carousel-btn-left carousel-btn-size transition-all duration-500 ${!canScrollLeft ? 'carousel-btn-disabled' : ''}`}
+          style={{
+            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+            color: isDark ? '#ffffff' : '#212121',
+            border: isDark ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+          }}
           aria-label="Previous movies"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" strokeWidth={3} />
@@ -315,15 +328,34 @@ export default function MovieCarousel({
         <button
           onClick={() => scroll("right")}
           disabled={!canScrollRight}
-          className={`carousel-btn carousel-btn-right carousel-btn-size ${!canScrollRight ? 'carousel-btn-disabled' : ''}`}
+          className={`carousel-btn carousel-btn-right carousel-btn-size transition-all duration-500 ${!canScrollRight ? 'carousel-btn-disabled' : ''}`}
+          style={{
+            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+            color: isDark ? '#ffffff' : '#212121',
+            border: isDark ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+          }}
           aria-label="Next movies"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" strokeWidth={3} />
         </button>
 
         {/* Gradient fade edges */}
-        <div className="carousel-fade-left"></div>
-        <div className="carousel-fade-right"></div>
+        <div 
+          className="carousel-fade-left transition-colors duration-500"
+          style={{
+            background: isDark 
+              ? 'linear-gradient(to right, #0a0a0a 30%, #0a0a0a 50%, transparent)'
+              : 'linear-gradient(to right, #e8e8e8 30%, #e8e8e8 50%, transparent)'
+          }}
+        ></div>
+        <div 
+          className="carousel-fade-right transition-colors duration-500"
+          style={{
+            background: isDark 
+              ? 'linear-gradient(to left, #0a0a0a 30%, #0a0a0a 50%, transparent)'
+              : 'linear-gradient(to left, #e8e8e8 30%, #e8e8e8 50%, transparent)'
+          }}
+        ></div>
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ButtonProps } from "@/types";
-
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>>(function ButtonComponent({
   variant = "cta",
@@ -12,7 +12,10 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
   children,
   ...props
 }, ref) {
-  const baseClasses = "btn font-semibold transition-all duration-300 rounded-sm inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black";
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
+  
+  const baseClasses = "btn font-semibold transition-all duration-500 rounded-sm inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2";
 
   const variantClasses = {
     cta: "btn-cta",
@@ -39,6 +42,10 @@ const ButtonComponent = React.forwardRef<HTMLButtonElement, ButtonProps & React.
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
+      style={{
+        ...((props as React.HTMLAttributes<HTMLButtonElement>).style || {}),
+        '--tw-ring-offset-color': isDark ? '#141414' : '#ffffff'
+      } as React.CSSProperties}
       disabled={isDisabled}
       aria-label={props["aria-label"] || (loading ? "Loading..." : undefined)}
       aria-disabled={isDisabled ? "true" : "false"}

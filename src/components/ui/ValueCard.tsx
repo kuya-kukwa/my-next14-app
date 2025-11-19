@@ -1,6 +1,8 @@
 import React from "react";
-import { Card } from "./Card";
-import { cn } from "@/lib/utils";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 interface ValueCardProps {
@@ -23,34 +25,59 @@ const ValueCardComponent = React.forwardRef<HTMLDivElement, ValueCardProps>(({
   return (
     <Card
       ref={ref}
-      variant="hover"
-      padding="sm"
-      className={cn("text-center group cq-text-sm cq-padding-xs transition-colors duration-500", className)}
-      style={{
+      sx={{
+        textAlign: 'center',
         backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.9)',
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+        border: '1px solid',
+        borderRadius: 2,
+        transition: 'all 0.3s, background-color 0.5s, border-color 0.5s',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: isDark ? '0 10px 30px rgba(229, 9, 20, 0.3)' : '0 10px 30px rgba(0, 0, 0, 0.15)',
+          borderColor: '#e50914'
+        }
       }}
+      className={className}
       {...props}
     >
-      <div className="text-3xl mb-2 transition-transform group-hover:scale-110 duration-300">
-        {icon}
-      </div>
-      <h3 
-        className="text-lg font-semibold mb-2 cq-text-base transition-colors duration-500"
-        style={{
-          color: isDark ? '#e50914' : '#b20710'
-        }}
-      >
-        {title}
-      </h3>
-      <p 
-        className="text-sm leading-relaxed cq-text-sm transition-colors duration-500"
-        style={{
-          color: isDark ? '#b3b3b3' : '#616161'
-        }}
-      >
-        {description}
-      </p>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Box 
+          sx={{ 
+            fontSize: '3rem', 
+            mb: 1, 
+            transition: 'transform 0.3s',
+            '&:hover': {
+              transform: 'scale(1.1)'
+            }
+          }}
+        >
+          {icon}
+        </Box>
+        <Typography 
+          variant="h6"
+          sx={{
+            fontSize: { xs: '1rem', sm: '1.125rem' },
+            fontWeight: 600,
+            mb: 1,
+            color: isDark ? '#e50914' : '#b20710',
+            transition: 'color 0.5s'
+          }}
+        >
+          {title}
+        </Typography>
+        <Typography 
+          variant="body2"
+          sx={{
+            fontSize: { xs: '0.875rem', sm: '0.875rem' },
+            lineHeight: 1.75,
+            color: isDark ? '#b3b3b3' : '#616161',
+            transition: 'color 0.5s'
+          }}
+        >
+          {description}
+        </Typography>
+      </CardContent>
     </Card>
   );
 });

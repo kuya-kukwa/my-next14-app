@@ -64,7 +64,7 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
 
   return (
     <Container maxWidth="sm" className={className}>
-      <Box sx={{ my: 2 }}>
+      <Box sx={{ mt: { xs: 12, sm: 14 }, mb: { xs: 2, sm: 3 } }}>
         {/* Header */}
         <Box sx={{ textAlign: "center", mb: 3 }}>
           <Typography

@@ -1,7 +1,11 @@
 import React from "react";
 import Image from "next/image";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
 import { Movie } from "@/types";
-import { cn } from "@/lib/utils";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 interface MovieCardProps {
@@ -20,51 +24,106 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
   const isDark = mode === 'dark';
   
   return (  
-    <div
+    <Card
       ref={ref}
-      className={cn(
-        "relative group rounded-2xl overflow-hidden border hover:border-[#e50914] transition-all duration-500 hover:shadow-xl hover:shadow-[#e50914]/25",
-        className
-      )}
-      style={{
+      sx={{
+        position: 'relative',
+        borderRadius: 4,
+        overflow: 'hidden',
         backgroundColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)',
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        border: '1px solid',
+        transition: 'all 0.5s',
+        '&:hover': {
+          borderColor: '#e50914',
+          boxShadow: '0 20px 40px rgba(229, 9, 20, 0.25)'
+        }
       }}
+      className={className}
       {...props}
     >
-      <div className="aspect-[3/4] relative">
+      <Box sx={{ position: 'relative', aspectRatio: '3/4' }}>
         <Image
           src={movie.thumbnail}
           alt={`${movie.title} - ${movie.genre} movie poster`}
           fill
           sizes="(max-width: 640px) 140px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
-          className="object-cover group-hover:opacity-80 transition-opacity duration-300 rounded-2xl"
+          style={{
+            objectFit: "cover",
+            borderRadius: '16px',
+            transition: 'opacity 0.3s'
+          }}
           priority={priority}
           placeholder="blur"
           blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
         />
-      </div>
-      <div 
-        className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-2xl"
+      </Box>
+      <Box 
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%)',
+          borderRadius: 4,
+          opacity: 0,
+          transition: 'opacity 0.3s',
+          '&:hover': {
+            opacity: 1
+          }
+        }}
       >
-        <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-base font-bold text-white line-clamp-2 leading-tight">{movie.title}</h3>
-          <p className="text-sm text-[#e50914] font-medium mt-1">{movie.genre}</p>
-          <div className="flex items-center justify-between mt-2">
-            <span 
-              className="text-xs text-gray-300 bg-black/60 px-2 py-1 backdrop-blur-sm rounded-full"
-            >
-              {movie.year}
-            </span>
-            <span 
-              className="text-xs text-yellow-400 bg-black/60 px-2 py-1 backdrop-blur-sm font-medium rounded-full"
-            >
-              ★ {movie.rating}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+        <CardContent sx={{ position: 'absolute', bottom: 12, left: 12, right: 12, p: 0 }}>
+          <Typography 
+            variant="h6"
+            sx={{
+              fontSize: '1rem',
+              fontWeight: 'bold',
+              color: '#ffffff',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              lineHeight: 1.2
+            }}
+          >
+            {movie.title}
+          </Typography>
+          <Typography 
+            sx={{
+              fontSize: '0.875rem',
+              color: '#e50914',
+              fontWeight: 500,
+              mt: 0.5
+            }}
+          >
+            {movie.genre}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+            <Chip 
+              label={movie.year}
+              size="small"
+              sx={{
+                fontSize: '0.75rem',
+                color: '#d1d5db',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                height: 24
+              }}
+            />
+            <Chip 
+              label={`★ ${movie.rating}`}
+              size="small"
+              sx={{
+                fontSize: '0.75rem',
+                color: '#fbbf24',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                fontWeight: 500,
+                height: 24
+              }}
+            />
+          </Box>
+        </CardContent>
+      </Box>
+    </Card>
   );
 });
 

@@ -10,7 +10,7 @@ const Footer = memo(() => {
     <footer 
       className="relative z-10 overflow-hidden pb-0 pt-20 lg:pb-0 lg:pt-[100px] transition-colors duration-500"
       style={{
-        backgroundColor: isDark ? 'rgb(28, 17, 17)' : 'rgb(245, 245, 245)'
+        backgroundColor: isDark ? 'rgb(28, 17, 17)' : '#f8f9fa'
       }}
     >
       <div className="container mx-auto px-4">
@@ -25,14 +25,14 @@ const Footer = memo(() => {
                   style={{ color: '#ffffff' }}
                 ></div>
                 <span className="text-xl sm:text-3xl font-bold tracking-tight">
-                  <span style={{ color: isDark ? '#ffffff' : '#212121' }}>NextFlix</span>
+                  <span style={{ color: isDark ? '#ffffff' : '#1a1a1a' }}>NextFlix</span>
                 </span>
               </div>
             </Link>
             <p 
               className="mb-5 sm:mb-7 text-sm sm:text-base transition-colors duration-500"
               style={{
-                color: isDark ? '#b3b3b3' : '#757575'
+                color: isDark ? '#b3b3b3' : '#495057'
               }}
             >
               Your ultimate destination for cinematic entertainment. Stream thousands of movies and shows in stunning quality, anytime, anywhere.
@@ -80,7 +80,7 @@ const Footer = memo(() => {
                 color: isDark ? '#808080' : '#9e9e9e'
               }}
             >
-              &copy; {new Date().getFullYear()} <span className="text-primary">NextFlix</span>. All cinematic rights reserved.
+              &copy; {new Date().getFullYear()} NextFlix. All cinematic rights reserved.
             </p>
           </div>
         </div>

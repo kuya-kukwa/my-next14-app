@@ -1,6 +1,9 @@
 // CTA Section Component
 import React from "react";
-import Button from "../ui/Button";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 function CTASection() {
@@ -8,109 +11,207 @@ function CTASection() {
   const isDark = mode === 'dark';
 
   return (
-    <section 
-      className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden transition-all duration-500"
+    <Box 
+      component="section"
+      sx={{
+        position: 'relative',
+        py: { xs: 8, sm: 10, md: 12, lg: 16 },
+        overflow: 'hidden',
+        transition: 'all 0.5s'
+      }}
     >
       {/* Background Effects */}
-      <div 
-        className="absolute inset-0 transition-opacity duration-500"
-        style={{
-          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+      <Box 
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: isDark ? 'rgba(0, 0, 0, 0.1)' : '#f8f9fa',
+          transition: 'opacity 0.5s'
         }}
       />
 
       {/* Animated decorative elements */}
-      <div className="absolute top-10 left-10 w-32 h-32 rounded-full blur-2xl animate-pulse" 
-        style={{
+      <Box 
+        sx={{
+          position: 'absolute',
+          top: 40,
+          left: 40,
+          width: 128,
+          height: 128,
+          borderRadius: '50%',
+          filter: 'blur(48px)',
+          animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           background: isDark ? 'rgba(229, 9, 20, 0.15)' : 'rgba(255, 26, 31, 0.1)'
         }}
       />
-      <div className="absolute bottom-10 right-10 w-40 h-40 rounded-full blur-2xl animate-pulse animation-delay-2000"
-        style={{
+      <Box 
+        sx={{
+          position: 'absolute',
+          bottom: 40,
+          right: 40,
+          width: 160,
+          height: 160,
+          borderRadius: '50%',
+          filter: 'blur(48px)',
+          animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          animationDelay: '2s',
           background: isDark ? 'rgba(229, 9, 20, 0.15)' : 'rgba(255, 26, 31, 0.1)'
         }}
       />
       
       {/* Floating particles */}
-      <div className="absolute inset-0">
+      <Box sx={{ position: 'absolute', inset: 0 }}>
         {[...Array(15)].map((_, i) => (
-          <div
+          <Box
             key={i}
-            className="absolute w-2 h-2 rounded-full animate-float"
-            style={{
-              backgroundColor: isDark ? 'rgba(229, 9, 20, 0.3)' : 'rgba(255, 26, 31, 0.25)'
-            }}
-            style={{
+            sx={{
+              position: 'absolute',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: isDark ? 'rgba(229, 9, 20, 0.3)' : 'rgba(255, 26, 31, 0.25)',
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
+              animation: 'float 6s ease-in-out infinite',
               animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${6 + Math.random() * 4}s`,
+              animationDuration: `${6 + Math.random() * 4}s`
             }}
           />
         ))}
-      </div>
+      </Box>
 
       {/* Radial glow effects */}
-      <div className="absolute top-1/2 left-1/4 w-64 h-64 rounded-full blur-3xl animate-glow"
-        style={{
+      <Box 
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '25%',
+          width: 256,
+          height: 256,
+          borderRadius: '50%',
+          filter: 'blur(96px)',
+          animation: 'glow 3s ease-in-out infinite',
           background: isDark ? 'rgba(229, 9, 20, 0.08)' : 'rgba(255, 26, 31, 0.06)'
         }}
       />
-      <div className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full blur-3xl animate-glow animation-delay-2000"
-        style={{
+      <Box 
+        sx={{
+          position: 'absolute',
+          top: '33%',
+          right: '25%',
+          width: 288,
+          height: 288,
+          borderRadius: '50%',
+          filter: 'blur(96px)',
+          animation: 'glow 3s ease-in-out infinite',
+          animationDelay: '2s',
           background: isDark ? 'rgba(229, 9, 20, 0.08)' : 'rgba(255, 26, 31, 0.06)'
         }}
       />
 
       {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <div className="mb-8 animate-fade-in animate-delay-200ms">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 drop-shadow-lg"
-            style={{
-              color: isDark ? '#ffffff' : '#0a0a0a'
+      <Container maxWidth="md" sx={{ position: 'relative', zIndex: 10 }}>
+        <Box sx={{ textAlign: 'center', px: 2 }}>
+          <Box 
+            sx={{
+              mb: 4,
+              animation: 'fadeIn 0.6s ease-out',
+              animationDelay: '0.2s',
+              animationFillMode: 'both'
             }}
           >
-            Ready to Start?
-          </h2>
-          <p className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-relaxed drop-shadow-md"
-            style={{
-              color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(10, 10, 10, 0.8)'
-            }}
-          >
-            Join millions of viewers worldwide. Start your nonstop streaming today with
-            access to our entire library.
-          </p>
-        </div>
+            <Typography 
+              variant="h2"
+              sx={{
+                fontSize: { xs: '1.5rem', sm: '1.875rem', md: '2.25rem', lg: '3rem' },
+                fontWeight: 'bold',
+                mb: { xs: 1.5, sm: 2 },
+                filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))',
+                color: isDark ? '#ffffff' : '#0a0a0a'
+              }}
+            >
+              Ready to Start?
+            </Typography>
+            <Typography 
+              sx={{
+                maxWidth: '42rem',
+                mx: 'auto',
+                fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+                lineHeight: 1.75,
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+                color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(10, 10, 10, 0.8)'
+              }}
+            >
+              Join millions of viewers worldwide. Start your nonstop streaming today with
+              access to our entire library.
+            </Typography>
+          </Box>
 
-        <div className="animate-fade-in animate-delay-400ms flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button
-            size="lg"
-            onClick={() => console.log("Get Started clicked")}
-            className="transform hover:scale-105 transition-transform duration-300 shadow-2xl"
+          <Box 
+            sx={{
+              animation: 'fadeIn 0.6s ease-out',
+              animationDelay: '0.4s',
+              animationFillMode: 'both',
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 2,
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
           >
-            Get Started
-          </Button>
-          <button
-            className="px-8 py-3 font-semibold border-2 rounded-lg transition-all duration-300 backdrop-blur-sm"
-            style={{
-              color: isDark ? '#ffffff' : '#0a0a0a',
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(10, 10, 10, 0.3)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(229, 9, 20, 0.1)';
-              e.currentTarget.style.borderColor = isDark ? '#ffffff' : '#e50914';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.borderColor = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(10, 10, 10, 0.3)';
-            }}
-            onClick={() => console.log("Learn More clicked")}
-          >
-            Learn More
-          </button>
-        </div>
-      </div>
-    </section>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => console.log("Get Started clicked")}
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontSize: '1rem',
+                fontWeight: 600,
+                borderRadius: 2,
+                backgroundColor: '#e50914',
+                color: '#ffffff',
+                textTransform: 'none',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                transition: 'all 0.3s',
+                '&:hover': {
+                  backgroundColor: '#b2070f',
+                  transform: 'scale(1.05)'
+                }
+              }}
+            >
+              Get Started
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => console.log("Learn More clicked")}
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontSize: '1rem',
+                fontWeight: 600,
+                borderRadius: 2,
+                border: '2px solid',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(10, 10, 10, 0.3)',
+                color: isDark ? '#ffffff' : '#0a0a0a',
+                backgroundColor: 'transparent',
+                backdropFilter: 'blur(4px)',
+                textTransform: 'none',
+                transition: 'all 0.3s',
+                '&:hover': {
+                  backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(229, 9, 20, 0.1)',
+                  borderColor: isDark ? '#ffffff' : '#e50914',
+                  border: '2px solid'
+                }
+              }}
+            >
+              Learn More
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
   );
 }
 

@@ -24,7 +24,7 @@ export default function Home() {
         }}
       >
         <div className="container mx-auto px-2 sm:px-4 md:px-6 overflow-visible">
-          <MovieCarousel movies={topMovies} title="Trending Now: Popular & Recommended" />
+          <MovieCarousel movies={topMovies} title="Top Picks Just for You" />
         </div>
       </section>
 

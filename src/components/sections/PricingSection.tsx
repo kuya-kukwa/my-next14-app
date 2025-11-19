@@ -1,5 +1,17 @@
 import React from "react";
-import Button from "../ui/Button";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Chip from "@mui/material/Chip";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface PricingTier {
   name: string;
@@ -60,99 +72,191 @@ const pricingTiers: PricingTier[] = [
 
 export default function PricingSection() {
   return (
-    <div className="container mx-auto px-4 sm:px-6">
+    <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3 } }}>
       {/* Header */}
-      <div className="text-center mb-8 sm:mb-12 md:mb-16">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 gradient-text">
+      <Box sx={{ textAlign: 'center', mb: { xs: 4, sm: 6, md: 8 } }}>
+        <Typography 
+          variant="h2"
+          sx={{
+            fontSize: { xs: '1.5rem', sm: '1.875rem', md: '2.25rem', lg: '3rem' },
+            fontWeight: 'bold',
+            mb: { xs: 1.5, sm: 2 },
+            background: 'linear-gradient(to right, #e50914, #b20710)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
           Choose Your Plan
-        </h2>
-        <p className="text-muted max-w-xs sm:max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-4">
+        </Typography>
+        <Typography 
+          sx={{
+            color: 'text.secondary',
+            maxWidth: { xs: '20rem', sm: '42rem' },
+            mx: 'auto',
+            fontSize: { xs: '0.875rem', sm: '1rem', md: '1.125rem' },
+            px: 2
+          }}
+        >
           Stream unlimited movies and shows. Cancel anytime. No hidden fees.
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
+      <Grid container spacing={{ xs: 3, md: 4 }} sx={{ maxWidth: '1280px', mx: 'auto' }}>
         {pricingTiers.map((tier) => (
-          <div
-            key={tier.name}
-            className={`relative rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:scale-105 ${
-              tier.highlighted
-                ? "bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border-2 border-primary shadow-xl shadow-primary/20"
-                : "bg-white/5 border border-white/10 hover:border-white/20"
-            }`}
-          >
-            {/* Badge */}
-            {tier.badge && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
-                  {tier.badge}
-                </span>
-              </div>
-            )}
-
-            {/* Plan Name */}
-            <div className="text-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                {tier.name}
-              </h3>
-              <p className="text-muted text-xs sm:text-sm">{tier.description}</p>
-            </div>
-
-            {/* Price */}
-            <div className="text-center mb-6 sm:mb-8">
-              <div className="flex items-baseline justify-center">
-                <span className="text-4xl sm:text-5xl font-bold text-white">
-                  {tier.price}
-                </span>
-                <span className="text-muted ml-2 text-sm sm:text-base">
-                  {tier.period}
-                </span>
-              </div>
-            </div>
-
-            {/* Features */}
-            <ul className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-              {tier.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <svg
-                    className="w-5 h-5 text-primary flex-shrink-0 mt-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span className="text-gray-300 text-sm sm:text-base">
-                    {feature}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA Button */}
-            <Button
-              variant={tier.highlighted ? "cta" : "outline"}
-              size="md"
-              className="w-full"
+          <Grid size={{ xs: 12, md: 4 }} key={tier.name}>
+            <Card
+              sx={{
+                position: 'relative',
+                borderRadius: 4,
+                p: { xs: 3, sm: 4 },
+                height: '100%',
+                transition: 'all 0.3s',
+                background: tier.highlighted
+                  ? 'linear-gradient(135deg, rgba(229, 9, 20, 0.2) 0%, rgba(229, 9, 20, 0.1) 50%, transparent 100%)'
+                  : 'rgba(255, 255, 255, 0.05)',
+                border: tier.highlighted ? '2px solid #e50914' : '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: tier.highlighted ? '0 20px 40px rgba(229, 9, 20, 0.2)' : 'none',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  borderColor: tier.highlighted ? '#e50914' : 'rgba(255, 255, 255, 0.2)'
+                }
+              }}
             >
-              Get Started
-            </Button>
-          </div>
+              {/* Badge */}
+              {tier.badge && (
+                <Box sx={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)' }}>
+                  <Chip 
+                    label={tier.badge}
+                    sx={{
+                      bgcolor: '#e50914',
+                      color: '#ffffff',
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      fontWeight: 'bold',
+                      px: 2,
+                      py: 0.75,
+                      boxShadow: '0 4px 12px rgba(229, 9, 20, 0.4)'
+                    }}
+                  />
+                </Box>
+              )}
+
+              <CardContent sx={{ p: 0 }}>
+                {/* Plan Name */}
+                <Box sx={{ textAlign: 'center', mb: 3 }}>
+                  <Typography 
+                    variant="h5"
+                    sx={{
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      fontWeight: 'bold',
+                      color: '#ffffff',
+                      mb: 1
+                    }}
+                  >
+                    {tier.name}
+                  </Typography>
+                  <Typography 
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}
+                  >
+                    {tier.description}
+                  </Typography>
+                </Box>
+
+                {/* Price */}
+                <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
+                    <Typography 
+                      sx={{
+                        fontSize: { xs: '2.5rem', sm: '3rem' },
+                        fontWeight: 'bold',
+                        color: '#ffffff'
+                      }}
+                    >
+                      {tier.price}
+                    </Typography>
+                    <Typography 
+                      sx={{
+                        color: 'text.secondary',
+                        ml: 1,
+                        fontSize: { xs: '0.875rem', sm: '1rem' }
+                      }}
+                    >
+                      {tier.period}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Features */}
+                <List sx={{ mb: { xs: 3, sm: 4 } }}>
+                  {tier.features.map((feature, index) => (
+                    <ListItem key={index} sx={{ px: 0, py: { xs: 0.75, sm: 1 } }}>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        <CheckIcon sx={{ color: '#e50914', width: 20, height: 20 }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={feature}
+                        primaryTypographyProps={{
+                          sx: {
+                            color: '#d1d5db',
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                          }
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+
+                {/* CTA Button */}
+                <Button
+                  variant={tier.highlighted ? "contained" : "outlined"}
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    ...(tier.highlighted ? {
+                      bgcolor: '#e50914',
+                      color: '#ffffff',
+                      '&:hover': {
+                        bgcolor: '#b2070f'
+                      }
+                    } : {
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      color: '#ffffff',
+                      '&:hover': {
+                        borderColor: '#e50914',
+                        bgcolor: 'rgba(229, 9, 20, 0.1)'
+                      }
+                    })
+                  }}
+                >
+                  Get Started
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </div>
+      </Grid>
 
       {/* Footer Note */}
-      <div className="text-center mt-8 sm:mt-12">
-        <p className="text-muted text-xs sm:text-sm">
+      <Box sx={{ textAlign: 'center', mt: { xs: 4, sm: 6 } }}>
+        <Typography 
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+          }}
+        >
           All plans include a 30-day free trial. No credit card required.
-        </p>
-      </div>
-    </div>
+        </Typography>
+      </Box>
+    </Container>
   );
 }

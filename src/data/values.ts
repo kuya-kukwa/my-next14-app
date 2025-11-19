@@ -1,6 +1,6 @@
 import React from "react";
 import { ValueProp } from "@/types";
-import { Tv, Target, BellOff, Smartphone, RefreshCw } from "lucide-react";
+import { Tv, Target, BellOff, Smartphone, RefreshCw, Award } from "lucide-react";
 
 
 export const valueProps: ValueProp[] = [
@@ -29,5 +29,10 @@ export const valueProps: ValueProp[] = [
   icon: React.createElement(RefreshCw, { "aria-hidden": true, className: "mx-auto", size: 28, strokeWidth: 1.5 }),
     title: "Flexible Plans",
     description: "Flexible subscription options. Cancel or modify anytime with transparent pricing and no hidden fees.",
+  },
+  {
+  icon: React.createElement(Award, { "aria-hidden": true, className: "mx-auto", size: 28, strokeWidth: 1.5 }),
+    title: "Premium Quality",
+    description: "Experience crystal-clear 4K streaming with HDR support and immersive Dolby Atmos sound on compatible devices.",
   },
 ];

@@ -1,50 +1,244 @@
-import React from "react";
-import ValueCard from "@/components/ui/ValueCard";
-import { valueProps } from "@/data/values";
-import { Container } from "@/components/ui/Container";
-import { Section } from "@/components/ui/Section";
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 type Props = {
   visible?: boolean;
 };
 
+interface StatCardProps {
+  endValue: number;
+  suffix: string;
+  label: string;
+  duration?: number;
+}
+
+function StatCard({ endValue, suffix, label, duration = 2000 }: StatCardProps) {
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    };
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    let startTime: number | null = null;
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth animation
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(easeOutQuart * endValue));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [isVisible, endValue, duration]);
+
+  return (
+    <Box
+      ref={cardRef}
+      sx={{
+        textAlign: 'center',
+        p: { xs: 2, sm: 3 },
+        borderRadius: 2,
+        background: 'transparent',
+        transition: 'color 0.3s ease',
+        position: 'relative'
+      }}
+    >
+      <Typography
+        className="stat-number"
+        sx={{
+          fontSize: { xs: '2rem', sm: '2.5rem', md: '3.5rem' },
+          fontWeight: 800,
+          background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 0.5,
+          letterSpacing: '-0.02em',
+        }}
+      >
+        {count.toLocaleString()}{suffix}
+      </Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+          fontWeight: 700,
+          color: isDark ? '#ffffff' : '#212121',
+          mb: 0.75,
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography
+        sx={{
+          fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
+          color: isDark ? '#b3b3b3' : '#616161',
+          lineHeight: 1.6,
+        }}
+      >
+      </Typography>
+    </Box>
+  );
+}
+
 export default function ValuePropositionSection({ visible = false }: Props) {
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
 
+  const stats = [
+    {
+      endValue: 50,
+      suffix: 'M+',
+      label: 'Active Users',
+    },
+    {
+      endValue: 10,
+      suffix: 'K+',
+      label: 'Movies & Shows',
+    },
+    {
+      endValue: 98,
+      suffix: '%',
+      label: 'Satisfaction Rate',
+    },
+  ];
+
   return (
-    <Section 
-      className={`py-8 sm:py-12 md:py-16 lg:py-20 transition-colors duration-500 ${visible ? "animate-fadeInUp" : ""}`}
-      style={{
-        backgroundColor: isDark ? 'transparent' : 'rgba(245, 245, 245, 0.5)'
+    <Box 
+      component="section"
+      id="value-proposition"
+      sx={{
+        py: { xs: 6, sm: 8, md: 10, lg: 12 },
+        minHeight: 'auto',
+        alignItems: 'flex-start',
+        background: isDark 
+          ? 'linear-gradient(180deg, transparent 0%, rgba(20, 20, 20, 0.5) 50%, transparent 100%)'
+          : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(245, 245, 245, 0.8) 50%, rgba(255, 255, 255, 0.5) 100%)',
+        transition: 'background 0.5s',
+        animation: visible ? 'fadeInUp 0.6s ease-out' : 'none',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <Container>
-        <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 transition-colors duration-500"
-            style={{
-              color: isDark ? '#ffffff' : '#212121'
+      {/* Decorative background elements */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '20%',
+          right: '-10%',
+          width: '500px',
+          height: '500px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: '20%',
+          left: '-10%',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255, 26, 31, 0.1) 0%, transparent 70%)',
+          filter: 'blur(80px)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <Container maxWidth="xl">
+        <Box sx={{ position: 'relative', zIndex: 10, textAlign: 'center', mb: { xs: 5, sm: 6, md: 8 } }}>
+          <Typography 
+            variant="h2"
+            sx={{
+              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
+              fontWeight: 800,
+              mb: { xs: 2, sm: 2.5 },
+              background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '-0.02em',
             }}
           >
-            Why Choose <span className="text-primary">NextFlix</span>?
-          </h2>
-          <p 
-            className="text-sm sm:text-base md:text-lg max-w-2xl mx-auto transition-colors duration-500"
-            style={{
-              color: isDark ? '#b3b3b3' : '#757575'
+            Trusted by Millions Worldwide
+          </Typography>
+          <Typography 
+            sx={{
+              fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+              maxWidth: '48rem',
+              mx: 'auto',
+              color: isDark ? '#b3b3b3' : '#495057',
+              transition: 'color 0.5s',
+              lineHeight: 1.6,
             }}
           >
-            Various reasons make NextFlix the best choice for your streaming needs
-          </p>
-        </div>
-        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {valueProps.map((item) => (
-            <ValueCard key={item.title} icon={item.icon} title={item.title} description={item.description} />
-          ))}
-        </div>
+            Join millions of entertainment lovers who choose NextFlix for unparalleled streaming quality and endless content
+          </Typography>
+        </Box>
+        <Box sx={{ position: 'relative', zIndex: 10 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: { xs: 2, sm: 4 },
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              flexWrap: 'nowrap',
+            }}
+          >
+            {stats.map((stat, index) => (
+              <Box
+                key={index}
+                sx={{
+                  flex: '1 1 0',
+                  minWidth: { xs: '140px', sm: '180px', md: '0' },
+                  px: { xs: 1, sm: 2 },
+                }}
+              >
+                <StatCard {...stat} />
+              </Box>
+            ))}
+          </Box>
+        </Box>
       </Container>
-    </Section>
+    </Box>
   );
 }

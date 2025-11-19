@@ -4,6 +4,8 @@ import MovieCard from "../ui/MovieCard";
 import { Movie } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 export default function MovieCarousel({
   movies,
@@ -243,16 +245,39 @@ export default function MovieCarousel({
   };
 
   return (
-    <section className="carousel-section">
+    <section className="carousel-section" id="trending">
       <div className="carousel-title-container">
-        <h2 
-          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mx-auto max-w-3xl transition-colors duration-500"
-          style={{
-            color: isDark ? '#ffffff' : '#212121'
-          }}
-        >
-          {title}
-        </h2>
+        <Box sx={{ textAlign: 'center', mx: 'auto', maxWidth: '64rem' }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
+              fontWeight: 800,
+              mx: 'auto',
+              color: isDark ? '#ffffff' : '#1a1a1a',
+              transition: 'color 0.5s',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+            }}
+          >
+            {title}
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+              color: isDark ? '#b3b3b3' : '#495057',
+              mx: 'auto',
+              maxWidth: '48rem',
+              mt: 2,
+              lineHeight: 1.6,
+              transition: 'color 0.5s'
+            }}
+          >
+            Handpicked recommendations based on ratings and popularity
+          </Typography>
+        </Box>
       </div>
 
       {/* Center-focused carousel container */}
@@ -263,9 +288,10 @@ export default function MovieCarousel({
           disabled={!canScrollLeft}
           className={`carousel-btn carousel-btn-left carousel-btn-size transition-all duration-500 ${!canScrollLeft ? 'carousel-btn-disabled' : ''}`}
           style={{
-            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)',
-            color: isDark ? '#ffffff' : '#212121',
-            border: isDark ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+            color: isDark ? '#ffffff' : '#1a1a1a',
+            border: isDark ? 'none' : '1px solid #dee2e6',
+            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}
           aria-label="Previous movies"
         >
@@ -330,9 +356,10 @@ export default function MovieCarousel({
           disabled={!canScrollRight}
           className={`carousel-btn carousel-btn-right carousel-btn-size transition-all duration-500 ${!canScrollRight ? 'carousel-btn-disabled' : ''}`}
           style={{
-            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)',
-            color: isDark ? '#ffffff' : '#212121',
-            border: isDark ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+            color: isDark ? '#ffffff' : '#1a1a1a',
+            border: isDark ? 'none' : '1px solid #dee2e6',
+            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}
           aria-label="Next movies"
         >

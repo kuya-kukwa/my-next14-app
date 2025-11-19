@@ -76,5 +76,11 @@ export interface TeamMember extends ComponentBaseProps {
     bio: string;
   /** Optional CSS object-position value to control focal point of avatar images (e.g. 'center 30%') */
   objectPosition?: string;
-  
+  /** Social media links */
+  social?: {
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
+    facebook?: string;
+  };
 }

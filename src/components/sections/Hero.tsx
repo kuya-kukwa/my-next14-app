@@ -1,83 +1,111 @@
-import React from "react";
-import { Container } from "../ui";
-import CTASection from "./CTASection";
-import { useThemeContext } from "@/contexts/ThemeContext";
-import WaveBackground from "../ui/illustrations/WaveBackground";
-import CirclePattern from "../ui/illustrations/CirclePattern";
-import MovieIllustration from "../ui/illustrations/MovieIllustration";
-import FloatingElements from "../ui/illustrations/FloatingElements";
-import SpotlightEffect from "../ui/illustrations/SpotlightEffect";
-import ParticleEffect from "../ui/illustrations/ParticleEffect";
+import React from 'react';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { useThemeContext } from '@/contexts/ThemeContext';
 
-interface HeroProps {
-  title?: string;
-  subtitle?: string;
-  primaryAction?: string;
-  secondaryAction?: string;
-  children?: React.ReactNode;
-}
-
-export default function Hero({
- 
-  children,
-}: HeroProps) {
+const Hero: React.FC = () => {
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
 
   return (
-    <section className="relative h-[100vh] sm:h-[110vh] md:min-h-screen flex items-center justify-center text-center overflow-hidden py-6 md:py-0">
-      {/* Enhanced theme-aware gradient background */}
-      <div 
-        className="absolute inset-0 transition-colors duration-500"
-        style={{
-          background: isDark 
-            ? 'linear-gradient(135deg, #0a0a0a 0%, #1f1f1f 30%, #2a0a0e 70%, #1a0505 100%)'
-            : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 30%, #ffe5e7 70%, #ffd5d7 100%)'
-        }}
-      />
+    <Box 
+      component="section"
+      sx={{
+        position: 'relative',
+        minHeight: '100vh',
+        height: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        px: { xs: 3, md: 6 },
+        py: { xs: 12, md: 16 },
+        backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
+        transition: 'background-color 0.5s'
+      }}
+    >
+      <Container maxWidth="xl">
+        <Grid container spacing={{ xs: 6, lg: 8 }} sx={{ alignItems: 'center' }}>
+  
+          {/* Left Content - Text */}
+          <Grid size={{ xs: 12, lg: 6 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left' }}>
+              <Typography 
+                variant="h1"
+                sx={{
+                  fontSize: { xs: '2.25rem', md: '3rem', lg: '3.75rem' },
+                  fontWeight: 800,
+                  lineHeight: 1.2,
+                  color: isDark ? '#ffffff' : '#0a0a0a',
+                  mb: 3,
+                  transition: 'color 0.5s',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                Unlimited Movies at Your Fingertips
+              </Typography>
 
-      {/* Spotlight and particle effects */}
-      <SpotlightEffect />
-      <ParticleEffect />
+              <Typography 
+                sx={{
+                  fontSize: { xs: '1rem', md: '1.125rem', lg: '1.25rem' },
+                  lineHeight: 1.6,
+                  maxWidth: '36rem',
+                  color: isDark ? '#d1d5db' : '#495057',
+                  mb: 4,
+                  transition: 'color 0.5s'
+                }}
+              >
+                Stream the latest blockbusters, timeless classics, and exclusive originals. 
+                Dive into thousands of movies across all genres, available anytime, anywhere. 
+                Your next favorite film is just a click away.
+              </Typography>
 
-      {/* SVG Illustrations */}
-      <WaveBackground />
-      <CirclePattern />
-      <MovieIllustration />
-      <FloatingElements />
+              <Box sx={{ pt: 2 }}>
+                <Button 
+                  variant="contained"
+                  size="large"
+                  sx={{
+                    borderRadius: '9999px',
+                    px: 5,
+                    py: 2,
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    backgroundColor: '#e50914',
+                    color: '#ffffff',
+                    textTransform: 'none',
+                    transition: 'all 0.3s',
+                    '&:hover': {
+                      backgroundColor: '#b2070f',
+                      transform: 'scale(1.05)'
+                    }
+                  }}
+                >
+                  Start Watching →
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
 
-      {/* Animated gradient orbs for depth */}
-      <div className="absolute top-20 left-20 w-80 h-80 rounded-full blur-3xl opacity-25 animate-blob"
-        style={{
-          background: isDark
-            ? 'radial-gradient(circle, rgba(229, 9, 20, 0.4) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(255, 26, 31, 0.3) 0%, transparent 70%)'
-        }}
-      />
-      <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-25 animate-blob animation-delay-2000"
-        style={{
-          background: isDark
-            ? 'radial-gradient(circle, rgba(178, 7, 16, 0.4) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(229, 9, 20, 0.3) 0%, transparent 70%)'
-        }}
-      />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] rounded-full blur-3xl opacity-15 animate-blob animation-delay-4000"
-        style={{
-          background: isDark
-            ? 'radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(255, 140, 0, 0.2) 0%, transparent 70%)'
-        }}
-      />
+          {/* Right Content - Image */}
+          <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: { xs: 'center', lg: 'flex-end' }, alignItems: 'center' }}>
+            <Box
+              component="img"
+              src="/images/bg/hero.png"
+              alt="Person eating popcorn"
+              sx={{
+                maxWidth: { xs: '380px', md: '450px', lg: '520px' },
+                width: '100%',
+                height: 'auto',
+                objectFit: 'contain'
+              }}
+            />
+          </Grid>
 
-      {/* Content (children takes priority) */}
-      <Container className="relative z-10 text-center max-w-4xl px-4">
-        {children ?? (
-          <>
-            
-            <CTASection/>
-          </>
-        )}
+        </Grid>
       </Container>
-    </section>
+    </Box>
   );
-}
+};
+
+export default Hero;

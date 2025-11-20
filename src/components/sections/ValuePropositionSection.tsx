@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import useIdle from '@/lib/useIdle';
 
 type Props = {
   visible?: boolean;
@@ -17,7 +18,8 @@ interface StatCardProps {
   duration?: number;
 }
 
-function StatCard({ endValue, suffix, label, duration = 2000 }: StatCardProps) {
+// Slightly slower default duration so the counting animation is more visible
+function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
   const [count, setCount] = useState(0);
@@ -49,14 +51,23 @@ function StatCard({ endValue, suffix, label, duration = 2000 }: StatCardProps) {
     if (!isVisible) return;
 
     let startTime: number | null = null;
+    let lastSet = 0;
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime;
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Easing function for smooth animation
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.floor(easeOutQuart * endValue));
+      // Throttle state updates to ~20fps to make the counting more noticeable
+      if (currentTime - lastSet > 50 || progress >= 1) {
+        if (progress >= 1) {
+          setCount(endValue);
+        } else {
+          setCount(Math.floor(easeOutQuart * endValue));
+        }
+        lastSet = currentTime;
+      }
 
       if (progress < 1) {
         requestAnimationFrame(animate);
@@ -81,14 +92,15 @@ function StatCard({ endValue, suffix, label, duration = 2000 }: StatCardProps) {
       <Typography
         className="stat-number"
         sx={{
-          fontSize: { xs: '2rem', sm: '2.5rem', md: '3.5rem' },
+          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem', lg: '3.5rem' },
           fontWeight: 800,
           background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          mb: 0.5,
+          mb: { xs: 0.25, sm: 0.5 },
           letterSpacing: '-0.02em',
+          lineHeight: 1.1
         }}
       >
         {count.toLocaleString()}{suffix}
@@ -96,10 +108,12 @@ function StatCard({ endValue, suffix, label, duration = 2000 }: StatCardProps) {
       <Typography
         variant="h6"
         sx={{
-          fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+          fontSize: { xs: '0.75rem', sm: '0.95rem', md: '1.125rem', lg: '1.25rem' },
           fontWeight: 700,
-          color: isDark ? '#ffffff' : '#212121',
+          // Tone down label color in dark mode for better color hierarchy
+          color: isDark ? '#d1d1d1' : '#212121',
           mb: 0.75,
+          lineHeight: 1.2
         }}
       >
         {label}
@@ -119,6 +133,7 @@ function StatCard({ endValue, suffix, label, duration = 2000 }: StatCardProps) {
 export default function ValuePropositionSection({ visible = false }: Props) {
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
+  const isIdle = useIdle(600);
 
   const stats = [
     {
@@ -155,33 +170,37 @@ export default function ValuePropositionSection({ visible = false }: Props) {
         overflow: 'hidden',
       }}
     >
-      {/* Decorative background elements */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '20%',
-          right: '-10%',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, transparent 70%)',
-          filter: 'blur(80px)',
-          pointerEvents: 'none',
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: '20%',
-          left: '-10%',
-          width: '400px',
-          height: '400px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255, 26, 31, 0.1) 0%, transparent 70%)',
-          filter: 'blur(80px)',
-          pointerEvents: 'none',
-        }}
-      />
+      {/* Decorative background elements (render after idle to avoid heavy paint) */}
+      {isIdle && (
+        <>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '20%',
+              right: '-10%',
+              width: '500px',
+              height: '500px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, transparent 70%)',
+              filter: 'blur(80px)',
+              pointerEvents: 'none',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '20%',
+              left: '-10%',
+              width: '400px',
+              height: '400px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255, 26, 31, 0.1) 0%, transparent 70%)',
+              filter: 'blur(80px)',
+              pointerEvents: 'none',
+            }}
+          />
+        </>
+      )}
 
       <Container maxWidth="xl">
         <Box sx={{ position: 'relative', zIndex: 10, textAlign: 'center', mb: { xs: 5, sm: 6, md: 8 } }}>
@@ -191,10 +210,15 @@ export default function ValuePropositionSection({ visible = false }: Props) {
               fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
               fontWeight: 800,
               mb: { xs: 2, sm: 2.5 },
-              background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              // White text on dark mode for better readability; keep gradient on light
+              ...(isDark
+                ? { color: '#ffffff' }
+                : {
+                    background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }),
               letterSpacing: '-0.02em',
             }}
           >
@@ -218,10 +242,11 @@ export default function ValuePropositionSection({ visible = false }: Props) {
             sx={{
               display: 'flex',
               flexDirection: 'row',
-              gap: { xs: 2, sm: 4 },
+              gap: { xs: 1.5, sm: 3, md: 4 },
               alignItems: 'flex-start',
               justifyContent: 'center',
               flexWrap: 'nowrap',
+              px: { xs: 1, sm: 0 }
             }}
           >
             {stats.map((stat, index) => (
@@ -229,8 +254,8 @@ export default function ValuePropositionSection({ visible = false }: Props) {
                 key={index}
                 sx={{
                   flex: '1 1 0',
-                  minWidth: { xs: '140px', sm: '180px', md: '0' },
-                  px: { xs: 1, sm: 2 },
+                  minWidth: { xs: '90px', sm: '140px', md: '180px' },
+                  px: { xs: 0.5, sm: 1, md: 2 },
                 }}
               >
                 <StatCard {...stat} />

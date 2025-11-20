@@ -10,11 +10,13 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import Footer from "../ui/Footer";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import useIdle from '@/lib/useIdle';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { mode, toggleTheme } = useThemeContext();
   const isDark = mode === "dark";
   const router = useRouter();
+  const isIdle = useIdle(400);
   
   // Determine if we're on signin or signup pages
   const isSignInPage = router.pathname === '/signin';
@@ -53,7 +55,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           backgroundColor: isDark
             ? "rgba(10,10,10,0.65)"
             : "rgba(255,255,255,0.85)",
-          backdropFilter: 'blur(12px)',
+          // Defer expensive backdrop filter until the browser becomes idle
+          backdropFilter: isIdle ? 'blur(12px)' : 'none',
           borderBottom: isDark
             ? "1px solid rgba(255,255,255,0.08)"
             : "1px solid rgba(0,0,0,0.05)",
@@ -124,13 +127,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Box>
 
           {/* Right Actions */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.5, md: 2 } }}>
             <IconButton
               onClick={toggleTheme}
               aria-label="toggle theme"
+              size="small"
               sx={{
                 color: isDark ? "#ffffff" : "#0a0a0a",
                 transition: 'transform 0.3s',
+                p: { xs: 0.75, sm: 1 },
                 '&:hover': {
                   backgroundColor: isDark
                     ? "rgba(255,255,255,0.1)"
@@ -139,7 +144,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 }
               }}
             >
-              {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
+              {isDark ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
             </IconButton>
 
             {/* Show Sign In button only if NOT on signin page */}
@@ -149,18 +154,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   variant="outlined"
                   sx={{
                     fontWeight: 600,
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                    px: 2.5,
-                    py: 1,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                    px: { xs: 1.5, sm: 2, md: 2.5 },
+                    py: { xs: 0.5, sm: 0.75, md: 1 },
                     borderRadius: '9999px',
                     backgroundColor: isSignUpPage ? (isDark ? "#e50914" : "#ffffff") : "transparent",
                     color: isSignUpPage ? (isDark ? "#ffffff" : "#e50914") : (isDark ? "#e5e5e5" : "#0a0a0a"),
-                    border: isSignUpPage ? "2px solid #e50914" : `2px solid ${isDark ? "#e5e5e5" : "#0a0a0a"}`,
+                    border: { xs: '1.5px solid', md: '2px solid' },
+                    borderColor: isSignUpPage ? "#e50914" : (isDark ? "#e5e5e5" : "#0a0a0a"),
                     transition: 'all 0.3s',
+                    minWidth: 'auto',
                     '&:hover': {
                       backgroundColor: isDark ? "#e50914" : "#e50914",
                       color: "#ffffff",
-                      border: "2px solid #e50914"
+                      borderColor: "#e50914"
                     }
                   }}
                 >
@@ -176,18 +183,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   variant="outlined"
                   sx={{
                     fontWeight: 600,
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                    px: 2.5,
-                    py: 1,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                    px: { xs: 1.5, sm: 2, md: 2.5 },
+                    py: { xs: 0.5, sm: 0.75, md: 1 },
                     borderRadius: '9999px',
                     backgroundColor: isDark ? "#e50914" : "#ffffff",
                     color: isDark ? "#ffffff" : "#e50914",
-                    border: "2px solid #e50914",
+                    border: { xs: '1.5px solid #e50914', md: '2px solid #e50914' },
                     transition: 'all 0.3s',
+                    minWidth: 'auto',
                     '&:hover': {
                       backgroundColor: isDark ? "#b2070f" : "#e50914",
                       color: "#ffffff",
-                      border: "2px solid #e50914"
+                      borderColor: "#e50914"
                     }
                   }}
                 >

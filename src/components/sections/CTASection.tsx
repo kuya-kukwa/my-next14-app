@@ -39,7 +39,6 @@ function CTASection() {
           width: 128,
           height: 128,
           borderRadius: '50%',
-          filter: 'blur(48px)',
           animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           background: isDark ? 'rgba(229, 9, 20, 0.15)' : 'rgba(255, 26, 31, 0.1)'
         }}
@@ -52,7 +51,6 @@ function CTASection() {
           width: 160,
           height: 160,
           borderRadius: '50%',
-          filter: 'blur(48px)',
           animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           animationDelay: '2s',
           background: isDark ? 'rgba(229, 9, 20, 0.15)' : 'rgba(255, 26, 31, 0.1)'
@@ -89,7 +87,6 @@ function CTASection() {
           width: 256,
           height: 256,
           borderRadius: '50%',
-          filter: 'blur(96px)',
           animation: 'glow 3s ease-in-out infinite',
           background: isDark ? 'rgba(229, 9, 20, 0.08)' : 'rgba(255, 26, 31, 0.06)'
         }}
@@ -102,7 +99,6 @@ function CTASection() {
           width: 288,
           height: 288,
           borderRadius: '50%',
-          filter: 'blur(96px)',
           animation: 'glow 3s ease-in-out infinite',
           animationDelay: '2s',
           background: isDark ? 'rgba(229, 9, 20, 0.08)' : 'rgba(255, 26, 31, 0.06)'
@@ -196,7 +192,7 @@ function CTASection() {
                 borderColor: isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(10, 10, 10, 0.3)',
                 color: isDark ? '#ffffff' : '#0a0a0a',
                 backgroundColor: 'transparent',
-                backdropFilter: 'blur(4px)',
+                
                 textTransform: 'none',
                 transition: 'all 0.3s',
                 '&:hover': {

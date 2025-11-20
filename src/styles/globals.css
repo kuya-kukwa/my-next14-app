@@ -969,8 +969,9 @@ p {
 }
 
 .carousel-btn:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-  transform: translateY(-50%) scale(1.1);
+  /* No visual change on hover to avoid hover effects */
+  background-color: rgba(0, 0, 0, 0.6);
+  transform: translateY(-50%);
 }
 
 .carousel-btn-left {

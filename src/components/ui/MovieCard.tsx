@@ -24,7 +24,7 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
   const isDark = mode === 'dark';
   
   return (  
-    <Card
+      <Card
       ref={ref}
       sx={{
         position: 'relative',
@@ -34,10 +34,6 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
         borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
         border: '1px solid',
         transition: 'all 0.5s',
-        '&:hover': {
-          borderColor: '#e50914',
-          boxShadow: '0 20px 40px rgba(229, 9, 20, 0.25)'
-        }
       }}
       className={className}
       {...props}
@@ -54,8 +50,7 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
             transition: 'opacity 0.3s'
           }}
           priority={priority}
-          placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
+          placeholder="empty"
         />
       </Box>
       <Box 
@@ -64,11 +59,9 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
           inset: 0,
           background: 'linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%)',
           borderRadius: 4,
-          opacity: 0,
-          transition: 'opacity 0.3s',
-          '&:hover': {
-            opacity: 1
-          }
+          // Show details by default; hide them when the user hovers the card
+          opacity: 1,
+          transition: 'opacity 0.3s ease',
         }}
       >
         <CardContent sx={{ position: 'absolute', bottom: 12, left: 12, right: 12, p: 0 }}>

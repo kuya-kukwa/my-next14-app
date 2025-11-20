@@ -68,7 +68,6 @@ export default function TeamSection() {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    backdropFilter: 'blur(12px)',
                     backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
                     borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#e9ecef',
                     border: '1px solid',

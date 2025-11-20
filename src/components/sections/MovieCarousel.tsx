@@ -1,10 +1,11 @@
 "use client";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import MovieCard from "../ui/MovieCard";
 import { Movie } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 
 export default function MovieCarousel({
@@ -18,16 +19,21 @@ export default function MovieCarousel({
   const isDark = mode === 'dark';
   const scrollRef = useRef<HTMLDivElement>(null);
   const [centerIndex, setCenterIndex] = useState(0);
+  const centerIndexRef = useRef<number>(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const canScrollLeftRef = useRef<boolean>(false);
+  const canScrollRightRef = useRef<boolean>(true);
+  const lastUpdateRef = useRef<number>(0);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // --- layout helpers -------------------------------------------------
 
-  const getIsMobile = () =>
-    typeof window !== "undefined" && window.innerWidth < 640;
+  const getIsMobile = useCallback(() =>
+    typeof window !== "undefined" && window.innerWidth < 640,
+  []);
 
-  const getScale = ({
+  const getScale = useCallback(({
     isMobile,
     isCenterCard,
     distance,
@@ -47,9 +53,9 @@ export default function MovieCarousel({
     if (distance === 1) return 0.9;
     if (distance === 2) return 0.75;
     return 0.6;
-  };
+  }, []);
 
-  const getOpacity = ({
+  const getOpacity = useCallback(({
     isMobile,
     distance,
   }: {
@@ -67,9 +73,9 @@ export default function MovieCarousel({
     if (distance === 1) return 0.85;
     if (distance === 2) return 0.6;
     return 0.4;
-  };
+  }, []);
 
-  const getTranslateY = ({
+  const getTranslateY = useCallback(({
     isMobile,
     isCenterCard,
     distance,
@@ -81,7 +87,7 @@ export default function MovieCarousel({
     if (isCenterCard) return isMobile ? -2 : -8;
     if (distance === 1) return isMobile ? 1 : 4;
     return isMobile ? 2 : 8;
-  };
+  }, []);
 
   const getCardDimensions = useCallback(() => {
     if (typeof window === "undefined") return { cardWidth: 260, gap: 8 };
@@ -110,19 +116,31 @@ export default function MovieCarousel({
   // Start with server-safe defaults to match SSR
   const [dimensions, setDimensions] = useState({ cardWidth: 280, gap: 16 });
   const [containerWidth, setContainerWidth] = useState(0);
+  const dimensionsRef = useRef(dimensions);
+  const containerWidthRef = useRef(containerWidth);
 
   // Hydration + dimension setup
   useEffect(() => {
     setIsHydrated(true);
-    setDimensions(getCardDimensions());
-    setContainerWidth(scrollRef.current?.clientWidth ?? window.innerWidth);
+    const d = getCardDimensions();
+    setDimensions(d);
+    dimensionsRef.current = d;
+
+    const cw = scrollRef.current?.clientWidth ?? window.innerWidth;
+    setContainerWidth(cw);
+    containerWidthRef.current = cw;
 
     const handleResize = () => {
-      setDimensions(getCardDimensions());
-      setContainerWidth(scrollRef.current?.clientWidth ?? window.innerWidth);
+      const d = getCardDimensions();
+      setDimensions(d);
+      dimensionsRef.current = d;
+
+      const cw = scrollRef.current?.clientWidth ?? window.innerWidth;
+      setContainerWidth(cw);
+      containerWidthRef.current = cw;
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
     return () => window.removeEventListener("resize", handleResize);
   }, [getCardDimensions]);
 
@@ -130,41 +148,79 @@ export default function MovieCarousel({
     const el = scrollRef.current;
     if (!el) return;
 
-    const { scrollLeft, clientWidth, scrollWidth } = el;
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    // Use cached layout values (avoid repeated layout reads)
+    const scrollLeft = el.scrollLeft;
+    const clientWidth = containerWidthRef.current || el.clientWidth;
+    const newCanScrollLeft = scrollLeft > 10;
 
-    // Calculate which card is closest to the center of the viewport.
+    // Use an estimated scrollWidth based on card dimensions and padding
+    const paddingLeft = clientWidth / 2 - dimensionsRef.current.cardWidth / 2;
+    const step = dimensionsRef.current.cardWidth + dimensionsRef.current.gap;
+    const estimatedScrollWidth = paddingLeft * 2 + movies.length * step;
+    const newCanScrollRight = scrollLeft < estimatedScrollWidth - clientWidth - 10;
+
+    // Calculate which card is closest to the center of the viewport using cached clientWidth
     const viewportCenter = scrollLeft + clientWidth / 2;
 
-    // Use a uniform padding formula so first/last can center on all screens
-    const paddingLeft = clientWidth / 2 - dimensions.cardWidth / 2;
+    // Compute closest index with O(1) arithmetic instead of looping all movies.
+    // Solve cardCenterPosition(i) ~= viewportCenter => i ~= (viewportCenter - paddingLeft - cardWidth/2) / step
+    const rawIndex = Math.round((viewportCenter - paddingLeft - dimensionsRef.current.cardWidth / 2) / step);
+    const closestIndex = Math.max(0, Math.min(movies.length - 1, rawIndex));
 
-    // Position of each card's center
-    const cardCenterPosition = (index: number) =>
-      paddingLeft + index * (dimensions.cardWidth + dimensions.gap) + dimensions.cardWidth / 2;
-
-    // Find the card closest to viewport center
-    let closestIndex = 0;
-    let minDistance = Infinity;
-
-    for (let i = 0; i < movies.length; i++) {
-      const distance = Math.abs(cardCenterPosition(i) - viewportCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestIndex = i;
+    // Rate-limit updates to reduce work during fast scrolling
+    const now = Date.now();
+    if (now - lastUpdateRef.current < 50) {
+      // still update refs for scroll availability without triggering rerenders
+      if (newCanScrollLeft !== canScrollLeftRef.current) {
+        canScrollLeftRef.current = newCanScrollLeft;
       }
+      if (newCanScrollRight !== canScrollRightRef.current) {
+        canScrollRightRef.current = newCanScrollRight;
+      }
+      return;
     }
 
-    setCenterIndex(closestIndex);
-  }, [movies.length, dimensions]);
+    lastUpdateRef.current = now;
+
+    // Batch state updates to reduce re-renders
+    let needsUpdate = false;
+    const updates: (() => void)[] = [];
+
+    if (newCanScrollLeft !== canScrollLeftRef.current) {
+      canScrollLeftRef.current = newCanScrollLeft;
+      updates.push(() => setCanScrollLeft(newCanScrollLeft));
+      needsUpdate = true;
+    }
+    if (newCanScrollRight !== canScrollRightRef.current) {
+      canScrollRightRef.current = newCanScrollRight;
+      updates.push(() => setCanScrollRight(newCanScrollRight));
+      needsUpdate = true;
+    }
+    if (closestIndex !== centerIndexRef.current) {
+      centerIndexRef.current = closestIndex;
+      updates.push(() => setCenterIndex(closestIndex));
+      needsUpdate = true;
+    }
+
+    // Execute all updates in a microtask to batch them
+    if (needsUpdate) {
+      queueMicrotask(() => {
+        updates.forEach(fn => fn());
+      });
+    }
+  }, [movies.length]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-
     const scrollTimeoutRef: { current: NodeJS.Timeout | null } = { current: null };
     let isScrolling = false;
+    const rafRef: { current: number | null } = { current: null };
+
+    const scheduleUpdate = () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => updateCenterCard());
+    };
 
     const handleScroll = () => {
       if (scrollTimeoutRef.current) {
@@ -172,7 +228,8 @@ export default function MovieCarousel({
       }
 
       isScrolling = true;
-      updateCenterCard();
+      // throttle expensive measurement to next animation frame
+      scheduleUpdate();
 
       scrollTimeoutRef.current = setTimeout(() => {
         isScrolling = false;
@@ -193,8 +250,9 @@ export default function MovieCarousel({
       const el = scrollRef.current;
       if (!el) return;
 
-      const targetScrollLeft =
-        centerIndex * (dimensions.cardWidth + dimensions.gap);
+      // read latest center index from ref to avoid effect dependency loops
+      const currentCenter = centerIndexRef.current;
+      const targetScrollLeft = currentCenter * (dimensionsRef.current.cardWidth + dimensionsRef.current.gap);
 
       const currentScroll = el.scrollLeft;
       const diff = Math.abs(currentScroll - targetScrollLeft);
@@ -209,7 +267,7 @@ export default function MovieCarousel({
 
     updateCenterCard();
     el.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", updateCenterCard);
+    window.addEventListener("resize", updateCenterCard, { passive: true });
 
     return () => {
       el.removeEventListener("scroll", handleScroll);
@@ -217,14 +275,19 @@ export default function MovieCarousel({
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [movies.length, centerIndex, updateCenterCard, dimensions]);
+  }, [movies.length, updateCenterCard]);
+  // Keep ref in sync with state without forcing effect re-runs
+  useEffect(() => {
+    centerIndexRef.current = centerIndex;
+  }, [centerIndex]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const step = dimensions.cardWidth + dimensions.gap;
+    const step = dimensionsRef.current.cardWidth + dimensionsRef.current.gap;
 
     // Derive current index from actual scroll position to avoid skipping
     const currentIndex = Math.round(el.scrollLeft / step);
@@ -246,7 +309,7 @@ export default function MovieCarousel({
 
   return (
     <section className="carousel-section" id="trending">
-      <div className="carousel-title-container">
+      <Container maxWidth="lg" sx={{ mb: { xs: 6, sm: 4 } }}>
         <Box sx={{ textAlign: 'center', mx: 'auto', maxWidth: '64rem' }}>
           <Typography
             variant="h2"
@@ -254,7 +317,8 @@ export default function MovieCarousel({
               fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
               fontWeight: 800,
               mx: 'auto',
-              color: isDark ? '#ffffff' : '#1a1a1a',
+              // Use a slightly softened white in dark mode for better visual balance
+              color: isDark ? '#e6e6e6' : '#1a1a1a',
               transition: 'color 0.5s',
               letterSpacing: '-0.02em',
               lineHeight: 1.2,
@@ -270,7 +334,8 @@ export default function MovieCarousel({
               color: isDark ? '#b3b3b3' : '#495057',
               mx: 'auto',
               maxWidth: '48rem',
-              mt: 2,
+              // Stronger top margin on xs to reliably push description lower on small viewports
+              mt: { xs: 4, sm: 2 },
               lineHeight: 1.6,
               transition: 'color 0.5s'
             }}
@@ -278,7 +343,7 @@ export default function MovieCarousel({
             Handpicked recommendations based on ratings and popularity
           </Typography>
         </Box>
-      </div>
+      </Container>
 
       {/* Center-focused carousel container */}
       <div className="carousel-container">
@@ -320,7 +385,7 @@ export default function MovieCarousel({
             return style;
           })()}
         >
-          {movies.slice(0, 15).map((m, index) => {
+          {movies.map((m, index) => {
             const isCenterCard = index === centerIndex;
             const distance = Math.abs(index - centerIndex);
 
@@ -330,6 +395,9 @@ export default function MovieCarousel({
             const opacity = getOpacity({ isMobile, distance });
             const translateY = getTranslateY({ isMobile, isCenterCard, distance });
 
+            // Only prioritize first 2 cards on initial load to minimize preload warnings
+            const isPriority = !isHydrated && index < 2;
+
             return (
               <div
                 key={m.id}
@@ -337,12 +405,14 @@ export default function MovieCarousel({
                 style={{
                   transform: `scale(${scale}) translateY(${translateY}px)`,
                   opacity: opacity,
-                  zIndex: isCenterCard ? 30 : 20 - distance,
+                    zIndex: isCenterCard ? 30 : 20 - distance,
+                    willChange: 'transform, opacity',
+                    backfaceVisibility: 'hidden',
                 }}
               >
                 <MovieCard 
                   movie={m}
-                  priority={index < 3}
+                  priority={isPriority}
                   className={isCenterCard ? 'ring-2 ring-[var(--color-primary)]' : ''}
                 />
               </div>

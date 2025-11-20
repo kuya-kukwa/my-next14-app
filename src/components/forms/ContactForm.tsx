@@ -1,10 +1,15 @@
+"use client";
+
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "../ui/Input";
-import { TextArea } from "../ui/TextArea";
-import Button from "../ui/Button";
 import { contactSchema, type ContactInput } from "@/lib/validation";
+import {
+  Box,
+  Button,
+  TextField,
+  Alert,
+} from "@mui/material";
 
 export type ContactFormProps = {
   onSubmit?: (data: ContactInput) => void | Promise<void>;
@@ -13,11 +18,20 @@ export type ContactFormProps = {
 
 export default function ContactForm({ onSubmit, className = "" }: ContactFormProps) {
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
     reset,
-  } = useForm<ContactInput>({ resolver: zodResolver(contactSchema), mode: "onChange" });
+  } = useForm<ContactInput>({ 
+    resolver: zodResolver(contactSchema), 
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: ""
+    }
+  });
 
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -45,84 +59,197 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(handleFormSubmit)}
-      className={`space-y-6 w-full max-w-xl mx-auto ${className}`}
-    >
+    <Box className={className}>
       {serverError && (
-        <div className="p-4 rounded-md bg-red-500/20 border border-red-500/50 text-red-400 text-sm">
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 2.5,
+            borderRadius: 2,
+            '& .MuiAlert-icon': {
+              fontSize: '1.5rem'
+            }
+          }} 
+          onClose={() => setServerError(null)}
+        >
           {serverError}
-        </div>
+        </Alert>
       )}
       {isSubmitSuccessful && (
-        <div className="p-4 rounded-md bg-green-500/20 border border-green-500/50 text-green-400 text-sm">
-          ✓ Thank you! Your message has been sent successfully. We&rsquo;ll get back to you soon.
-        </div>
+        <Alert 
+          severity="success" 
+          sx={{ 
+            mb: 2.5,
+            borderRadius: 2,
+            '& .MuiAlert-icon': {
+              fontSize: '1.5rem'
+            }
+          }}
+        >
+          ✓ Thank you! Your message has been sent successfully. We&apos;ll get back to you soon.
+        </Alert>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          {...register("name", {
-            required: "Name is required",
-            minLength: { value: 2, message: "Name must be at least 2 characters" },
-          })}
-          label="Full Name"
-          placeholder="Enter your full name"
-          autoComplete="name"
-          error={errors.name?.message}
-          required
-        />
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2.5 }}>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Full Name"
+                  fullWidth
+                  autoComplete="name"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                  placeholder="Enter your full name"
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      },
+                      '&.Mui-focused': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
+                      }
+                    }
+                  }}
+                />
+              )}
+            />
 
-        <Input
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Please enter a valid email address",
-            },
-          })}
-          type="email"
-          label="Email Address"
-          placeholder="Enter your email address"
-          autoComplete="email"
-          error={errors.email?.message}
-          required
-        />
-      </div>
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Email Address"
+                  type="email"
+                  fullWidth
+                  autoComplete="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  placeholder="your.email@example.com"
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      },
+                      '&.Mui-focused': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
+                      }
+                    }
+                  }}
+                />
+              )}
+            />
+          </Box>
 
-      <Input
-        {...register("subject", {
-          required: "Subject is required",
-          minLength: { value: 3, message: "Subject must be at least 3 characters" },
-        })}
-        label="Subject"
-        placeholder="Enter message subject"
-        autoComplete="off"
-        error={errors.subject?.message}
-        required
-      />
+          <Controller
+            name="subject"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Subject"
+                fullWidth
+                autoComplete="off"
+                error={!!errors.subject}
+                helperText={errors.subject?.message}
+                placeholder="Enter message subject"
+                required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    },
+                    '&.Mui-focused': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
+                    }
+                  }
+                }}
+              />
+            )}
+          />
 
-      <TextArea
-        {...register("message", {
-          required: "Message is required",
-          minLength: { value: 10, message: "Message must be at least 10 characters" },
-        })}
-        label="Message"
-        placeholder="Tell us how we can help you..."
-        rows={6}
-        error={errors.message?.message}
-        required
-      />
+          <Controller
+            name="message"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Message"
+                fullWidth
+                multiline
+                rows={6}
+                error={!!errors.message}
+                helperText={errors.message?.message}
+                placeholder="Tell us how we can help you..."
+                required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    },
+                    '&.Mui-focused': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
+                    }
+                  }
+                }}
+              />
+            )}
+          />
 
-      <Button
-        type="submit"
-        variant="cta"
-        size="md"
-        className="w-full md:w-auto"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Sending..." : "Send Message"}
-      </Button>
-    </form>
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            disabled={isSubmitting}
+            sx={{ 
+              mt: 1.5, 
+              py: 1.5,
+              borderRadius: 2,
+              fontSize: '1rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              boxShadow: '0 4px 14px rgba(229, 9, 20, 0.4)',
+              background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 20px rgba(229, 9, 20, 0.5)',
+                background: 'linear-gradient(135deg, #ff1a1f 0%, #e50914 100%)',
+              },
+              '&:disabled': {
+                background: 'rgba(229, 9, 20, 0.5)',
+                boxShadow: 'none',
+              }
+            }}
+          >
+            {isSubmitting ? "Sending..." : "Send Message"}
+          </Button>
+        </Box>
+      </form>
+    </Box>
   );
 }

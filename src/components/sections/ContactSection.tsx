@@ -1,33 +1,76 @@
 import React from "react";
-import { Container } from "@/components/ui/Container";
-import { Section } from "@/components/ui/Section";
 import ContactForm from "@/components/forms/ContactForm";
+import { Box, Typography, Container, Paper } from "@mui/material";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function ContactSection() {
-  return (
-  <Section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-transparent">
-      <Container>
-        {/* Gradient overlay - positioned inside container for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40 pointer-events-none -z-10" />
-        
-        <div className="relative z-10 text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 gradient-text">
-            Get In Touch
-          </h2>
-          <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
-            Have a question or need help? We&rsquo;re here to assist you.
-          </p>
-        </div>
+  const { mode } = useThemeContext();
+  const isDark = mode === 'dark';
 
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 border-3 border-red-500/80 shadow-2xl hover:shadow-3xl transition-all duration-300">
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            <div className="relative z-10">
-              <ContactForm />
-            </div>
-          </div>
-        </div>
+  return (
+    <Box 
+      component="section" 
+      id="contact"
+      sx={{ 
+        py: { xs: 8, sm: 10, md: 12, lg: 16 },
+        position: 'relative'
+      }}
+    >
+      <Container maxWidth="md">
+        {/* Header */}
+        <Box sx={{ textAlign: 'center', mb: { xs: 4, sm: 5, md: 6 } }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
+              fontWeight: 800,
+              mb: 1.5,
+              background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+            }}
+          >
+            Get In Touch
+          </Typography>
+          <Typography 
+            variant="body1"
+            sx={{
+              fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+              color: isDark ? '#b3b3b3' : '#495057',
+              mx: 'auto',
+              maxWidth: '48rem',
+              lineHeight: 1.6,
+              transition: 'color 0.5s'
+            }}
+          >
+            Have a question or need help? We&rsquo;re here to assist you.
+          </Typography>
+        </Box>
+
+        {/* Form */}
+        <Paper 
+          elevation={0}
+          sx={{ 
+            p: { xs: 2.5, sm: 3.5, md: 4 },
+            borderRadius: 3,
+            background: (theme) => 
+              theme.palette.mode === 'dark'
+                ? 'rgba(255, 255, 255, 0.05)'
+                : 'rgba(255, 255, 255, 0.9)',
+            border: (theme) => 
+              `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+            boxShadow: (theme) => 
+              theme.palette.mode === 'dark'
+                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
+                : '0 8px 32px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          <ContactForm />
+        </Paper>
       </Container>
-    </Section>
+    </Box>
   );
 }

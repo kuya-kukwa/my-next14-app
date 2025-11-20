@@ -1,6 +1,5 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
@@ -26,83 +25,106 @@ const Hero: React.FC = () => {
       }}
     >
       <Container maxWidth="xl">
-        <Grid container spacing={{ xs: 6, lg: 8 }} sx={{ alignItems: 'center' }}>
-  
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: { xs: 2, sm: 3, md: 4, lg: 8 },
+            justifyContent: 'space-between'
+          }}
+        >
           {/* Left Content - Text */}
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'left' }}>
-              <Typography 
-                variant="h1"
+          <Box 
+            sx={{ 
+              flex: { xs: '1 1 55%', sm: '1 1 60%', lg: '1 1 50%' },
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography 
+              variant="h1"
+              sx={{
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem', lg: '3.75rem' },
+                fontWeight: 800,
+                lineHeight: { xs: 1.15, md: 1.2 },
+                color: isDark ? '#ffffff' : '#0a0a0a',
+                mb: { xs: 1.5, sm: 2, md: 3 },
+                transition: 'color 0.5s',
+                letterSpacing: '-0.02em'
+              }}
+            >
+              Unlimited Movies at Your Fingertips
+            </Typography>
+
+            <Typography 
+              sx={{
+                fontSize: { xs: '0.8rem', sm: '0.95rem', md: '1.125rem', lg: '1.25rem' },
+                lineHeight: { xs: 1.5, md: 1.6 },
+                maxWidth: '36rem',
+                color: isDark ? '#d1d5db' : '#495057',
+                mb: { xs: 2, sm: 3, md: 4 },
+                transition: 'color 0.5s',
+                display: { xs: '-webkit-box', md: 'block' },
+                WebkitLineClamp: { xs: 3, md: 'unset' },
+                WebkitBoxOrient: { xs: 'vertical', md: 'unset' },
+                overflow: { xs: 'hidden', md: 'visible' }
+              }}
+            >
+              Stream the latest blockbusters, timeless classics, and exclusive originals. 
+              Dive into thousands of movies across all genres, available anytime, anywhere. 
+              Your next favorite film is just a click away.
+            </Typography>
+
+            <Box sx={{ pt: { xs: 0, md: 2 } }}>
+              <Button 
+                variant="contained"
+                size="large"
                 sx={{
-                  fontSize: { xs: '2.25rem', md: '3rem', lg: '3.75rem' },
-                  fontWeight: 800,
-                  lineHeight: 1.2,
-                  color: isDark ? '#ffffff' : '#0a0a0a',
-                  mb: 3,
-                  transition: 'color 0.5s',
-                  letterSpacing: '-0.02em'
+                  borderRadius: '9999px',
+                  px: { xs: 2.5, sm: 3.5, md: 5 },
+                  py: { xs: 1, sm: 1.5, md: 2 },
+                  fontWeight: 600,
+                  fontSize: { xs: '0.8rem', sm: '0.95rem', md: '1rem' },
+                  backgroundColor: '#e50914',
+                  color: '#ffffff',
+                  textTransform: 'none',
+                  transition: 'all 0.3s',
+                  '&:hover': {
+                    backgroundColor: '#b2070f',
+                    transform: 'scale(1.05)'
+                  }
                 }}
               >
-                Unlimited Movies at Your Fingertips
-              </Typography>
-
-              <Typography 
-                sx={{
-                  fontSize: { xs: '1rem', md: '1.125rem', lg: '1.25rem' },
-                  lineHeight: 1.6,
-                  maxWidth: '36rem',
-                  color: isDark ? '#d1d5db' : '#495057',
-                  mb: 4,
-                  transition: 'color 0.5s'
-                }}
-              >
-                Stream the latest blockbusters, timeless classics, and exclusive originals. 
-                Dive into thousands of movies across all genres, available anytime, anywhere. 
-                Your next favorite film is just a click away.
-              </Typography>
-
-              <Box sx={{ pt: 2 }}>
-                <Button 
-                  variant="contained"
-                  size="large"
-                  sx={{
-                    borderRadius: '9999px',
-                    px: 5,
-                    py: 2,
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    backgroundColor: '#e50914',
-                    color: '#ffffff',
-                    textTransform: 'none',
-                    transition: 'all 0.3s',
-                    '&:hover': {
-                      backgroundColor: '#b2070f',
-                      transform: 'scale(1.05)'
-                    }
-                  }}
-                >
-                  Start Watching →
-                </Button>
-              </Box>
+                Start Watching →
+              </Button>
             </Box>
-          </Grid>
+          </Box>
 
           {/* Right Content - Image */}
-          <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: { xs: 'center', lg: 'flex-end' }, alignItems: 'center' }}>
+          <Box
+            sx={{
+              flex: { xs: '0 0 40%', sm: '0 0 35%', lg: '1 1 50%' },
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center'
+            }}
+          >
             <Box
               component="img"
               src="/images/bg/hero.png"
               alt="Person eating popcorn"
               sx={{
-                maxWidth: { xs: '380px', md: '450px', lg: '520px' },
+                maxWidth: { xs: '180px', sm: '280px', md: '450px', lg: '520px' },
                 width: '100%',
                 height: 'auto',
                 objectFit: 'contain'
               }}
             />
-          </Grid>
+          </Box>
+        </Box>
 
-        </Grid>
       </Container>
     </Box>
   );

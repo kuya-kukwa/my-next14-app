@@ -5,6 +5,7 @@ import MovieCarousel from "@/components/sections/MovieCarousel";
 import TeamSection from "@/components/sections/TeamSection";
 import { movies } from "@/data/movies";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import ContactSection from "@/components/sections/ContactSection";
 
 export default function Home() {
   const topMovies = [...movies].sort((a, b) => b.rating - a.rating).slice(0, 15);
@@ -34,9 +35,9 @@ export default function Home() {
           {/* VALUE PROPOSITION SECTION */}
           <ValuePropositionSection visible={true} />
 
-          {/* TEAM SECTION */}
+          {/* CONTACT SECTION */}
           <div className="animate-fadeInUp">
-            <TeamSection />
+            <ContactSection />
           </div>
         </div>
       </div>

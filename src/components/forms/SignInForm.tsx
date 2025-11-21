@@ -51,13 +51,14 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
       try {
         const { account } = getAppwriteBrowser();
         await account.createEmailPasswordSession(data.email, data.password);
-        const jwtRes: any = await account.createJWT();
-        if (jwtRes?.jwt) {
-          setToken(jwtRes.jwt);
+        const jwtRes = await account.createJWT() as unknown;
+        if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
+          setToken((jwtRes as { jwt?: string }).jwt ?? "");
         }
         await router.push("/profile");
-      } catch (e: any) {
-        setError(e?.message || "Invalid email or password");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err ?? "Invalid email or password");
+        setError(message);
       }
     }
   };

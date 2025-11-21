@@ -36,13 +36,14 @@ function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
       { threshold: 0.3 }
     );
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
+    const node = cardRef.current;
+    if (node) {
+      observer.observe(node);
     }
 
     return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current);
+      if (node) {
+        observer.unobserve(node);
       }
     };
   }, [isVisible]);

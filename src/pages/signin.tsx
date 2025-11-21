@@ -1,5 +1,5 @@
 import React from "react";
-import SignInForm from "@/components/forms/SignInForm.mui";
+import SignInForm from "@/components/forms/SignInForm";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function SignInPage() {

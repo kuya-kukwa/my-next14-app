@@ -41,21 +41,26 @@ export const ThemeContextProvider = ({ children }: ThemeContextProviderProps) =>
   useEffect(() => {
     if (mounted) {
       // Defer localStorage write to idle time to avoid blocking interactions
-      if ((window as any).requestIdleCallback) {
-        const id = (window as any).requestIdleCallback(() => {
+      const win = window as unknown as Window & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
+        cancelIdleCallback?: (id?: number) => void;
+      };
+
+      if (win.requestIdleCallback) {
+        const id = win.requestIdleCallback(() => {
           try {
             localStorage.setItem('theme-mode', mode);
-          } catch (e) {
+          } catch {
             /* ignore */
           }
         }, { timeout: 1000 });
-        return () => (window as any).cancelIdleCallback?.(id);
+        return () => win.cancelIdleCallback?.(id);
       }
 
       const t = window.setTimeout(() => {
         try {
           localStorage.setItem('theme-mode', mode);
-        } catch (e) {
+        } catch {
           /* ignore */
         }
       }, 500);

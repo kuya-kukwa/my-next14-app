@@ -54,7 +54,7 @@ export default function TeamSection() {
               lineHeight: 1.6
             }}
           >
-            Meet the passionate team behind NextFlix's innovative streaming experience
+            Meet the passionate team behind NextFlix&apos;s innovative streaming experience
           </Typography>
         </Box>
 

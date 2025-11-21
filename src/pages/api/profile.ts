@@ -6,14 +6,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
   if (!jwt) return res.status(401).json({ error: 'Missing token' });
 
-  let appwriteUser: any;
+  let appwriteUser: unknown;
   try {
     appwriteUser = await getUserFromJWT(jwt);
-  } catch (e) {
+  } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
 
-  const appwriteId = appwriteUser.$id as string;
+  if (!appwriteUser || typeof appwriteUser !== 'object' || !('$id' in appwriteUser)) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  const appwriteId = (appwriteUser as { $id: string }).$id as string;
 
   if (req.method === 'GET') {
     const user = await prisma.user.upsert({

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import MovieCard from "../ui/MovieCard";
 import { Movie } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -277,7 +277,7 @@ export default function MovieCarousel({
       }
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [movies.length, updateCenterCard]);
+  }, [movies.length, updateCenterCard, getIsMobile]);
   // Keep ref in sync with state without forcing effect re-runs
   useEffect(() => {
     centerIndexRef.current = centerIndex;

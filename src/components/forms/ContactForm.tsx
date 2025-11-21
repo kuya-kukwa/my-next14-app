@@ -50,8 +50,9 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.error ? JSON.stringify(body.error) : "Failed to send message");
         }
-      } catch (e: any) {
-        setServerError(e?.message ?? "Something went wrong");
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err ?? "Something went wrong");
+        setServerError(message);
         return;
       }
     }

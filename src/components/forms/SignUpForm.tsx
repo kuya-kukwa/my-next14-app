@@ -36,7 +36,7 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
 
   const schema = signUpSchema
     .extend({ confirmPassword: signUpSchema.shape.password })
-    .refine((data) => data.password === (data as any).confirmPassword, {
+    .refine((data) => data.password === (data as unknown as { confirmPassword?: string }).confirmPassword, {
       message: "Passwords do not match",
       path: ["confirmPassword"],
     });
@@ -76,9 +76,9 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
         const { account } = getAppwriteBrowser();
         await account.create('unique()', data.email, data.password, data.name);
         await account.createEmailPasswordSession(data.email, data.password);
-        const jwtRes: any = await account.createJWT();
-        if (jwtRes?.jwt) {
-          setToken(jwtRes.jwt);
+        const jwtRes = await account.createJWT() as unknown;
+        if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
+          setToken((jwtRes as { jwt?: string }).jwt ?? "");
         }
         // Force-create local Prisma user/profile
         try {
@@ -86,8 +86,8 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
         } catch {}
         setSuccess(true);
         setTimeout(() => router.push('/profile'), 1500);
-      } catch (e: any) {
-        console.error(e);
+      } catch (err: unknown) {
+        console.error(err);
       }
     }
   };

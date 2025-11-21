@@ -57,7 +57,9 @@ export default function ProfilePage() {
     onMutate: async (newData) => {
       await qc.cancelQueries({ queryKey: ['profile'] });
       const prev = qc.getQueryData<ProfileResponse>(['profile']);
-      qc.setQueryData<ProfileResponse>(['profile'], (old) => old ? { profile: { ...old.profile, ...newData } } as any : old as any);
+      qc.setQueryData<ProfileResponse>(['profile'], (old) =>
+        old ? { profile: { ...old.profile, ...newData } } : old as unknown as ProfileResponse
+      );
       return { prev };
     },
     onError: (_err, _vars, ctx) => {

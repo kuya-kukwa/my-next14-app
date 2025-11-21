@@ -1,5 +1,5 @@
 import React from "react";
-import SignUpForm from "@/components/forms/SignUpForm.mui";
+import SignUpForm from "@/components/forms/SignUpForm";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function SignUpPage() {

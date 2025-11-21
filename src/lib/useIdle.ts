@@ -7,8 +7,13 @@ export default function useIdle(timeout = 500) {
 
   useEffect(() => {
     let mounted = true;
-    if ((window as any).requestIdleCallback) {
-      const id = (window as any).requestIdleCallback(
+    const win = window as unknown as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
+      cancelIdleCallback?: (id?: number) => void;
+    };
+
+    if (win.requestIdleCallback) {
+      const id = win.requestIdleCallback(
         () => {
           if (mounted) setIsIdle(true);
         },
@@ -16,7 +21,7 @@ export default function useIdle(timeout = 500) {
       );
       return () => {
         mounted = false;
-        (window as any).cancelIdleCallback?.(id);
+        win.cancelIdleCallback?.(id);
       };
     }
 

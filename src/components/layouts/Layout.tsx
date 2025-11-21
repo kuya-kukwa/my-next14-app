@@ -21,7 +21,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Determine if we're on signin or signup pages
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
-  const isAuthPage = isSignInPage || isSignUpPage;
 
   // Smooth scroll handler
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {

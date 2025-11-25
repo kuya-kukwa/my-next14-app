@@ -44,20 +44,45 @@ export default function SignInForm({ onSubmit, className = "" }: SignInFormProps
   });
 
   const handleFormSubmit = async (data: SignInInput) => {
+    console.log('[SignInForm] Starting signin process', { email: data.email });
     setError(null);
     if (onSubmit) {
+      console.log('[SignInForm] Using custom onSubmit handler');
       await onSubmit(data);
     } else {
       try {
+        console.log('[SignInForm] Preparing to create Appwrite session');
         const { account } = getAppwriteBrowser();
+        
+        // Delete any existing session first to avoid "session is active" error
+        try {
+          await account.deleteSession('current');
+          console.log('[SignInForm] Existing session deleted');
+        } catch {
+          // No active session or deletion failed - that's OK, continue
+          console.log('[SignInForm] No active session to delete or deletion failed (expected)');
+        }
+        
+        console.log('[SignInForm] Creating new Appwrite session');
         await account.createEmailPasswordSession(data.email, data.password);
+        console.log('[SignInForm] Session created successfully');
+        
+        console.log('[SignInForm] Generating JWT token');
         const jwtRes = await account.createJWT() as unknown;
         if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
-          setToken((jwtRes as { jwt?: string }).jwt ?? "");
+          const jwt = (jwtRes as { jwt?: string }).jwt ?? "";
+          setToken(jwt);
+          console.log('[SignInForm] JWT token stored successfully');
+        } else {
+          console.warn('[SignInForm] JWT response invalid:', jwtRes);
         }
-        await router.push("/profile");
+        
+        console.log('[SignInForm] Redirecting to /home');
+        await router.push("/home");
+        console.log('[SignInForm] Signin completed successfully');
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err ?? "Invalid email or password");
+        console.error('[SignInForm] Signin error:', { error: message, rawError: err });
         setError(message);
       }
     }

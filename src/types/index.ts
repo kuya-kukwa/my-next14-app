@@ -1,6 +1,6 @@
 // Data Types
 export interface Movie {
-  id: number;
+  id: string; // changed to string UUID for Appwrite
   title: string;
   category: string;
   genre: string;

@@ -33,6 +33,7 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const schema = signUpSchema
     .extend({ confirmPassword: signUpSchema.shape.password })
@@ -68,26 +69,72 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
   const passwordStrength = getPasswordStrength(password || "");
 
   const handleFormSubmit = async (data: SignUpInput & { confirmPassword: string }) => {
+    console.log('[SignUpForm] Starting signup process', { email: data.email, name: data.name });
+    setError(null); // Clear any previous errors
+    
     if (onSubmit) {
+      console.log('[SignUpForm] Using custom onSubmit handler');
       await onSubmit(data);
     } else {
       // Default: create Appwrite account
       try {
+        console.log('[SignUpForm] Creating Appwrite account');
         const { account } = getAppwriteBrowser();
         await account.create('unique()', data.email, data.password, data.name);
+        console.log('[SignUpForm] Account created successfully');
+        
+        // Delete any existing session first to avoid "session is active" error
+        try {
+          await account.deleteSession('current');
+          console.log('[SignUpForm] Existing session deleted');
+        } catch {
+          // No active session or deletion failed - that's OK, continue
+          console.log('[SignUpForm] No active session to delete or deletion failed (expected)');
+        }
+        
+        console.log('[SignUpForm] Creating email password session');
         await account.createEmailPasswordSession(data.email, data.password);
+        console.log('[SignUpForm] Session created successfully');
+        
+        console.log('[SignUpForm] Generating JWT token');
         const jwtRes = await account.createJWT() as unknown;
         if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
-          setToken((jwtRes as { jwt?: string }).jwt ?? "");
+          const jwt = (jwtRes as { jwt?: string }).jwt ?? "";
+          setToken(jwt);
+          console.log('[SignUpForm] JWT token stored successfully');
+        } else {
+          console.warn('[SignUpForm] JWT response invalid:', jwtRes);
         }
+        
         // Force-create local Prisma user/profile
+        console.log('[SignUpForm] Creating Prisma user/profile');
         try {
           await fetch('/api/profile', { headers: { ...authHeader() } });
-        } catch {}
+          console.log('[SignUpForm] Prisma user/profile created successfully');
+        } catch (profileErr) {
+          console.warn('[SignUpForm] Profile creation warning:', profileErr);
+        }
+        
+        console.log('[SignUpForm] Signup completed, redirecting to home');
         setSuccess(true);
-        setTimeout(() => router.push('/profile'), 1500);
+        setTimeout(() => router.push('/home'), 1500);
       } catch (err: unknown) {
-        console.error(err);
+        // Extract Appwrite error message
+        let errorMessage = "Signup failed. Please try again.";
+        
+        if (err && typeof err === 'object') {
+          // Check for Appwrite error structure
+          if ('message' in err && typeof err.message === 'string') {
+            errorMessage = err.message;
+          } else if ('error' in err && typeof err.error === 'string') {
+            errorMessage = err.error;
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        
+        console.error('[SignUpForm] Signup error:', { error: errorMessage, rawError: err });
+        setError(errorMessage);
       }
     }
   };
@@ -151,6 +198,21 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
               }}
             >
               Account created successfully!
+            </Alert>
+          )}
+
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 2.5,
+                borderRadius: 2,
+                '& .MuiAlert-icon': {
+                  fontSize: '1.5rem'
+                }
+              }}
+            >
+              {error}
             </Alert>
           )}
 
@@ -232,7 +294,10 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
                       fullWidth
                       autoComplete="new-password"
                       error={!!errors.password}
-                      helperText={errors.password?.message || "6+ characters"}
+                      helperText={
+                        errors.password?.message || 
+                        "8+ characters, must include a number or special character"
+                      }
                       placeholder="Create a strong password"
                       sx={{
                         '& .MuiOutlinedInput-root': {

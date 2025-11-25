@@ -1,16 +1,20 @@
 import React from "react";
+import Link from "next/link";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Hero from "@/components/sections/Hero";
 import ValuePropositionSection from "@/components/sections/ValuePropositionSection";
 import MovieCarousel from "@/components/sections/MovieCarousel";
-import TeamSection from "@/components/sections/TeamSection";
 import { movies } from "@/data/movies";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import ContactSection from "@/components/sections/ContactSection";
+import { getToken } from "@/lib/session";
 
 export default function Home() {
   const topMovies = [...movies].sort((a, b) => b.rating - a.rating).slice(0, 15);
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
+  const isAuthenticated = !!getToken();
 
   return (
     <>
@@ -26,6 +30,17 @@ export default function Home() {
       >
         <div className="container mx-auto px-2 sm:px-4 md:px-6 overflow-visible">
           <MovieCarousel movies={topMovies} title="Top Picks Just for You" />
+          
+          {/* Browse All Movies CTA */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mt: { xs: 4, sm: 6, md: 8 },
+              px: 2,
+            }}
+          >
+          </Box>
         </div>
       </section>
 

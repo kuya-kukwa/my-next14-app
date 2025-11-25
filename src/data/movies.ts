@@ -3,7 +3,7 @@ import { Movie } from "@/types";
 // 🎬 All-time popular & modern hits (verified poster URLs)
 export const movies: Movie[] = [
   {
-    id: 1,
+    id: "1",
     title: "Inception",
     category: "Sci-Fi",
     genre: "Sci-Fi",
@@ -13,7 +13,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg",
   },
   {
-    id: 2,
+    id: "2",
     title: "The Dark Knight",
     category: "Action",
     genre: "Action",
@@ -23,7 +23,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
   },
   {
-    id: 3,
+    id: "3",
     title: "Interstellar",
     category: "Sci-Fi",
     genre: "Sci-Fi",
@@ -33,7 +33,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
   },
   {
-    id: 4,
+    id: "4",
     title: "Gladiator",
     category: "Action",
     genre: "Action",
@@ -43,7 +43,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg",
   },
   {
-    id: 5,
+    id: "5",
     title: "Titanic",
     category: "Romance",
     genre: "Romance",
@@ -53,7 +53,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",
   },
   {
-    id: 6,
+    id: "6",
     title: "The Shawshank Redemption",
     category: "Drama",
     genre: "Drama",
@@ -63,7 +63,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
   },
   {
-    id: 7,
+    id: "7",
     title: "Avengers: Endgame",
     category: "Action",
     genre: "Action",
@@ -73,7 +73,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/ulzhLuWrPK07P1YkdWQLZnQh1JL.jpg",
   },
   {
-    id: 8,
+    id: "8",
     title: "Parasite",
     category: "Drama",
     genre: "Drama",
@@ -83,17 +83,17 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
   },
   {
-    id: 9,
+    id: "9",
     title: "Get Out",
     category: "Horror",
     genre: "Horror",
     year: 2017,
     rating: 4.4,
-    image: "https://image.tmdb.org/t/p/w500/1SwAVYpuLj8KsHxllTF8Dt9dSSX.jpg",
+    image: "https://image.tmdb.org/t/p/w500/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg",
     thumbnail: "https://image.tmdb.org/t/p/w300/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg",
   },
   {
-    id: 10,
+    id: "10",
     title: "The Matrix",
     category: "Sci-Fi",
     genre: "Sci-Fi",
@@ -103,7 +103,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
   },
   {
-    id: 11,
+    id: "11",
     title: "Forrest Gump",
     category: "Drama",
     genre: "Drama",
@@ -113,7 +113,7 @@ export const movies: Movie[] = [
     thumbnail: "https://image.tmdb.org/t/p/w300/saHP97rTPS5eLmrLQEcANmKrsFl.jpg",
   },
   {
-    id: 12,
+    id: "12",
     title: "Joker",
     category: "Drama",
     genre: "Drama",

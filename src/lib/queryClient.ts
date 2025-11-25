@@ -6,8 +6,23 @@ export function getQueryClient() {
     client = new QueryClient({
       defaultOptions: {
         queries: {
-          retry: 1,
-          staleTime: 60_000,
+          staleTime: 60 * 1000, // 1 minute default
+          gcTime: 5 * 60 * 1000, // 5 minutes (renamed from cacheTime in v5)
+          retry: (failureCount, error) => {
+            // Don't retry on 4xx errors (client errors)
+            if (error instanceof Error) {
+              const errorMessage = error.message.toLowerCase();
+              if (errorMessage.includes('4') || errorMessage.includes('unauthorized')) {
+                return false;
+              }
+            }
+            // Retry up to 2 times for other errors
+            return failureCount < 2;
+          },
+          refetchOnWindowFocus: false, // Don't refetch on window focus by default
+        },
+        mutations: {
+          retry: 1, // Retry mutations once on failure
         },
       },
     });

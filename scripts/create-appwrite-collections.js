@@ -117,10 +117,13 @@ async function createAttributes(databaseId, collectionId, attributes) {
         { key: 'rating', type: 'float', required: true },
         { key: 'image', type: 'string', size: 1024, required: true },
         { key: 'thumbnail', type: 'string', size: 1024, required: true },
+        { key: 'description', type: 'string', size: 2000, required: false },
+        { key: 'duration', type: 'integer', required: false },
+        { key: 'contentRating', type: 'string', size: 50, required: false },
         { key: 'createdAt', type: 'datetime', required: true },
         { key: 'updatedAt', type: 'datetime', required: true }
       ] },
-      { name: 'Favorite', attributes: [
+      { name: 'Watchlist', attributes: [
         { key: 'userId', type: 'string', size: 100, required: true },
         { key: 'movieId', type: 'string', size: 100, required: true }, // changed to string for UUID
         { key: 'createdAt', type: 'datetime', required: true }

@@ -8,6 +8,9 @@ export interface Movie {
   rating: number;
   image: string;
   thumbnail: string;
+  description?: string;
+  duration?: number; // duration in minutes
+  contentRating?: string; // e.g., 'PG-13', '18+', 'R', etc.
 }
 
 // Value Proposition Types

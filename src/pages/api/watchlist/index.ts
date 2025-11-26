@@ -26,24 +26,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Ensure user exists in database
   const user = await upsertUser(databases, email, name);
 
-  // GET /api/favorites - Get user's favorite movie IDs
+  // GET /api/watchlist - Get user's watchlist movie IDs
   if (req.method === 'GET') {
     const result = await databases.listDocuments(
       databaseId,
-      COLLECTIONS.FAVORITES,
+      COLLECTIONS.WATCHLIST,
       [Query.equal('userId', user.$id), Query.orderDesc('createdAt')]
     );
 
-    const favorites = result.documents as Array<Record<string, unknown>>;
+    const watchlist = result.documents as Array<Record<string, unknown>>;
 
     return res.status(200).json({
-      movieIds: favorites.map((f) => String(f.movieId)),
-      favorites,
-      total: favorites.length,
+      movieIds: watchlist.map((w) => String(w.movieId)),
+      watchlist,
+      total: watchlist.length,
     });
   }
 
-  // POST /api/favorites - Add a movie to favorites
+  // POST /api/watchlist - Add a movie to watchlist
   if (req.method === 'POST') {
     const { movieId } = req.body;
 
@@ -51,10 +51,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid movieId' });
     }
 
-    // Check if already favorited
+    // Check if already in watchlist
     const existingResult = await databases.listDocuments(
       databaseId,
-      COLLECTIONS.FAVORITES,
+      COLLECTIONS.WATCHLIST,
       [
         Query.equal('userId', user.$id),
         Query.equal('movieId', movieId)
@@ -64,15 +64,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (existingResult.documents.length > 0) {
       return res.status(200).json({
         success: true,
-        favorite: existingResult.documents[0],
-        message: 'Already in favorites',
+        watchlistItem: existingResult.documents[0],
+        message: 'Already in watchlist',
       });
     }
 
-    // Create new favorite
-    const favorite = await databases.createDocument(
+    // Create new watchlist item
+    const watchlistItem = await databases.createDocument(
       databaseId,
-      COLLECTIONS.FAVORITES,
+      COLLECTIONS.WATCHLIST,
       ID.unique(),
       {
         userId: user.$id,
@@ -83,8 +83,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(201).json({
       success: true,
-      favorite,
-      message: 'Added to favorites',
+      watchlistItem,
+      message: 'Added to watchlist',
     });
   }
 

@@ -8,17 +8,21 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Chip from '@mui/material/Chip';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FavoriteIcon from '@mui/icons-material/Favorite';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import PersonIcon from '@mui/icons-material/Person';
+import LockIcon from '@mui/icons-material/Lock';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { useMovies } from '@/services/queries/movies';
-import { useFavorites, useRemoveFavorite } from '@/services/queries/favorites';
+import { useWatchlist, useRemoveFromWatchlist } from '@/services/queries/watchlist';
+import { useProfile } from '@/services/queries/profile';
 import { getToken } from '@/lib/session';
 import MovieCard from '@/components/ui/MovieCard';
 import MovieCardSkeleton from '@/components/ui/MovieCardSkeleton';
 import ErrorState from '@/components/ui/ErrorState';
 
-export default function FavoritesPage() {
+export default function WatchlistPage() {
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
   const router = useRouter();
@@ -34,27 +38,37 @@ export default function FavoritesPage() {
     }
   }, [router]);
 
-  const { data: favoritesData, isLoading: favoritesLoading, isError: favoritesError, error: favoritesErrorObj, refetch: refetchFavorites } = useFavorites();
+  const { data: profileData } = useProfile();
+  const { data: watchlistData, isLoading: watchlistLoading, isError: watchlistError, error: watchlistErrorObj, refetch: refetchWatchlist } = useWatchlist();
   const { data: moviesData, isLoading: moviesLoading, isError: moviesError, error: moviesErrorObj, refetch: refetchMovies } = useMovies();
-  const removeFavorite = useRemoveFavorite();
+  const removeFromWatchlist = useRemoveFromWatchlist();
 
-  const favoriteIds = favoritesData?.movieIds || [];
+  const watchlistMovieIds = watchlistData?.movieIds || [];
   const allMovies = moviesData?.movies || [];
   
-  // Filter movies to only show favorites
-  const favoriteMovies = allMovies.filter((movie) => favoriteIds.includes(movie.id));
+  // Filter movies to only show watchlist items
+  const watchlistMovies = allMovies.filter((movie) => watchlistMovieIds.includes(movie.id));
+  
+  // Get display name (use displayName if set, otherwise extract from email or use "User")
+  const getUserDisplayName = () => {
+    if (profileData?.displayName) {
+      return profileData.displayName;
+    }
+    // Fallback to generic "User" since we don't have access to user email here
+    return "Your";
+  };
 
-  const handleRemoveFavorite = (movieId: string) => {
-    removeFavorite.mutate(movieId);
+  const handleRemoveFromWatchlist = (movieId: string) => {
+    removeFromWatchlist.mutate(movieId);
   };
 
   if (!isAuthenticated) {
     return null;
   }
 
-  const isLoading = favoritesLoading || moviesLoading;
-  const isError = favoritesError || moviesError;
-  const error = favoritesErrorObj || moviesErrorObj;
+  const isLoading = watchlistLoading || moviesLoading;
+  const isError = watchlistError || moviesError;
+  const error = watchlistErrorObj || moviesErrorObj;
 
   return (
     <Box
@@ -67,48 +81,93 @@ export default function FavoritesPage() {
       }}
     >
       <Container maxWidth="xl">
-        {/* Header */}
-        <Box sx={{ mb: 6, textAlign: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
-            <FavoriteIcon
+        {/* Header with User Context */}
+        <Box sx={{ mb: 6 }}>
+          {/* User Badge */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <Chip
+              icon={<PersonIcon />}
+              label={`${getUserDisplayName()} Collection`}
               sx={{
-                fontSize: { xs: '2rem', sm: '2.5rem' },
+                backgroundColor: isDark ? 'rgba(229, 9, 20, 0.15)' : 'rgba(229, 9, 20, 0.1)',
                 color: '#e50914',
+                fontWeight: 600,
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                px: 2,
+                py: 2.5,
+                borderRadius: '9999px',
+                border: '1px solid rgba(229, 9, 20, 0.3)',
+                '& .MuiChip-icon': {
+                  color: '#e50914',
+                },
               }}
             />
+          </Box>
+          
+          {/* Title */}
+          <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
+              <BookmarkIcon
+                sx={{
+                  fontSize: { xs: '2rem', sm: '2.5rem' },
+                  color: '#e50914',
+                }}
+              />
+              <Typography
+                variant="h3"
+                sx={{
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                  fontWeight: 800,
+                  color: isDark ? '#ffffff' : '#0a0a0a',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                My Watchlist
+              </Typography>
+            </Box>
+            
+            {/* Privacy Badge */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+              <LockIcon
+                sx={{
+                  fontSize: '1rem',
+                  color: isDark ? '#808080' : '#999999',
+                }}
+              />
+              <Typography
+                variant="caption"
+                sx={{
+                  color: isDark ? '#808080' : '#999999',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                }}
+              >
+                Private • Only visible to you
+              </Typography>
+            </Box>
+            
             <Typography
-              variant="h3"
+              variant="body1"
               sx={{
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
-                fontWeight: 800,
-                color: isDark ? '#ffffff' : '#0a0a0a',
-                letterSpacing: '-0.02em',
+                fontSize: { xs: '1rem', sm: '1.125rem' },
+                color: isDark ? '#b3b3b3' : '#666666',
+                maxWidth: '600px',
+                mx: 'auto',
               }}
             >
-              My Favorites
+              Your personal watchlist of movies you want to watch later
             </Typography>
           </Box>
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: { xs: '1rem', sm: '1.125rem' },
-              color: isDark ? '#b3b3b3' : '#666666',
-              maxWidth: '600px',
-              mx: 'auto',
-            }}
-          >
-            Your personally curated collection of favorite movies
-          </Typography>
         </Box>
 
         {/* Content */}
         {isError ? (
           <ErrorState
-            title="Failed to load favorites"
-            message="We couldn't fetch your favorite movies. Please try again."
+            title="Failed to load watchlist"
+            message="We couldn't fetch your watchlist movies. Please try again."
             error={error}
             onRetry={() => {
-              refetchFavorites();
+              refetchWatchlist();
               refetchMovies();
             }}
           />
@@ -129,7 +188,7 @@ export default function FavoritesPage() {
               <MovieCardSkeleton key={index} />
             ))}
           </Box>
-        ) : favoriteMovies.length === 0 ? (
+        ) : watchlistMovies.length === 0 ? (
           <Box
             sx={{
               textAlign: 'center',
@@ -137,7 +196,7 @@ export default function FavoritesPage() {
               px: 4,
             }}
           >
-            <FavoriteIcon
+            <BookmarkIcon
               sx={{
                 fontSize: 80,
                 color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
@@ -152,7 +211,7 @@ export default function FavoritesPage() {
                 mb: 2,
               }}
             >
-              No favorites yet
+              Your watchlist is empty
             </Typography>
             <Typography
               variant="body1"
@@ -163,9 +222,9 @@ export default function FavoritesPage() {
                 mx: 'auto',
               }}
             >
-              Start building your collection by browsing movies and clicking the heart icon on your favorites
+              Start building your watchlist by browsing movies and clicking the bookmark icon to save movies for later
             </Typography>
-            <Link href="/movies" passHref style={{ textDecoration: 'none' }}>
+            <Link href="/authenticated/home" passHref style={{ textDecoration: 'none' }}>
               <Button
                 variant="contained"
                 sx={{
@@ -200,11 +259,11 @@ export default function FavoritesPage() {
                 gap: 3,
               }}
             >
-              {favoriteMovies.map((movie) => (
+              {watchlistMovies.map((movie) => (
                 <Box key={movie.id} sx={{ position: 'relative' }}>
                   <MovieCard movie={movie} />
                   <IconButton
-                    onClick={() => handleRemoveFavorite(movie.id)}
+                    onClick={() => handleRemoveFromWatchlist(movie.id)}
                     sx={{
                       position: 'absolute',
                       top: 8,
@@ -231,9 +290,9 @@ export default function FavoritesPage() {
                   mb: 2,
                 }}
               >
-                {favoriteMovies.length} {favoriteMovies.length === 1 ? 'movie' : 'movies'} in your collection
+                {watchlistMovies.length} {watchlistMovies.length === 1 ? 'movie' : 'movies'} in your watchlist
               </Typography>
-              <Link href="/movies" passHref style={{ textDecoration: 'none' }}>
+              <Link href="/authenticated/home" passHref style={{ textDecoration: 'none' }}>
                 <Button
                   variant="outlined"
                   sx={{

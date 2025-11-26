@@ -74,7 +74,7 @@ const Hero: React.FC = () => {
             >
               Stream the latest blockbusters, timeless classics, and exclusive originals. 
               Dive into thousands of movies across all genres, available anytime, anywhere. 
-              Your next favorite film is just a click away.
+              Your next great film is just a click away.
             </Typography>
 
             <Box sx={{ pt: { xs: 0, md: 2 } }}>

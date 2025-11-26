@@ -114,21 +114,21 @@ async function upsertDocument(collectionName, docId, data) {
     }
     console.log(`\n✅ Migrated ${movies.length} movies\n`);
 
-    // === 3. Migrate Favorites ===
-    console.log('⭐ Migrating favorites...');
-    const favorites = await prisma.favorite.findMany();
-    console.log(`Found ${favorites.length} favorites\n`);
+    // === 3. Migrate Watchlist ===
+    console.log('⭐ Migrating watchlist...');
+    const watchlistItems = await prisma.favorite.findMany();
+    console.log(`Found ${watchlistItems.length} watchlist items\n`);
 
-    for (const f of favorites) {
-      const favPayload = {
-        userId: f.userId,
-        movieId: String(f.movieId), // convert to string UUID
-        createdAt: f.createdAt.toISOString()
+    for (const item of watchlistItems) {
+      const watchlistPayload = {
+        userId: item.userId,
+        movieId: String(item.movieId), // convert to string UUID
+        createdAt: item.createdAt.toISOString()
       };
-      console.log(`Migrating favorite: userId=${f.userId}, movieId=${f.movieId}`);
-      await upsertDocument('Favorite', f.id, favPayload);
+      console.log(`Migrating watchlist item: userId=${item.userId}, movieId=${item.movieId}`);
+      await upsertDocument('Watchlist', item.id, watchlistPayload);
     }
-    console.log(`\n✅ Migrated ${favorites.length} favorites\n`);
+    console.log(`\n✅ Migrated ${watchlistItems.length} watchlist items\n`);
 
     // === 4. Migrate Contact Messages ===
     console.log('💬 Migrating contact messages...');

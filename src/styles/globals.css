@@ -47,37 +47,37 @@
 
 /* Light Theme Variables */
 .light {
-  /* Neutral Colors - Light Theme */
-  --color-black: #ffffff;
+  /* Neutral Colors - Light Theme with warm undertones */
+  --color-black: #fafafa;
   --color-gray-900: #f5f5f5;
-  --color-gray-800: #e5e5e5;
-  --color-gray-700: #cccccc;
-  --color-gray-600: #999999;
-  --color-gray-500: #666666;
-  --color-gray-400: #404040;
-  --color-gray-300: #2a2a2a;
-  --color-gray-200: #1a1a1a;
-  --color-white: #0a0a0a;
+  --color-gray-800: #ebebeb;
+  --color-gray-700: #d4d4d4;
+  --color-gray-600: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-400: #525252;
+  --color-gray-300: #404040;
+  --color-gray-200: #262626;
+  --color-white: #171717;
 
-  /* Semantic Colors - Light Theme */
-  --color-text-primary: var(--color-white);
-  --color-text-secondary: var(--color-gray-300);
-  --color-text-muted: var(--color-gray-500);
-  --color-text-accent: var(--color-primary);
+  /* Semantic Colors - Light Theme with enhanced contrast */
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #404040;
+  --color-text-muted: #737373;
+  --color-text-accent: #c50813;
 
-  --color-bg-primary: var(--color-black);
-  --color-bg-secondary: var(--color-gray-900);
-  --color-bg-tertiary: var(--color-gray-800);
+  --color-bg-primary: #fafafa;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #ebebeb;
 
-  /* Border Colors - Light Theme */
-  --color-border-light: rgba(0, 0, 0, 0.08);
-  --color-border-medium: rgba(0, 0, 0, 0.16);
-  --color-border-accent: rgba(229, 9, 20, 0.4);
+  /* Border Colors - Light Theme with softer edges */
+  --color-border-light: rgba(0, 0, 0, 0.06);
+  --color-border-medium: rgba(0, 0, 0, 0.12);
+  --color-border-accent: rgba(197, 8, 19, 0.3);
 
-  /* Shadow Colors - Light Theme */
-  --color-shadow-primary: rgba(229, 9, 20, 0.4);
-  --color-shadow-hover: rgba(229, 9, 20, 0.5);
-  --color-shadow-card: rgba(229, 9, 20, 0.2);
+  /* Shadow Colors - Light Theme with natural depth */
+  --color-shadow-primary: rgba(197, 8, 19, 0.15);
+  --color-shadow-hover: rgba(197, 8, 19, 0.25);
+  --color-shadow-card: rgba(0, 0, 0, 0.08);
 }
 
 /* Spacing Scale (4px increments) */
@@ -189,6 +189,7 @@ body {
     "Helvetica Neue", Arial, sans-serif;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   /* Cross-browser text size adjust */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -197,6 +198,13 @@ body {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
   transition: background-color 500ms ease, color 500ms ease;
+}
+
+/* Light theme specific typography improvements */
+.light body {
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  font-weight: 400;
 }
 
 *,

@@ -9,10 +9,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
-import DeleteIcon from '@mui/icons-material/Delete';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PersonIcon from '@mui/icons-material/Person';
-import LockIcon from '@mui/icons-material/Lock';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { useMovies } from '@/services/queries/movies';
 import { useWatchlist, useRemoveFromWatchlist } from '@/services/queries/watchlist';
@@ -124,28 +122,7 @@ export default function WatchlistPage() {
               >
                 My Watchlist
               </Typography>
-            </Box>
-            
-            {/* Privacy Badge */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-              <LockIcon
-                sx={{
-                  fontSize: '1rem',
-                  color: isDark ? '#808080' : '#999999',
-                }}
-              />
-              <Typography
-                variant="caption"
-                sx={{
-                  color: isDark ? '#808080' : '#999999',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                }}
-              >
-                Private • Only visible to you
-              </Typography>
-            </Box>
-            
+            </Box>            
             <Typography
               variant="body1"
               sx={{
@@ -266,16 +243,25 @@ export default function WatchlistPage() {
                     onClick={() => handleRemoveFromWatchlist(movie.id)}
                     sx={{
                       position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                      top: 12,
+                      right: 12,
+                      background: 'linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7))',
                       backdropFilter: 'blur(8px)',
+                      border: '2px solid rgba(255, 255, 255, 0.4)',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
                       '&:hover': {
-                        backgroundColor: 'rgba(229, 9, 20, 0.9)',
+                        background: 'linear-gradient(to bottom right, rgba(229, 9, 20, 0.9), rgba(178, 7, 15, 0.7))',
+                        borderColor: 'rgba(255, 255, 255, 0.8)',
+                        boxShadow: '0 6px 16px rgba(229, 9, 20, 0.25)',
+                        transform: 'scale(1.1)',
                       },
+                      transition: 'all 0.3s ease',
+                      width: 44,
+                      height: 44,
                     }}
+                    aria-label="Remove from watchlist"
                   >
-                    <DeleteIcon sx={{ color: '#ffffff' }} />
+                    <BookmarkIcon sx={{ color: '#ffffff', fontSize: 20 }} />
                   </IconButton>
                 </Box>
               ))}

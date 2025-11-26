@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -22,6 +22,24 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
 }, ref) => {
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
+  const [imageError, setImageError] = useState(false);
+  const [imgSrc, setImgSrc] = useState(movie.thumbnail);
+  
+  // Fallback image source
+  const fallbackSrc = `https://placehold.co/300x450/${isDark ? '1a1a1a' : 'e5e5e5'}/${isDark ? 'ffffff' : '0a0a0a'}?text=${encodeURIComponent(movie.title)}`;
+  
+  const handleImageError = () => {
+    if (!imageError) {
+      setImageError(true);
+      // Try the full-size image as fallback
+      if (imgSrc === movie.thumbnail && movie.image !== movie.thumbnail) {
+        setImgSrc(movie.image);
+      } else {
+        // Use placeholder as final fallback
+        setImgSrc(fallbackSrc);
+      }
+    }
+  };
   
   return (  
       <Card
@@ -40,17 +58,20 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
     >
       <Box sx={{ position: 'relative', aspectRatio: '3/4' }}>
         <Image
-          src={movie.thumbnail}
+          src={imgSrc}
           alt={`${movie.title} - ${movie.genre} movie poster`}
           fill
           sizes="(max-width: 640px) 140px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
           style={{
             objectFit: "cover",
             borderRadius: '16px',
-            transition: 'opacity 0.3s'
+            transition: 'opacity 0.3s',
+            pointerEvents: 'none',
           }}
           priority={priority}
           placeholder="empty"
+          onError={handleImageError}
+          unoptimized={imgSrc === fallbackSrc}
         />
       </Box>
       <Box 

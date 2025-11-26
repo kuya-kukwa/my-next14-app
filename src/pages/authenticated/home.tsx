@@ -9,9 +9,9 @@ import MovieCard from '@/components/ui/MovieCard';
 import { HeroSkeleton, MovieRowSkeleton } from '@/components/skeletons';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import AddIcon from '@mui/icons-material/Add';
-import CheckIcon from '@mui/icons-material/Check';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import type { Movie } from '@/types';
 
 export default function HomePage() {
@@ -65,8 +65,11 @@ export default function HomePage() {
     return acc;
   }, {} as Record<string, Movie[]>);
 
-  // Hero movie
+  // Hero movie with high-res image
   const heroMovie = movies.length ? [...movies].sort((a, b) => b.rating - a.rating)[0] : null;
+  
+  // Get higher quality image for hero section (original or w1280 instead of w500)
+  const heroImageUrl = heroMovie?.image?.replace('/w500/', '/original/') || heroMovie?.image;
 
   // Unified loading
   const isLoading = !isMounted || showLoading || moviesLoading || moviesFetching || !heroMovie;
@@ -93,148 +96,177 @@ export default function HomePage() {
       {!isLoading && heroMovie && (
         <>
           {/* Hero Section */}
-          <section className="relative h-[75vh] md:h-[85vh] lg:h-[100vh] w-full overflow-hidden">
+          <div
+            className="relative w-full overflow-hidden"
+            style={{
+              height: 'clamp(75vh, 85vh, 90vh)',
+              width: '100vw',
+              marginLeft: 'calc(-50vw + 50%)',
+            }}
+          >
             {/* Background Image */}
-            <div className="absolute inset-0 w-full h-full">
-              <Image
-                src={heroMovie.image}
+            <div 
+              className="absolute inset-0"
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+            >
+              <img
+                src={heroImageUrl}
                 alt={heroMovie.title}
-                fill  
-                className="object-cover"
-                priority
-                sizes="100vw"
-              />
-              {/* Theme-aware gradients */}
-              <div
-                className="absolute inset-0"
+                loading="eager"
                 style={{
-                  background: isDark
-                    ? 'linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 40%, transparent 100%)'
-                    : 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.3) 100%)',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  display: 'block',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden',
+                  transform: 'translateZ(0)',
                 }}
               />
-              <div
+              {/* Gradient Overlay - subtle, only at bottom for text readability */}
+              <div 
                 className="absolute inset-0"
                 style={{
-                  background: isDark
-                    ? 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 50%)'
-                    : 'linear-gradient(to top, rgba(250,250,250,0.95) 0%, rgba(0,0,0,0.4) 30%, transparent 70%)',
+                  background: isDark 
+                    ? 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 25%, transparent 50%)'
+                    : 'linear-gradient(to top, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 25%, transparent 50%)'
                 }}
-              />           
+              />
             </div>
 
-            {/* Hero Content - Enhanced with consistent spacing */}
-            <div className="relative z-10 flex flex-col justify-end h-full max-w-4xl px-6 md:px-12 lg:px-20 pb-16 md:pb-20 lg:pb-24">
+            {/* Content */}
+            <div
+              className="relative z-20 flex flex-col justify-end h-full"
+              style={{
+                paddingLeft: 'clamp(24px, 5vw, 80px)',
+                paddingRight: 'clamp(24px, 5vw, 80px)',
+                paddingBottom: 'clamp(64px, 8vh, 96px)',
+                maxWidth: '64rem',
+              }}
+            >
               {/* Title */}
-              <h1 
-                className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 md:mb-5 lg:mb-6 leading-tight"
-                style={{ 
-                  color: isDark ? '#fff' : '#0a0a0a', 
-                  textShadow: isDark ? '0 4px 12px rgba(0,0,0,0.8)' : '0 2px 8px rgba(255,255,255,0.9)' 
+              <h1
+                className="font-bold mb-4 md:mb-5 lg:mb-6"
+                style={{
+                  fontSize: 'clamp(36px, 6vw, 84px)',
+                  lineHeight: 1.1,
+                  textShadow: isDark ? '2px 4px 8px rgba(0, 0, 0, 0.8)' : '2px 4px 8px rgba(0, 0, 0, 0.3)',
                 }}
               >
                 {heroMovie.title}
               </h1>
 
-              {/* Info badges */}
-              <div className="flex items-center gap-4 md:gap-6 mb-5 md:mb-6 lg:mb-7 text-sm md:text-base">
-                <span 
-                  className="px-3 py-1.5 font-semibold rounded-md border"
+              {/* Info Badges */}
+              <div className="flex items-center flex-wrap" style={{ gap: 'clamp(12px, 1.5vw, 16px)', marginBottom: 'clamp(20px, 3vh, 28px)' }}>
+                {/* Year Badge */}
+                <span
+                  className="px-2.5 py-1 text-xs md:text-sm font-medium rounded"
                   style={{
-                    borderColor: isDark ? 'rgba(156,163,175,0.4)' : 'rgba(64,64,64,0.6)',
-                    color: isDark ? '#fff' : '#0a0a0a',
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+                    color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
+                    border: isDark ? '1px solid rgba(156, 163, 175, 0.3)' : '1px solid rgba(0, 0, 0, 0.2)',
                   }}
                 >
                   {heroMovie.year}
                 </span>
-                <span 
-                  className="px-3 py-1.5 rounded-md border font-medium"
+
+                {/* Genre */}
+                <span
+                  className="text-sm md:text-base"
                   style={{
-                    borderColor: isDark ? 'rgba(156,163,175,0.4)' : 'rgba(64,64,64,0.6)',
-                    color: isDark ? 'rgba(229,229,229,1)' : '#262626',
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)',
+                    color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
                   }}
                 >
-                  {heroMovie.rating.toFixed(1)} ★
+                  {heroMovie.genre}
                 </span>
-                <span 
-                  className="px-3 py-1.5 rounded-md border"
-                  style={{
-                    borderColor: isDark ? 'rgba(156,163,175,0.4)' : 'rgba(64,64,64,0.6)',
-                    color: isDark ? 'rgba(209,213,219,1)' : '#404040',
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.7)',
-                  }}
-                >
-                  {heroMovie.category}
-                </span>
+
+                {/* Duration if available */}
+                {heroMovie.duration && (
+                  <span
+                    className="text-sm md:text-base"
+                    style={{
+                      color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
+                    }}
+                  >
+                    {Math.floor(heroMovie.duration / 60)}h {heroMovie.duration % 60}m
+                  </span>
+                )}
               </div>
 
               {/* Description */}
-              <p 
-                className="text-base md:text-lg mb-6 md:mb-7 lg:mb-8 line-clamp-3 max-w-[60%] leading-relaxed"
-                style={{ color: isDark ? 'rgba(209,213,219,1)' : '#404040' }}
-              >
-                {heroMovie.description || `${heroMovie.genre} • An unforgettable cinematic experience.`}
-              </p>
+              {heroMovie.description && (
+                <p
+                  className="mb-6 md:mb-7 lg:mb-8 leading-relaxed"
+                  style={{
+                    maxWidth: '42rem',
+                    fontSize: 'clamp(14px, 1.5vw, 18px)',
+                    textShadow: isDark ? '1px 2px 4px rgba(0, 0, 0, 0.7)' : '1px 2px 4px rgba(0, 0, 0, 0.2)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {heroMovie.description}
+                </p>
+              )}
 
-              {/* Buttons */}
-              <div className="flex items-center gap-6 md:gap-8">
+              {/* Action Buttons */}
+              <div className="flex items-center" style={{ gap: 'clamp(12px, 1.5vw, 16px)' }}>
                 <Button
                   variant="contained"
                   startIcon={<PlayArrowIcon />}
                   sx={{
-                    width: { xs: 130, md: 150 },
-                    height: { xs: 44, md: 50 },
-                    fontWeight: 'semibold',
-                    textTransform: 'none',
-                    borderRadius: '6px',
-                    backgroundColor: '#dc2626',
-                    color: '#fff',
-                    boxShadow: '0 4px 12px rgba(229, 9, 20, 0.4)',
+                    backgroundColor: '#e50914',
+                    color: '#ffffff',
+                    fontWeight: 600,
                     fontSize: { xs: '0.875rem', md: '1rem' },
+                    px: { xs: 3, md: 4 },
+                    py: { xs: 1.25, md: 1.5 },
+                    borderRadius: '6px',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 12px rgba(229, 9, 20, 0.4)',
                     '&:hover': {
-                      backgroundColor: '#b91c1c',
+                      backgroundColor: '#b2070f',
                       boxShadow: '0 6px 16px rgba(229, 9, 20, 0.5)',
+                      transform: 'translateY(-2px)',
                     },
-                    '&:active': {
-                      transform: 'scale(0.95)',
-                    },
+                    transition: 'all 0.3s ease',
                   }}
-                  aria-label="Play movie"
                 >
                   Play Now
                 </Button>
-                
                 <Button
                   variant="outlined"
-                  startIcon={watchlistMovieIds.includes(heroMovie.id) ? <CheckIcon /> : <AddIcon />}
-                  sx={{
-                    width: { xs: 170, md: 200 },
-                    height: { xs: 44, md: 50 },
-                    fontWeight: 'semibold',
-                    textTransform: 'none',
-                    borderRadius: '6px',
-                    backgroundColor: isDark ? 'rgba(55,65,81,0.9)' : 'rgba(255,255,255,0.9)',
-                    color: isDark ? '#fff' : '#0a0a0a',
-                    border: isDark ? 'none' : '1px solid rgba(0,0,0,0.1)',
-                    backdropFilter: 'blur(8px)',
-                    fontSize: { xs: '0.875rem', md: '1rem' },
-                    '&:hover': {
-                      backgroundColor: isDark ? 'rgba(55,65,81,0.95)' : 'rgba(255,255,255,0.95)',
-                    },
-                    '&:active': {
-                      transform: 'scale(0.95)',
-                    },
-                  }}
+                  startIcon={<BookmarkIcon />}
                   onClick={() => handleToggleWatchlist(heroMovie.id)}
-                  aria-label={watchlistMovieIds.includes(heroMovie.id) ? 'Remove from watch list' : 'Add to watch list'}
+                  sx={{
+                    color: isDark ? '#ffffff' : '#0a0a0a',
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+                    fontWeight: 600,
+                    fontSize: { xs: '0.875rem', md: '1rem' },
+                    px: { xs: 3, md: 4 },
+                    py: { xs: 1.25, md: 1.5 },
+                    borderRadius: '6px',
+                    textTransform: 'none',
+                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)',
+                    backdropFilter: 'blur(8px)',
+                    '&:hover': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
+                      backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                      transform: 'translateY(-2px)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
                 >
-                  {watchlistMovieIds.includes(heroMovie.id) ? 'In My List' : 'My List'}
+                  {watchlistMovieIds.includes(heroMovie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
                 </Button>
               </div>
             </div>
-          </section>
+          </div>
 
           {/* Movie Rows by Category */}
           <section className="relative z-20 -mt-16 md:-mt-20 lg:-mt-24 pb-16 md:pb-20 lg:pb-24 space-y-10 md:space-y-12 lg:space-y-14">
@@ -261,23 +293,38 @@ export default function HomePage() {
                 </div>
                 <div className="flex gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide pb-6">
                   {categoryMovies.map((movie) => (
-                    <div key={movie.id} className="relative flex-shrink-0 group cursor-pointer" style={{ width: '220px' }}>
+                    <div key={movie.id} className="relative flex-shrink-0 cursor-pointer" style={{ width: '220px' }}>
                       <MovieCard movie={movie} priority={false} />
-                      <button
+                      <IconButton
                         onClick={(e) => { e.stopPropagation(); handleToggleWatchlist(movie.id); }}
-                        className="absolute top-3 right-3 z-50 w-11 h-11 rounded-full bg-gradient-to-br from-black/90 to-black/70 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 hover:from-red-600/90 hover:to-red-500/70 transition-all duration-300 border-2 border-white/40 shadow-xl hover:shadow-red-500/25 hover:scale-110 cursor-pointer"
+                        sx={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          zIndex: 100,
+                          background: 'linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7))',
+                          backdropFilter: 'blur(8px)',
+                          border: '2px solid rgba(255, 255, 255, 0.4)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                          '&:hover': {
+                            background: 'linear-gradient(to bottom right, rgba(229, 9, 20, 0.9), rgba(178, 7, 15, 0.7))',
+                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                            boxShadow: '0 6px 16px rgba(229, 9, 20, 0.25)',
+                            transform: 'scale(1.1)',
+                          },
+                          transition: 'all 0.3s ease',
+                          width: 44,
+                          height: 44,
+                        }}
                         aria-label={watchlistMovieIds.includes(movie.id) ? 'Remove from watchlist' : 'Add to watchlist'}
                       >
-                        {watchlistMovieIds.includes(movie.id) ? (
-                          <svg className="w-5 h-5 text-red-500 drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                          </svg>
-                        )}
-                      </button>
+                        <BookmarkIcon 
+                          sx={{ 
+                            fontSize: 20, 
+                            color: watchlistMovieIds.includes(movie.id) ? '#ef4444' : '#ffffff' 
+                          }} 
+                        />
+                      </IconButton>
                     </div>
                   ))}
                 </div>

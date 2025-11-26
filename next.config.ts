@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "via.placeholder.com",
+      },
+      {
+        protocol: "https",
         hostname: "placehold.co",
       },
       {
@@ -16,7 +20,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
     ],
+    qualities: [75, 90, 95],
   },
   async rewrites() {
     return [

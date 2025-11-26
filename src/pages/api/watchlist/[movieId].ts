@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(404).json({ error: 'User not found' });
   }
 
-  // DELETE /api/favorites/[movieId] - Remove a movie from favorites
+  // DELETE /api/watchlist/[movieId] - Remove a movie from watchlist
   if (req.method === 'DELETE') {
     const movieId = req.query.movieId as string;
 
@@ -36,11 +36,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid movieId' });
     }
 
-    // Find and delete the favorite
+    // Find and delete the watchlist item
     try {
       const existingResult = await databases.listDocuments(
         databaseId,
-        COLLECTIONS.FAVORITES,
+        COLLECTIONS.WATCHLIST,
         [
           Query.equal('userId', user.$id),
           Query.equal('movieId', movieId)
@@ -50,20 +50,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (existingResult.documents.length > 0) {
         await databases.deleteDocument(
           databaseId,
-          COLLECTIONS.FAVORITES,
+          COLLECTIONS.WATCHLIST,
           existingResult.documents[0].$id
         );
       }
 
       return res.status(200).json({
         success: true,
-        message: 'Removed from favorites',
+        message: 'Removed from watchlist',
       });
     } catch {
       // If not found, return success anyway (idempotent)
       return res.status(200).json({
         success: true,
-        message: 'Not in favorites',
+        message: 'Not in watchlist',
       });
     }
   }

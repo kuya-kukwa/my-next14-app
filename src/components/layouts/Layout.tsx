@@ -22,61 +22,48 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const isIdle = useIdle(400);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  // Determine if we're on signin or signup pages
+
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
   const isHomePage = router.pathname === '/home';
 
-  // Check authentication status
   useEffect(() => {
     const checkAuth = () => {
       const token = getToken();
-      const authStatus = !!token;
-      console.log('[Layout] Auth check:', { hasToken: authStatus, pathname: router.pathname });
-      setIsAuthenticated(authStatus);
+      setIsAuthenticated(!!token);
     };
-    
     checkAuth();
-    // Re-check on route change
     router.events?.on('routeChangeComplete', checkAuth);
-    
-    return () => {
-      router.events?.off('routeChangeComplete', checkAuth);
-    };
-  }, [router.pathname, router.events]);
+    return () => router.events?.off('routeChangeComplete', checkAuth);
+  }, [router.events]);
 
-  // Handle logout
   const handleLogout = async () => {
     try {
-      console.log('[Layout] Logout initiated');
       const { account } = getAppwriteBrowser();
       await account.deleteSession('current');
       clearToken();
       setIsAuthenticated(false);
-      console.log('[Layout] Logout successful, redirecting to home');
       router.push('/');
     } catch (error) {
-      console.error('[Layout] Logout error:', error);
-      // Clear token even if Appwrite logout fails
       clearToken();
       setIsAuthenticated(false);
       router.push('/');
     }
   };
 
-  // Smooth scroll handler
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     if (router.pathname !== '/') {
       router.push(`/#${id}`);
     } else {
       const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // Decide AppBar positioning
+  // On home and authenticated pages, header is in normal flow (static)
+  const isHeaderStatic = isHomePage || isAuthenticated;
 
   return (
     <Box
@@ -84,25 +71,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
+        backgroundColor: isDark ? "#0a0a0a" : "#fafafa",
         color: isDark ? "#f5f5f5" : "#0a0a0a",
-        transition: 'background-color 0.5s, color 0.5s'
+        transition: 'background-color 0.5s, color 0.5s',
       }}
     >
       {/* Header */}
       <AppBar
-        position="absolute"
+        position={isHeaderStatic ? "static" : "absolute"}
         elevation={0}
         sx={{
-          backgroundColor: isDark
-            ? "rgba(10,10,10,0.65)"
-            : "rgba(255,255,255,0.85)",
-          // Defer expensive backdrop filter until the browser becomes idle
-          backdropFilter: isIdle ? 'blur(12px)' : 'none',
+          backgroundColor: isDark ? "#0a0a0a" : "#fafafa",
           borderBottom: isDark
             ? "1px solid rgba(255,255,255,0.08)"
-            : "1px solid rgba(0,0,0,0.05)",
-          transition: 'all 0.5s'
+            : "1px solid rgba(0,0,0,0.08)",
+          backdropFilter: !isHeaderStatic && isIdle ? 'blur(12px)' : 'none',
+          transition: 'all 0.5s',
+          zIndex: 1100,
         }}
       >
         <Toolbar
@@ -110,8 +95,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             maxWidth: '1280px',
             width: '100%',
             mx: 'auto',
-            px: { xs: 3, sm: 4, md: 6 },
-            py: { xs: 2, sm: 2.5, md: 3 },
+            px: { xs: 2, sm: 3, md: 4 },
+            py: { xs: 1.5, sm: 2, md: 2.5 },
             justifyContent: 'space-between'
           }}
         >
@@ -128,128 +113,73 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 letterSpacing: '-0.025em',
                 color: isDark ? "#ffffff" : "#0a0a0a",
                 transition: 'opacity 0.3s',
-                '&:hover': {
-                  opacity: 0.8
-                }
+                '&:hover': { opacity: 0.8 }
               }}
             >
               NextFlix
             </Box>
           </Link>
 
-          {/* Center Nav */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center' }}>
-            <Link href="/movies" style={{ textDecoration: 'none' }}>
-              <Box
-                component="span"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '1rem',
+          {/* Center Nav - Hide on homepage */}
+          {!isHomePage && (
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center' }}>
+              <Link href={isAuthenticated ? "/home" : "/movies"} style={{ textDecoration: 'none' }}>
+                <Box component="span" sx={{
+                  fontWeight: 500, fontSize: '1rem',
                   color: isDark ? "#e5e5e5" : "#0a0a0a",
-                  transition: 'opacity 0.3s',
-                  '&:hover': {
-                    opacity: 0.7
-                  }
-                }}
-              >
-                Movies
-              </Box>
-            </Link>
-            <Link href="/favorites" style={{ textDecoration: 'none' }}>
-              <Box
-                component="span"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: '1rem',
-                  color: isDark ? "#e5e5e5" : "#0a0a0a",
-                  transition: 'opacity 0.3s',
-                  '&:hover': {
-                    opacity: 0.7
-                  }
-                }}
-              >
-                Favorites
-              </Box>
-            </Link>
-            {[
-              { id: "team", label: "Team" },
-              { id: "value-proposition", label: "Why Us" },
-              { id: "trending", label: "Trending" }
-            ].map((item) => (
-              <Link
-                key={item.id}
-                href={`#${item.id}`}
-                onClick={(e) => handleScrollTo(e, item.id)}
-                style={{ textDecoration: 'none' }}
-              >
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    color: isDark ? "#e5e5e5" : "#0a0a0a",
-                    transition: 'opacity 0.3s',
-                    '&:hover': {
-                      opacity: 0.7
-                    }
-                  }}
-                >
-                  {item.label}
-                </Box>
+                  transition: 'opacity 0.3s', '&:hover': { opacity: 0.7 }
+                }}>Movies</Box>
               </Link>
-            ))}
-          </Box>
+              <Link href="/authenticated/watchlist" style={{ textDecoration: 'none' }}>
+                <Box component="span" sx={{
+                  fontWeight: 500, fontSize: '1rem',
+                  color: isDark ? "#e5e5e5" : "#0a0a0a",
+                  transition: 'opacity 0.3s', '&:hover': { opacity: 0.7 }
+                }}>Watchlist</Box>
+              </Link>
+              {[
+                { id: "value-proposition", label: "Why Us" },
+                { id: "trending", label: "Trending" }
+              ].map(item => (
+                <Link key={item.id} href={`#${item.id}`} onClick={(e) => handleScrollTo(e, item.id)} style={{ textDecoration: 'none' }}>
+                  <Box component="span" sx={{
+                    fontWeight: 500, fontSize: '1rem',
+                    color: isDark ? "#e5e5e5" : "#0a0a0a",
+                    transition: 'opacity 0.3s', '&:hover': { opacity: 0.7 }
+                  }}>{item.label}</Box>
+                </Link>
+              ))}
+            </Box>
+          )}
 
           {/* Right Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.5, md: 2 } }}>
-            <IconButton
-              onClick={toggleTheme}
-              aria-label="toggle theme"
-              size="small"
+            <IconButton onClick={toggleTheme} aria-label="toggle theme" size="small"
               sx={{
                 color: isDark ? "#ffffff" : "#0a0a0a",
                 transition: 'transform 0.3s',
                 p: { xs: 0.75, sm: 1 },
                 '&:hover': {
-                  backgroundColor: isDark
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.05)",
+                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
                   transform: 'scale(1.1)'
                 }
-              }}
-            >
+              }}>
               {isDark ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
             </IconButton>
 
-            {/* Authentication Buttons - Conditional Rendering */}
             {isAuthenticated ? (
               <>
-                {/* Profile Button */}
                 <Link href="/profile" style={{ textDecoration: 'none' }}>
-                  <IconButton
-                    aria-label="profile"
-                    size="small"
-                    sx={{
-                      color: isDark ? "#ffffff" : "#0a0a0a",
-                      transition: 'transform 0.3s',
-                      p: { xs: 0.75, sm: 1 },
-                      '&:hover': {
-                        backgroundColor: isDark
-                          ? "rgba(255,255,255,0.1)"
-                          : "rgba(0,0,0,0.05)",
-                        transform: 'scale(1.1)'
-                      }
-                    }}
-                  >
+                  <IconButton aria-label="profile" size="small" sx={{
+                    color: isDark ? "#ffffff" : "#0a0a0a",
+                    transition: 'transform 0.3s',
+                    p: { xs: 0.75, sm: 1 },
+                    '&:hover': { backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", transform: 'scale(1.1)' }
+                  }}>
                     <AccountCircleIcon fontSize="small" />
                   </IconButton>
                 </Link>
-
-                {/* Logout Button */}
-                <Button
-                  onClick={handleLogout}
-                  variant="outlined"
-                  startIcon={<LogoutIcon />}
+                <Button onClick={handleLogout} variant="outlined" startIcon={<LogoutIcon />}
                   sx={{
                     fontWeight: 600,
                     fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
@@ -262,74 +192,38 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     borderColor: isDark ? "#e5e5e5" : "#0a0a0a",
                     transition: 'all 0.3s',
                     minWidth: 'auto',
-                    '&:hover': {
-                      backgroundColor: "#e50914",
-                      color: "#ffffff",
-                      borderColor: "#e50914"
-                    }
-                  }}
-                >
-                  Logout
-                </Button>
+                    '&:hover': { backgroundColor: "#e50914", color: "#ffffff", borderColor: "#e50914" }
+                  }}>Logout</Button>
               </>
             ) : (
               <>
-                {/* Show Sign In button only if NOT on signin page */}
-                {!isSignInPage && (
-                  <Link href="/signin" style={{ textDecoration: 'none' }}>
-                    <Button
-                      variant="outlined"
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
-                        px: { xs: 1.5, sm: 2, md: 2.5 },
-                        py: { xs: 0.5, sm: 0.75, md: 1 },
-                        borderRadius: '9999px',
-                        backgroundColor: isSignUpPage ? (isDark ? "#e50914" : "#ffffff") : "transparent",
-                        color: isSignUpPage ? (isDark ? "#ffffff" : "#e50914") : (isDark ? "#e5e5e5" : "#0a0a0a"),
-                        border: { xs: '1.5px solid', md: '2px solid' },
-                        borderColor: isSignUpPage ? "#e50914" : (isDark ? "#e5e5e5" : "#0a0a0a"),
-                        transition: 'all 0.3s',
-                        minWidth: 'auto',
-                        '&:hover': {
-                          backgroundColor: isDark ? "#e50914" : "#e50914",
-                          color: "#ffffff",
-                          borderColor: "#e50914"
-                        }
-                      }}
-                    >
-                      Sign In →
-                    </Button>
-                  </Link>
-                )}
-
-                {/* Show Sign Up button only if NOT on signup page */}
-                {!isSignUpPage && (
-                  <Link href="/signup" style={{ textDecoration: 'none' }}>
-                    <Button
-                      variant="outlined"
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
-                        px: { xs: 1.5, sm: 2, md: 2.5 },
-                        py: { xs: 0.5, sm: 0.75, md: 1 },
-                        borderRadius: '9999px',
-                        backgroundColor: isDark ? "#e50914" : "#ffffff",
-                        color: isDark ? "#ffffff" : "#e50914",
-                        border: { xs: '1.5px solid #e50914', md: '2px solid #e50914' },
-                        transition: 'all 0.3s',
-                        minWidth: 'auto',
-                        '&:hover': {
-                          backgroundColor: isDark ? "#b2070f" : "#e50914",
-                          color: "#ffffff",
-                          borderColor: "#e50914"
-                        }
-                      }}
-                    >
-                      Sign Up →
-                    </Button>
-                  </Link>
-                )}
+                {!isSignInPage && <Link href="/signin" style={{ textDecoration: 'none' }}>
+                  <Button variant="outlined" sx={{
+                    fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                    px: { xs: 1.5, sm: 2, md: 2.5 },
+                    py: { xs: 0.5, sm: 0.75, md: 1 },
+                    borderRadius: '9999px', backgroundColor: "transparent",
+                    color: isDark ? "#e5e5e5" : "#0a0a0a",
+                    border: { xs: '1.5px solid', md: '2px solid' },
+                    borderColor: isDark ? "#e5e5e5" : "#0a0a0a",
+                    transition: 'all 0.3s', minWidth: 'auto',
+                    '&:hover': { backgroundColor: "#e50914", color: "#ffffff", borderColor: "#e50914" }
+                  }}>Sign In</Button>
+                </Link>}
+                {!isSignUpPage && <Link href="/signup" style={{ textDecoration: 'none' }}>
+                  <Button variant="outlined" sx={{
+                    fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                    px: { xs: 1.5, sm: 2, md: 2.5 },
+                    py: { xs: 0.5, sm: 0.75, md: 1 },
+                    borderRadius: '9999px',
+                    backgroundColor: "#e50914",
+                    color: "#ffffff",
+                    border: { xs: '1.5px solid #e50914', md: '2px solid #e50914' },
+                    transition: 'all 0.3s',
+                    minWidth: 'auto',
+                    '&:hover': { backgroundColor: "#b2070f", borderColor: "#b2070f" }
+                  }}>Sign Up</Button>
+                </Link>}
               </>
             )}
           </Box>
@@ -339,7 +233,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Page Content */}
       <Box component="main" sx={{ flex: 1 }}>{children}</Box>
 
-      {/* Footer - Hidden on /home */}
+      {/* Footer */}
       {!isHomePage && <Footer />}
     </Box>
   );

@@ -28,7 +28,7 @@ export const COLLECTIONS = {
   USERS: 'User',
   PROFILES: 'Profile',
   MOVIES: 'Movie',
-  FAVORITES: 'Favorite',
+  WATCHLIST: 'Watchlist',
   CONTACT_MESSAGES: 'ContactMessage'
 };
 

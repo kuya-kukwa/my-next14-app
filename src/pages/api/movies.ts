@@ -30,14 +30,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       queries.push(Query.search('title', search));
     }
 
-    // Fetch movies from database
+    // Fetch movies from database with increased limit
     const result = await databases.listDocuments(
       databaseId,
       COLLECTIONS.MOVIES,
-      queries
+      [...queries, Query.limit(1000)]
     );
 
-    const movies = result.documents as Array<Record<string, unknown>>;
+    const movies = result.documents.map((doc: Record<string, unknown>) => ({
+      id: doc.$id,
+      ...doc,
+    }));
 
     // Get unique categories (fetch all movies to get categories)
     const allMoviesResult = await databases.listDocuments(

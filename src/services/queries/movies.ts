@@ -33,5 +33,7 @@ export function useMovies(filters?: MoviesFilters) {
     queryFn: () => api.get<MoviesResponse>(url),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime in v5)
+    refetchOnMount: true, // Always refetch on mount to show skeleton
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 }

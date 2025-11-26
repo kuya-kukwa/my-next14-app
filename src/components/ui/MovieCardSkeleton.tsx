@@ -25,30 +25,6 @@ const MovieCardSkeleton: React.FC = () => {
           bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
         }}
       />
-      
-      {/* Content skeleton */}
-      <Box sx={{ p: 2 }}>
-        {/* Title */}
-        <Skeleton
-          variant="text"
-          width="80%"
-          height={24}
-          sx={{
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-            mb: 1,
-          }}
-        />
-        
-        {/* Subtitle */}
-        <Skeleton
-          variant="text"
-          width="60%"
-          height={20}
-          sx={{
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-          }}
-        />
-      </Box>
     </Box>
   );
 };

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
 import Image from 'next/image';
 import { useMovies } from '@/services/queries/movies';
 import { getToken } from '@/lib/session';
@@ -13,27 +12,37 @@ import IconButton from '@mui/material/IconButton';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import type { Movie } from '@/types';
+import { ChevronRight } from 'lucide-react';
+import ErrorState from '@/components/ui/ErrorState';
 
 export default function HomePage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [showLoading, setShowLoading] = useState(true);
+
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
 
-  const { data: moviesData, isLoading: moviesLoading, isFetching: moviesFetching } = useMovies();
+  const {
+    data: moviesData,
+    isLoading: moviesLoading,
+    isFetching: moviesFetching,
+    isError,
+    error,
+    refetch,
+  } = useMovies();
+
   const { data: watchlistData } = useWatchlist();
   const addToWatchlist = useAddToWatchlist();
   const removeFromWatchlist = useRemoveFromWatchlist();
-
-  const movies = moviesData?.movies || [];
   const watchlistMovieIds = watchlistData?.movieIds || [];
 
-  // Mount check
-  useEffect(() => setIsMounted(true), []);
+  // mount check
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  // Authentication check
+  // authentication check
   useEffect(() => {
     const token = getToken();
     if (!token) {
@@ -43,63 +52,80 @@ export default function HomePage() {
     }
   }, [router]);
 
-  // Loading showcase timer
-  useEffect(() => {
-    if (isAuthenticated && isMounted) {
-      const timer = setTimeout(() => {
-        setShowLoading(false);
-      }, 2000); // Show loading for at least 2 seconds after authentication
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, isMounted]);
-
+  // toggle watchlist
   const handleToggleWatchlist = (movieId: string) => {
-    if (watchlistMovieIds.includes(movieId)) removeFromWatchlist.mutate(movieId);
-    else addToWatchlist.mutate({ movieId });
+    if (watchlistMovieIds.includes(movieId)) {
+      removeFromWatchlist.mutate(movieId);
+    } else {
+      addToWatchlist.mutate({ movieId });
+    }
   };
 
-  // Organize movies by category
+  // movies fallback
+  const movies = moviesData?.movies || [];
+
+  // organize by category
   const moviesByCategory = movies.reduce((acc, movie) => {
     if (!acc[movie.category]) acc[movie.category] = [];
     acc[movie.category].push(movie);
     return acc;
   }, {} as Record<string, Movie[]>);
 
-  // Hero movie with high-res image
-  const heroMovie = movies.length ? [...movies].sort((a, b) => b.rating - a.rating)[0] : null;
-  
-  // Get higher quality image for hero section (original or w1280 instead of w500)
-  const heroImageUrl = heroMovie?.image?.replace('/w500/', '/original/') || heroMovie?.image;
+  // hero movie (highest rating)
+  const heroMovie = movies.length
+    ? [...movies].sort((a, b) => b.rating - a.rating)[0]
+    : null;
 
-  // Unified loading
-  const isLoading = !isMounted || showLoading || moviesLoading || moviesFetching || !heroMovie;
+  const heroImageUrl =
+    heroMovie?.image?.replace('/w500/', '/original/') || heroMovie?.image;
 
+  // unified loading state
+  const loading =
+    !isMounted || moviesLoading || moviesFetching || !heroMovie;
+
+  // REDIRECT until authenticated
   if (!isAuthenticated) return null;
 
+  // ERROR STATE (your ErrorState component)
+  if (isError) {
+    return (
+      <ErrorState
+        title="Failed to load movies"
+        message="We encountered a problem loading movie data."
+        error={error}
+        onRetry={() => refetch()}
+      />
+    );
+  }
+
+  // LOADING UI
+  if (loading) {
+    return (
+      <>
+        <HeroSkeleton />
+        <MovieRowSkeleton />
+        <MovieRowSkeleton />
+        <MovieRowSkeleton />
+        <MovieRowSkeleton />
+        <MovieRowSkeleton />
+
+      </>
+    );
+  }
+
+  // SUCCESS UI
   return (
     <>
-      <Head>
-        <title>{isLoading ? 'Loading - NextFlix' : 'NextFlix - Home'}</title>
-      </Head>
 
-      {/* LOADING SKELETON */}
-      {isLoading && (
-        <div className="w-full">
-          <HeroSkeleton />
-          <section className="relative z-20 -mt-16 md:-mt-20 lg:-mt-24 pb-16 md:pb-20 lg:pb-24 space-y-10 md:space-y-12 lg:space-y-14">
-            {Array(2).fill(0).map((_, i) => <MovieRowSkeleton key={i} />)}
-          </section>
-        </div>
-      )}
 
       {/* PAGE CONTENT */}
-      {!isLoading && heroMovie && (
+      {heroMovie && (
         <>
           {/* Hero Section */}
           <div
             className="relative w-full overflow-hidden"
             style={{
-              height: 'clamp(75vh, 85vh, 90vh)',
+              height: 'clamp(75vh, 85vh, 100vh)',
               width: '100vw',
               marginLeft: 'calc(-50vw + 50%)',
             }}
@@ -112,19 +138,16 @@ export default function HomePage() {
                 height: '100%',
               }}
             >
-              <img
-                src={heroImageUrl}
+              <Image
+                src={heroImageUrl || heroMovie.image}
                 alt={heroMovie.title}
-                loading="eager"
+                fill
+                priority
+                sizes="100vw"
+                quality={95}
                 style={{
-                  width: '100%',
-                  height: '100%',
                   objectFit: 'cover',
                   objectPosition: 'center',
-                  display: 'block',
-                  WebkitBackfaceVisibility: 'hidden',
-                  backfaceVisibility: 'hidden',
-                  transform: 'translateZ(0)',
                 }}
               />
               {/* Gradient Overlay - subtle, only at bottom for text readability */}
@@ -269,31 +292,37 @@ export default function HomePage() {
           </div>
 
           {/* Movie Rows by Category */}
-          <section className="relative z-20 -mt-16 md:-mt-20 lg:-mt-24 pb-16 md:pb-20 lg:pb-24 space-y-10 md:space-y-12 lg:space-y-14">
+          <section className="relative z-20 -mt-32 md:-mt-40 lg:-mt-48 pb-16 md:pb-20 lg:pb-24">
             {Object.entries(moviesByCategory).map(([category, categoryMovies]) => (
-              <div key={category} className="px-6 md:px-12 lg:px-20">
+              <div
+                key={category}
+                className="mb-10 md:mb-12 lg:mb-14"
+                style={{
+                  paddingLeft: 'clamp(24px, 5vw, 80px)',
+                  paddingRight: 'clamp(24px, 5vw, 80px)',
+                }}
+              >
                 <div className="flex items-center justify-between mb-5 md:mb-6">
-                  <h2 
+                  <h2
                     className="text-xl md:text-2xl lg:text-3xl font-semibold"
                     style={{ color: isDark ? '#ffffff' : '#0a0a0a' }}
                   >
                     {category}
                   </h2>
-                  <button 
-                    className="text-sm flex items-center gap-1 transition-colors"
-                    style={{ color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#ffffff' : '#0a0a0a'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = isDark ? 'rgba(156, 163, 175, 1)' : '#737373'}
-                  >
-                    See All
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  <button
+  className="text-sm flex items-center gap-1 transition-colors"
+  style={{ color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373' }}
+  onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#ffffff' : '#0a0a0a'}
+  onMouseLeave={(e) => e.currentTarget.style.color = isDark ? 'rgba(156, 163, 175, 1)' : '#737373'}
+>
+  <span>See all</span>
+<ChevronRight size={16} />
+</button>
+
                 </div>
                 <div className="flex gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide pb-6">
                   {categoryMovies.map((movie) => (
-                    <div key={movie.id} className="relative flex-shrink-0 cursor-pointer" style={{ width: '220px' }}>
+                    <div key={movie.id} className="relative flex-shrink-0 cursor-pointer" style={{ width: '210px' }}>
                       <MovieCard movie={movie} priority={false} />
                       <IconButton
                         onClick={(e) => { e.stopPropagation(); handleToggleWatchlist(movie.id); }}
@@ -318,11 +347,11 @@ export default function HomePage() {
                         }}
                         aria-label={watchlistMovieIds.includes(movie.id) ? 'Remove from watchlist' : 'Add to watchlist'}
                       >
-                        <BookmarkIcon 
-                          sx={{ 
-                            fontSize: 20, 
-                            color: watchlistMovieIds.includes(movie.id) ? '#ef4444' : '#ffffff' 
-                          }} 
+                        <BookmarkIcon
+                          sx={{
+                            fontSize: 20,
+                            color: watchlistMovieIds.includes(movie.id) ? '#ef4444' : '#ffffff'
+                          }}
                         />
                       </IconButton>
                     </div>

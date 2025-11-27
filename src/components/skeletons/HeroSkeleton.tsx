@@ -12,7 +12,7 @@ export default function HeroSkeleton() {
       sx={{
         position: 'relative',
         width: '100vw',
-        height: { xs: '75vh', md: '85vh', lg: '90vh' },
+        height: { xs: '75vh', md: '85vh', lg: '87vh' },
         overflow: 'hidden',
         backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
         marginLeft: 'calc(-50vw + 50%)',
@@ -22,7 +22,7 @@ export default function HeroSkeleton() {
       <Skeleton
         variant="rectangular"
         width="100%"
-        height="100%"
+        height="98%"
         animation="wave"
         sx={{
           bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
@@ -106,6 +106,18 @@ export default function HeroSkeleton() {
               borderRadius: '4px',
             }}
           />
+          <Skeleton
+            variant="text"
+            animation="wave"
+            width="100%"
+            height={20}
+            sx={{
+              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              mb: 0.75,
+              borderRadius: '4px',
+            }}
+          />
+          
           <Skeleton
             variant="text"
             animation="wave"

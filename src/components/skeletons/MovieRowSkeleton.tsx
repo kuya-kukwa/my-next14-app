@@ -64,15 +64,15 @@ export default function MovieRowSkeleton() {
             key={i}
             sx={{
               flexShrink: 0,
-              width: '220px',
+              width: '210px',
             }}
           >
             {/* Movie card skeleton - exact MovieCard dimensions */}
             <Skeleton
               variant="rectangular"
               animation="wave"
-              width={220}
-              height={330}
+              width={210}
+              height={280}
               sx={{
                 bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 borderRadius: '12px',

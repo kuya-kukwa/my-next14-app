@@ -94,8 +94,8 @@ const ErrorState: React.FC<ErrorStateProps> = ({
             color: '#ffffff',
             fontWeight: 600,
             px: 4,
-            py: 1.5,
-            borderRadius: '9999px',
+            py: 1.2,
+            borderRadius: 2,
             '&:hover': {
               backgroundColor: isDark ? '#b2070f' : '#b2070f',
             },

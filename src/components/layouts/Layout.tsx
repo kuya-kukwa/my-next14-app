@@ -44,7 +44,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       clearToken();
       setIsAuthenticated(false);
       router.push('/');
-    } catch (error) {
+    } catch {
       clearToken();
       setIsAuthenticated(false);
       router.push('/');

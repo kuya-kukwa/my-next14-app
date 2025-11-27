@@ -8,11 +8,11 @@ export default function SignInPage() {
 
   return (
     <section
-      className="animate-fadeInUp relative min-h-screen flex items-center justify-center overflow-hidden px-4"
+      className="py-16 sm:py-20 md:py-16 lg:py-20 animate-fadeInUp relative flex items-center justify-center overflow-hidden px-4"
     >
       {/* Theme-aware gradient background */}
       <div 
-        className="absolute inset-0 -z-10 w-screen min-h-screen transition-colors duration-500"
+        className="absolute inset-0 -z-10 w-screen transition-colors duration-500"
         style={{
           background: isDark 
             ? 'radial-gradient(circle at bottom left, #2a0a0e 0%, #141414 50%, #1f1f1f 100%)'
@@ -23,7 +23,7 @@ export default function SignInPage() {
 
       {/* Decorative gradient orbs */}
       <div 
-        className="absolute top-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none"
+        className="absolute top-32 left-32 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none"
         style={{
           background: isDark 
             ? 'radial-gradient(circle, #e50914 0%, transparent 70%)'
@@ -31,7 +31,7 @@ export default function SignInPage() {
         }}
       />
       <div 
-        className="absolute bottom-20 left-20 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none"
+        className="absolute bottom-32 right-32 w-80 h-80 rounded-full blur-3xl opacity-15 pointer-events-none"
         style={{
           background: isDark 
             ? 'radial-gradient(circle, #b20710 0%, transparent 70%)'

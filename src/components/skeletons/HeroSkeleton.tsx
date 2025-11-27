@@ -52,21 +52,32 @@ export default function HeroSkeleton() {
           width="75%"
           sx={{
             height: { xs: 48, md: 72, lg: 84 },
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+            bgcolor: isDark
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.08)',
             mb: { xs: 2, md: 2.5, lg: 3 },
             borderRadius: '8px',
           }}
         />
 
         {/* Info badges skeleton - mb-5 md:mb-6 lg:mb-7 */}
-        <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, mb: { xs: 2.5, md: 3, lg: 3.5 }, alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: { xs: 1.5, md: 2 },
+            mb: { xs: 2.5, md: 3, lg: 3.5 },
+            alignItems: 'center',
+          }}
+        >
           <Skeleton
             variant="rectangular"
             animation="wave"
             width={60}
             height={20}
             sx={{
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.06)',
               borderRadius: '4px',
             }}
           />
@@ -76,9 +87,13 @@ export default function HeroSkeleton() {
             width={70}
             height={28}
             sx={{
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.06)',
               borderRadius: '4px',
-              border: isDark ? '1px solid rgba(156, 163, 175, 0.3)' : '1px solid rgba(0, 0, 0, 0.1)',
+              border: isDark
+                ? '1px solid rgba(156, 163, 175, 0.3)'
+                : '1px solid rgba(0, 0, 0, 0.1)',
             }}
           />
           <Skeleton
@@ -87,7 +102,9 @@ export default function HeroSkeleton() {
             width={90}
             height={20}
             sx={{
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.06)',
               borderRadius: '4px',
             }}
           />
@@ -101,7 +118,9 @@ export default function HeroSkeleton() {
             width="100%"
             height={20}
             sx={{
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.06)',
               mb: 0.75,
               borderRadius: '4px',
             }}
@@ -112,33 +131,45 @@ export default function HeroSkeleton() {
             width="100%"
             height={20}
             sx={{
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.06)',
               mb: 0.75,
               borderRadius: '4px',
             }}
           />
-          
+
           <Skeleton
             variant="text"
             animation="wave"
             width="90%"
             height={20}
             sx={{
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.06)',
               borderRadius: '4px',
             }}
           />
         </Box>
 
         {/* Buttons skeleton - gap-3 md:gap-4 */}
-        <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: { xs: 1.5, md: 2 },
+            alignItems: 'center',
+          }}
+        >
           <Skeleton
             variant="rectangular"
             animation="wave"
             sx={{
               width: { xs: 130, md: 150 },
               height: { xs: 44, md: 50 },
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(229, 9, 20, 0.15)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(229, 9, 20, 0.15)',
               borderRadius: '6px',
             }}
           />
@@ -148,7 +179,9 @@ export default function HeroSkeleton() {
             sx={{
               width: { xs: 170, md: 200 },
               height: { xs: 44, md: 50 },
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.08)',
               borderRadius: '6px',
             }}
           />

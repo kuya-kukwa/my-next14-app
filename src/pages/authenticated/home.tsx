@@ -3,14 +3,26 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useMovies } from '@/services/queries/movies';
 import { getToken } from '@/lib/session';
-import { useWatchlist, useAddToWatchlist, useRemoveFromWatchlist } from '@/services/queries/watchlist';
+import {
+  useWatchlist,
+  useAddToWatchlist,
+  useRemoveFromWatchlist,
+} from '@/services/queries/watchlist';
 import MovieCard from '@/components/ui/MovieCard';
-import { HeroSkeleton, MovieRowSkeleton } from '@/components/skeletons';
+import {
+  HeroSkeleton,
+  MovieRowSkeleton,
+  FilterSkeleton,
+} from '@/components/skeletons';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
 import type { Movie } from '@/types';
 import { ChevronRight } from 'lucide-react';
 import ErrorState from '@/components/ui/ErrorState';
@@ -19,6 +31,8 @@ export default function HomePage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
@@ -64,8 +78,25 @@ export default function HomePage() {
   // movies fallback
   const movies = moviesData?.movies || [];
 
+  // Apply filters to movies
+  let filteredMovies = movies;
+
+  // Apply search filter
+  if (searchTerm) {
+    filteredMovies = filteredMovies.filter((movie) =>
+      movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+
+  // Apply category filter
+  if (categoryFilter !== 'all') {
+    filteredMovies = filteredMovies.filter(
+      (movie) => movie.category.toLowerCase() === categoryFilter.toLowerCase()
+    );
+  }
+
   // organize by category
-  const moviesByCategory = movies.reduce((acc, movie) => {
+  const moviesByCategory = filteredMovies.reduce((acc, movie) => {
     if (!acc[movie.category]) acc[movie.category] = [];
     acc[movie.category].push(movie);
     return acc;
@@ -80,8 +111,7 @@ export default function HomePage() {
     heroMovie?.image?.replace('/w500/', '/original/') || heroMovie?.image;
 
   // unified loading state
-  const loading =
-    !isMounted || moviesLoading || moviesFetching || !heroMovie;
+  const loading = !isMounted || moviesLoading || moviesFetching || !heroMovie;
 
   // REDIRECT until authenticated
   if (!isAuthenticated) return null;
@@ -103,12 +133,12 @@ export default function HomePage() {
     return (
       <>
         <HeroSkeleton />
+        <FilterSkeleton />
         <MovieRowSkeleton />
         <MovieRowSkeleton />
         <MovieRowSkeleton />
         <MovieRowSkeleton />
         <MovieRowSkeleton />
-
       </>
     );
   }
@@ -116,8 +146,6 @@ export default function HomePage() {
   // SUCCESS UI
   return (
     <>
-
-
       {/* PAGE CONTENT */}
       {heroMovie && (
         <>
@@ -131,7 +159,7 @@ export default function HomePage() {
             }}
           >
             {/* Background Image */}
-            <div 
+            <div
               className="absolute inset-0"
               style={{
                 width: '100%',
@@ -151,12 +179,12 @@ export default function HomePage() {
                 }}
               />
               {/* Gradient Overlay - subtle, only at bottom for text readability */}
-              <div 
+              <div
                 className="absolute inset-0"
                 style={{
-                  background: isDark 
+                  background: isDark
                     ? 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 25%, transparent 50%)'
-                    : 'linear-gradient(to top, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 25%, transparent 50%)'
+                    : 'linear-gradient(to top, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 25%, transparent 50%)',
                 }}
               />
             </div>
@@ -177,20 +205,30 @@ export default function HomePage() {
                 style={{
                   fontSize: 'clamp(36px, 6vw, 84px)',
                   lineHeight: 1.1,
-                  textShadow: isDark ? '2px 4px 8px rgba(0, 0, 0, 0.8)' : '2px 4px 8px rgba(0, 0, 0, 0.3)',
+                  textShadow: isDark
+                    ? '2px 4px 8px rgba(0, 0, 0, 0.8)'
+                    : '2px 4px 8px rgba(0, 0, 0, 0.3)',
                 }}
               >
                 {heroMovie.title}
               </h1>
 
               {/* Info Badges */}
-              <div className="flex items-center flex-wrap" style={{ gap: 'clamp(12px, 1.5vw, 16px)', marginBottom: 'clamp(20px, 3vh, 28px)' }}>
+              <div
+                className="flex items-center flex-wrap"
+                style={{
+                  gap: 'clamp(12px, 1.5vw, 16px)',
+                  marginBottom: 'clamp(20px, 3vh, 28px)',
+                }}
+              >
                 {/* Year Badge */}
                 <span
                   className="px-2.5 py-1 text-xs md:text-sm font-medium rounded"
                   style={{
                     color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
-                    border: isDark ? '1px solid rgba(156, 163, 175, 0.3)' : '1px solid rgba(0, 0, 0, 0.2)',
+                    border: isDark
+                      ? '1px solid rgba(156, 163, 175, 0.3)'
+                      : '1px solid rgba(0, 0, 0, 0.2)',
                   }}
                 >
                   {heroMovie.year}
@@ -214,7 +252,8 @@ export default function HomePage() {
                       color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
                     }}
                   >
-                    {Math.floor(heroMovie.duration / 60)}h {heroMovie.duration % 60}m
+                    {Math.floor(heroMovie.duration / 60)}h{' '}
+                    {heroMovie.duration % 60}m
                   </span>
                 )}
               </div>
@@ -226,7 +265,9 @@ export default function HomePage() {
                   style={{
                     maxWidth: '42rem',
                     fontSize: 'clamp(14px, 1.5vw, 18px)',
-                    textShadow: isDark ? '1px 2px 4px rgba(0, 0, 0, 0.7)' : '1px 2px 4px rgba(0, 0, 0, 0.2)',
+                    textShadow: isDark
+                      ? '1px 2px 4px rgba(0, 0, 0, 0.7)'
+                      : '1px 2px 4px rgba(0, 0, 0, 0.2)',
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
@@ -238,7 +279,10 @@ export default function HomePage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center" style={{ gap: 'clamp(12px, 1.5vw, 16px)' }}>
+              <div
+                className="flex items-center"
+                style={{ gap: 'clamp(12px, 1.5vw, 16px)' }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<PlayArrowIcon />}
@@ -268,24 +312,34 @@ export default function HomePage() {
                   onClick={() => handleToggleWatchlist(heroMovie.id)}
                   sx={{
                     color: isDark ? '#ffffff' : '#0a0a0a',
-                    borderColor: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+                    borderColor: isDark
+                      ? 'rgba(255, 255, 255, 0.3)'
+                      : 'rgba(0, 0, 0, 0.3)',
                     fontWeight: 600,
                     fontSize: { xs: '0.875rem', md: '1rem' },
                     px: { xs: 3, md: 4 },
                     py: { xs: 1.25, md: 1.5 },
                     borderRadius: '6px',
                     textTransform: 'none',
-                    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)',
+                    backgroundColor: isDark
+                      ? 'rgba(0, 0, 0, 0.5)'
+                      : 'rgba(255, 255, 255, 0.5)',
                     backdropFilter: 'blur(8px)',
                     '&:hover': {
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.5)',
-                      backgroundColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                      borderColor: isDark
+                        ? 'rgba(255, 255, 255, 0.6)'
+                        : 'rgba(0, 0, 0, 0.5)',
+                      backgroundColor: isDark
+                        ? 'rgba(0, 0, 0, 0.7)'
+                        : 'rgba(255, 255, 255, 0.7)',
                       transform: 'translateY(-2px)',
                     },
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  {watchlistMovieIds.includes(heroMovie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                  {watchlistMovieIds.includes(heroMovie.id)
+                    ? 'Remove from Watchlist'
+                    : 'Add to Watchlist'}
                 </Button>
               </div>
             </div>
@@ -293,72 +347,212 @@ export default function HomePage() {
 
           {/* Movie Rows by Category */}
           <section className="relative z-20 -mt-32 md:-mt-40 lg:-mt-48 pb-16 md:pb-20 lg:pb-24">
-            {Object.entries(moviesByCategory).map(([category, categoryMovies]) => (
-              <div
-                key={category}
-                className="mb-10 md:mb-12 lg:mb-14"
-                style={{
-                  paddingLeft: 'clamp(24px, 5vw, 80px)',
-                  paddingRight: 'clamp(24px, 5vw, 80px)',
+            {/* Filter Section */}
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 30,
+                py: 4,
+                px: { xs: 3, md: 6 },
+              }}
+            >
+              <Box
+                sx={{
+                  maxWidth: '1200px',
+                  mx: 'auto',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: 3,
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
                 }}
               >
-                <div className="flex items-center justify-between mb-5 md:mb-6">
-                  <h2
-                    className="text-xl md:text-2xl lg:text-3xl font-semibold"
-                    style={{ color: isDark ? '#ffffff' : '#0a0a0a' }}
-                  >
-                    {category}
-                  </h2>
-                  <button
-  className="text-sm flex items-center gap-1 transition-colors"
-  style={{ color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373' }}
-  onMouseEnter={(e) => e.currentTarget.style.color = isDark ? '#ffffff' : '#0a0a0a'}
-  onMouseLeave={(e) => e.currentTarget.style.color = isDark ? 'rgba(156, 163, 175, 1)' : '#737373'}
->
-  <span>See all</span>
-<ChevronRight size={16} />
-</button>
+                {/* Search Input */}
+                <TextField
+                  placeholder="Search movies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  sx={{
+                    width: { xs: '100%', sm: '300px' },
+                    '& .MuiOutlinedInput-root': {
+                      color: isDark ? '#fff' : '#0a0a0a',
+                      backgroundColor: isDark
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(0,0,0,0.03)',
+                      '& fieldset': {
+                        borderColor: isDark
+                          ? 'rgba(255,255,255,0.2)'
+                          : 'rgba(0,0,0,0.1)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: isDark
+                          ? 'rgba(255,255,255,0.3)'
+                          : 'rgba(0,0,0,0.2)',
+                      },
+                    },
+                    '& .MuiOutlinedInput-input::placeholder': {
+                      color: isDark
+                        ? 'rgba(255,255,255,0.5)'
+                        : 'rgba(0,0,0,0.5)',
+                    },
+                  }}
+                  size="small"
+                />
 
-                </div>
-                <div className="flex gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide pb-6">
-                  {categoryMovies.map((movie) => (
-                    <div key={movie.id} className="relative flex-shrink-0 cursor-pointer" style={{ width: '210px' }}>
-                      <MovieCard movie={movie} priority={false} />
-                      <IconButton
-                        onClick={(e) => { e.stopPropagation(); handleToggleWatchlist(movie.id); }}
-                        sx={{
-                          position: 'absolute',
-                          top: 12,
-                          right: 12,
-                          zIndex: 100,
-                          background: 'linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7))',
-                          backdropFilter: 'blur(8px)',
-                          border: '2px solid rgba(255, 255, 255, 0.4)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                          '&:hover': {
-                            background: 'linear-gradient(to bottom right, rgba(229, 9, 20, 0.9), rgba(178, 7, 15, 0.7))',
-                            borderColor: 'rgba(255, 255, 255, 0.8)',
-                            boxShadow: '0 6px 16px rgba(229, 9, 20, 0.25)',
-                            transform: 'scale(1.1)',
-                          },
-                          transition: 'all 0.3s ease',
-                          width: 44,
-                          height: 44,
-                        }}
-                        aria-label={watchlistMovieIds.includes(movie.id) ? 'Remove from watchlist' : 'Add to watchlist'}
+                {/* Category Select */}
+                <Select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value as string)}
+                  sx={{
+                    minWidth: '180px',
+                    color: isDark ? '#fff' : '#0a0a0a',
+                    backgroundColor: isDark
+                      ? 'rgba(255,255,255,0.05)'
+                      : 'rgba(0,0,0,0.03)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark
+                        ? 'rgba(255,255,255,0.2)'
+                        : 'rgba(0,0,0,0.1)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDark
+                        ? 'rgba(255,255,255,0.3)'
+                        : 'rgba(0,0,0,0.2)',
+                    },
+                  }}
+                  size="small"
+                >
+                  <MenuItem value="all">All Categories</MenuItem>
+                  <MenuItem value="action">Action</MenuItem>
+                  <MenuItem value="drama">Drama</MenuItem>
+                  <MenuItem value="comedy">Comedy</MenuItem>
+                  <MenuItem value="horror">Horror</MenuItem>
+                  <MenuItem value="sci-fi">Sci-Fi</MenuItem>
+                  <MenuItem value="thriller">Thriller</MenuItem>
+                </Select>
+
+                {/* Clear Button */}
+                {(searchTerm || categoryFilter !== 'all') && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setCategoryFilter('all');
+                    }}
+                    sx={{
+                      color: isDark ? '#fff' : '#0a0a0a',
+                      borderColor: isDark
+                        ? 'rgba(255,255,255,0.3)'
+                        : 'rgba(0,0,0,0.2)',
+                      '&:hover': {
+                        borderColor: isDark
+                          ? 'rgba(255,255,255,0.5)'
+                          : 'rgba(0,0,0,0.4)',
+                        backgroundColor: isDark
+                          ? 'rgba(255,255,255,0.05)'
+                          : 'rgba(0,0,0,0.02)',
+                      },
+                      height: '36px',
+                    }}
+                    size="small"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </Box>
+            </Box>
+            {Object.entries(moviesByCategory).map(
+              ([category, categoryMovies]) => (
+                <div
+                  key={category}
+                  className="mb-10 md:mb-12 lg:mb-14"
+                  style={{
+                    paddingLeft: 'clamp(24px, 5vw, 80px)',
+                    paddingRight: 'clamp(24px, 5vw, 80px)',
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-5 md:mb-6">
+                    <h2
+                      className="text-xl md:text-2xl lg:text-3xl font-semibold"
+                      style={{ color: isDark ? '#ffffff' : '#0a0a0a' }}
+                    >
+                      {category}
+                    </h2>
+                    <button
+                      className="text-sm flex items-center gap-1 transition-colors"
+                      style={{
+                        color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = isDark
+                          ? '#ffffff'
+                          : '#0a0a0a')
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = isDark
+                          ? 'rgba(156, 163, 175, 1)'
+                          : '#737373')
+                      }
+                    >
+                      <span>See all</span>
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <div className="flex gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide pb-6">
+                    {categoryMovies.map((movie) => (
+                      <div
+                        key={movie.id}
+                        className="relative flex-shrink-0 cursor-pointer"
+                        style={{ width: '210px' }}
                       >
-                        <BookmarkIcon
-                          sx={{
-                            fontSize: 20,
-                            color: watchlistMovieIds.includes(movie.id) ? '#ef4444' : '#ffffff'
+                        <MovieCard movie={movie} priority={false} />
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleWatchlist(movie.id);
                           }}
-                        />
-                      </IconButton>
-                    </div>
-                  ))}
+                          sx={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            zIndex: 100,
+                            background:
+                              'linear-gradient(to bottom right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7))',
+                            backdropFilter: 'blur(8px)',
+                            border: '2px solid rgba(255, 255, 255, 0.4)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                            '&:hover': {
+                              background:
+                                'linear-gradient(to bottom right, rgba(229, 9, 20, 0.9), rgba(178, 7, 15, 0.7))',
+                              borderColor: 'rgba(255, 255, 255, 0.8)',
+                              boxShadow: '0 6px 16px rgba(229, 9, 20, 0.25)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.3s ease',
+                            width: 44,
+                            height: 44,
+                          }}
+                          aria-label={
+                            watchlistMovieIds.includes(movie.id)
+                              ? 'Remove from watchlist'
+                              : 'Add to watchlist'
+                          }
+                        >
+                          <BookmarkIcon
+                            sx={{
+                              fontSize: 20,
+                              color: watchlistMovieIds.includes(movie.id)
+                                ? '#ef4444'
+                                : '#ffffff',
+                            }}
+                          />
+                        </IconButton>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </section>
 
           <style jsx global>{`

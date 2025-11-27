@@ -30,9 +30,13 @@ const ErrorState: React.FC<ErrorStateProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: '90vh',
+        width: '100%',
+        backgroundColor: isDark ? '#0a0a0a' : '#f5f5f5',
         py: 8,
         px: 4,
         textAlign: 'center',
+        transition: 'background-color 0.5s',
       }}
     >
       <ErrorOutlineIcon

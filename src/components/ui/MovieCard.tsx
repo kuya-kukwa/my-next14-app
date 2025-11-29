@@ -62,12 +62,7 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(({
           alt={`${movie.title} - ${movie.genre} movie poster`}
           fill
           sizes="(max-width: 640px) 140px, (max-width: 768px) 180px, (max-width: 1024px) 200px, 220px"
-          style={{
-            objectFit: "cover",
-            borderRadius: '16px',
-            transition: 'opacity 0.3s',
-            pointerEvents: 'none',
-          }}
+          className="img-cover"
           priority={priority}
           placeholder="empty"
           onError={handleImageError}

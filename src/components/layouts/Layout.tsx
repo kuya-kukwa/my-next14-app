@@ -103,7 +103,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Logo */}
           <Link
             href={isAuthenticated ? "/home" : "/"}
-            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
+            className="no-underline flex items-center gap-2"
           >
             <Box
               component="span"
@@ -123,14 +123,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Center Nav - Hide on homepage */}
           {!isHomePage && (
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center' }}>
-              <Link href={isAuthenticated ? "/home" : "/movies"} style={{ textDecoration: 'none' }}>
+              <Link href={isAuthenticated ? "/home" : "/movies"} className="no-underline">
                 <Box component="span" sx={{
                   fontWeight: 500, fontSize: '1rem',
                   color: isDark ? "#e5e5e5" : "#0a0a0a",
                   transition: 'opacity 0.3s', '&:hover': { opacity: 0.7 }
                 }}>Movies</Box>
               </Link>
-              <Link href="/authenticated/watchlist" style={{ textDecoration: 'none' }}>
+              <Link href="/authenticated/watchlist" className="no-underline">
                 <Box component="span" sx={{
                   fontWeight: 500, fontSize: '1rem',
                   color: isDark ? "#e5e5e5" : "#0a0a0a",
@@ -141,7 +141,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 { id: "value-proposition", label: "Why Us" },
                 { id: "trending", label: "Trending" }
               ].map(item => (
-                <Link key={item.id} href={`#${item.id}`} onClick={(e) => handleScrollTo(e, item.id)} style={{ textDecoration: 'none' }}>
+                <Link key={item.id} href={`#${item.id}`} onClick={(e) => handleScrollTo(e, item.id)} className="no-underline">
                   <Box component="span" sx={{
                     fontWeight: 500, fontSize: '1rem',
                     color: isDark ? "#e5e5e5" : "#0a0a0a",
@@ -169,7 +169,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             {isAuthenticated ? (
               <>
-                <Link href="/profile" style={{ textDecoration: 'none' }}>
+                <Link href="/profile" className="no-underline">
                   <IconButton aria-label="profile" size="small" sx={{
                     color: isDark ? "#ffffff" : "#0a0a0a",
                     transition: 'transform 0.3s',
@@ -197,7 +197,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </>
             ) : (
               <>
-                {!isSignInPage && <Link href="/signin" style={{ textDecoration: 'none' }}>
+                {!isSignInPage && <Link href="/signin" className="no-underline">
                   <Button variant="outlined" sx={{
                     fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
                     px: { xs: 1.5, sm: 2, md: 2.5 },
@@ -210,7 +210,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     '&:hover': { backgroundColor: "#e50914", color: "#ffffff", borderColor: "#e50914" }
                   }}>Sign In</Button>
                 </Link>}
-                {!isSignUpPage && <Link href="/signup" style={{ textDecoration: 'none' }}>
+                {!isSignUpPage && <Link href="/signup" className="no-underline">
                   <Button variant="outlined" sx={{
                     fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
                     px: { xs: 1.5, sm: 2, md: 2.5 },

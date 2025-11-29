@@ -1068,6 +1068,88 @@ p {
   scrollbar-width: none;
 }
 
+/* ────────────────────────────────────────────── */
+/* GLOBAL LINK & BORDER UTILITIES                 */
+/* ────────────────────────────────────────────── */
+.no-underline { text-decoration: none; }
+.link-reset { text-decoration: none; color: inherit; }
+.link-muted { color: var(--color-text-muted); transition: color var(--transition-normal); }
+.link-muted:hover { color: var(--color-primary); }
+.border-top-muted { border-top: 1px solid var(--color-border-medium); }
+.footer-bg { background-color: var(--color-bg-secondary); }
+
+/* ────────────────────────────────────────────── */
+/* MEDIA HELPERS                                  */
+/* ────────────────────────────────────────────── */
+.img-cover {
+  object-fit: cover !important;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+  border-radius: var(--radius-2xl);
+}
+
+/* Auth pages themed backgrounds */
+.auth-gradient-bg {
+  background: radial-gradient(
+    circle at bottom left,
+    rgba(229, 9, 20, 0.08) 0%,
+    var(--color-bg-primary) 50%,
+    var(--color-bg-secondary) 100%
+  );
+}
+
+.orb-gradient {
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+}
+
+/* ────────────────────────────────────────────── */
+/* ERROR STATE COMPONENT (GLOBAL)                */
+/* Uses design tokens so it adapts to theme      */
+/* ────────────────────────────────────────────── */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90vh;
+  width: 100%;
+  padding-block: var(--space-16);
+  padding-inline: var(--space-8);
+  text-align: center;
+  background-color: var(--color-bg-secondary);
+  transition: background-color 500ms ease;
+}
+
+.error-icon {
+  font-size: 64px !important;
+  margin-bottom: var(--space-3);
+  color: var(--color-primary) !important;
+}
+
+.error-title {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.error-message {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+  max-width: 400px;
+}
+
+.error-box {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  background-color: rgba(229, 9, 20, 0.1); /* tint of primary */
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-6);
+  max-width: 500px;
+  overflow: auto;
+}
+
 /* Turbopack text gradient */
 .nextjs-container-build-error-version-status > .turbopack-text {
   background: linear-gradient(to right, var(--color-turbopack-text-red) 0%, var(--color-turbopack-text-blue) 100%);

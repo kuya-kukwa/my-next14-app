@@ -66,8 +66,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   // Decide AppBar positioning
-  // On home and authenticated pages, header is in normal flow (static)
-  const isHeaderStatic = isHomePage || isAuthenticated;
+  // On authenticated pages except home, header is in normal flow (static)
+  const isHeaderStatic = isAuthenticated && !isHomePage;
 
   return (
     <Box
@@ -91,7 +91,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               ? '1px solid rgba(255,255,255,0.08)'
               : '1px solid rgba(0,0,0,0.08)'
             : 'none',
-          backdropFilter: !isHeaderStatic && isIdle ? 'blur(12px)' : 'none',
+          backdropFilter: !isHeaderStatic ? 'blur(12px)' : 'none',
+          background: !isHeaderStatic
+            ? isDark
+              ? 'rgba(10, 10, 10, 0.8)'
+              : 'rgba(250, 250, 250, 0.8)'
+            : isDark
+            ? '#0a0a0a'
+            : '#fafafa',
           transition: 'all 0.5s',
           zIndex: 1100,
         }}
@@ -201,29 +208,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               gap: { xs: 0.75, sm: 1.5, md: 2 },
             }}
           >
-            <IconButton
-              onClick={toggleTheme}
-              aria-label="toggle theme"
-              size="small"
-              sx={{
-                color: isDark ? '#ffffff' : '#0a0a0a',
-                transition: 'transform 0.3s',
-                p: { xs: 0.75, sm: 1 },
-                '&:hover': {
-                  backgroundColor: isDark
-                    ? 'rgba(255,255,255,0.1)'
-                    : 'rgba(0,0,0,0.05)',
-                  transform: 'scale(1.1)',
-                },
-              }}
-            >
-              {isDark ? (
-                <Brightness7Icon fontSize="small" />
-              ) : (
-                <Brightness4Icon fontSize="small" />
-              )}
-            </IconButton>
-
             {isAuthenticated ? (
               <>
                 <Link href="/profile" className="no-underline">

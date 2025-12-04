@@ -145,7 +145,7 @@ export default function HomePage() {
   // LOADING UI
   if (loading) {
     return (
-      <>
+      <Box sx={{ overflowX: 'hidden' }}>
         <HeroSkeleton />
         <FilterSkeleton />
         <MovieRowSkeleton />
@@ -153,7 +153,7 @@ export default function HomePage() {
         <MovieRowSkeleton />
         <MovieRowSkeleton />
         <MovieRowSkeleton />
-      </>
+      </Box>
     );
   }
 
@@ -167,22 +167,24 @@ export default function HomePage() {
           <div
             className="relative w-full overflow-hidden"
             style={{
-              height: 'clamp(75vh, 85vh, 100vh)',
+              height: '89vh',
               width: '100vw',
               marginLeft: 'calc(-50vw + 50%)',
             }}
           >
             {/* Background Image */}
-            <div className="img-cover">
-              <Image
-                src={heroImageUrl || heroMovie.image}
-                alt={heroMovie.title}
-                fill
-                priority
-                sizes="100vw"
-                quality={95}
-              />
-            </div>
+            <Image
+              src={heroImageUrl || heroMovie.image}
+              alt={heroMovie.title}
+              fill
+              priority
+              sizes="100vw"
+              quality={95}
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+            />
 
             {/* Content */}
             <div

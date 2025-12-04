@@ -12,62 +12,71 @@ export default function FilterSkeleton() {
       sx={{
         position: 'relative',
         zIndex: 20,
-        py: 2,
-        px: { xs: 3, md: 6 },
+        marginTop: '32px',
+        marginBottom: '32px',
         paddingLeft: 'clamp(24px, 5vw, 80px)',
         paddingRight: 'clamp(24px, 5vw, 80px)',
       }}
     >
       <Box
+        className="mb-8"
         sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 2,
-          flexWrap: 'wrap',
-          alignItems: 'center',
+          paddingLeft: 'clamp(24px, 5vw, 80px)',
+          paddingRight: 'clamp(24px, 5vw, 80px)',
         }}
       >
-        {/* Year Filter Skeleton */}
-        <Skeleton
-          variant="rectangular"
-          animation="wave"
+        <Box
+          className="watchlist-filters"
           sx={{
-            minWidth: '120px',
-            height: 40,
-            borderRadius: '4px',
-            bgcolor: isDark
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.06)',
+            justifyContent: 'flex-end',
+            marginTop: 4,
           }}
-        />
+        >
+          {/* Year Filter Skeleton */}
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            className="watchlist-filter-control"
+            sx={{
+              minWidth: '120px',
+              height: 40,
+              borderRadius: '5px',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
+          />
 
-        {/* Genre Filter Skeleton */}
-        <Skeleton
-          variant="rectangular"
-          animation="wave"
-          sx={{
-            minWidth: '140px',
-            height: 40,
-            borderRadius: '4px',
-            bgcolor: isDark
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.06)',
-          }}
-        />
+          {/* Genre Filter Skeleton */}
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            className="watchlist-filter-control genre"
+            sx={{
+              minWidth: '140px',
+              height: 40,
+              borderRadius: '5px',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
+          />
 
-        {/* Search Input Skeleton */}
-        <Skeleton
-          variant="rectangular"
-          animation="wave"
-          sx={{
-            width: { xs: '100%', sm: '280px' },
-            height: 40,
-            borderRadius: '4px',
-            bgcolor: isDark
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.06)',
-          }}
-        />
+          {/* Search Input Skeleton */}
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            className="watchlist-search"
+            sx={{
+              width: { xs: '100%', sm: '300px' },
+              height: 40,
+              borderRadius: '5px',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );

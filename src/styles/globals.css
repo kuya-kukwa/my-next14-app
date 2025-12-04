@@ -198,6 +198,9 @@ body {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
   transition: background-color 500ms ease, color 500ms ease;
+  /* Prevent horizontal scrollbar from full-width sections */
+  overflow-x: hidden;
+  overflow-x: hidden;
 }
 
 /* Light theme specific typography improvements */
@@ -1390,7 +1393,7 @@ p {
 
 /* Filter input styling */
 .filter-input-root {
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .dark .filter-input-root {

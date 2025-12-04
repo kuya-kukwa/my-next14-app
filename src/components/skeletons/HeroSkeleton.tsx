@@ -9,21 +9,18 @@ export default function HeroSkeleton() {
 
   return (
     <Box
+      className="relative w-full overflow-hidden"
       sx={{
-        position: 'relative',
+        height: '89vh',
         width: '100%',
-        height: '100vh',
-        overflow: 'hidden',
-        backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
-        marginTop: 'calc(-64px)',
-        paddingTop: '64px',
+        maxWidth: '100vw',
       }}
     >
       {/* Background skeleton */}
       <Skeleton
         variant="rectangular"
         width="100%"
-        height="98%"
+        height="100%"
         animation="wave"
         sx={{
           bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
@@ -34,15 +31,8 @@ export default function HeroSkeleton() {
 
       {/* Content skeleton overlay */}
       <Box
+        className="relative z-20 flex flex-col justify-end h-full"
         sx={{
-          position: 'relative',
-          zIndex: 10,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          height: '100%',
-          px: { xs: 3, md: 6, lg: 10 },
-          pb: { xs: 8, md: 10, lg: 12 },
           paddingLeft: 'clamp(24px, 5vw, 80px)',
           paddingRight: 'clamp(24px, 5vw, 80px)',
           paddingBottom: 'clamp(64px, 8vh, 96px)',

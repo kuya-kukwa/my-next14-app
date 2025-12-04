@@ -190,9 +190,7 @@ export default function WatchlistPage() {
 
           <Box className="watchlist-controls">
             <Typography className="watchlist-count">
-              {filteredMovies.length}{' '}
-              {filteredMovies.length === 1 ? 'movie' : 'movies'} in your
-              watchlist
+              Your personal collection of Movies
             </Typography>
 
             <Box className="watchlist-filters">

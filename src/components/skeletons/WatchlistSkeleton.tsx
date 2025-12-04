@@ -13,22 +13,26 @@ export default function WatchlistSkeleton() {
       <Container maxWidth="lg">
         {/* HEADER SKELETON */}
         <Box sx={{ mb: 4 }}>
-          <Skeleton 
-            variant="text" 
-            width={250} 
-            height={60} 
-            sx={{ 
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-              mb: 2
-            }} 
+          <Skeleton
+            variant="text"
+            width={250}
+            height={60}
+            sx={{
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+              mb: 2,
+            }}
           />
-          <Skeleton 
-            variant="text" 
-            width={180} 
-            height={24} 
-            sx={{ 
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-            }} 
+          <Skeleton
+            variant="text"
+            width={180}
+            height={24}
+            sx={{
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
           />
         </Box>
 
@@ -36,11 +40,11 @@ export default function WatchlistSkeleton() {
         <Box sx={{ mb: 6 }}>
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               gap: 2,
-              flexWrap: "wrap",
+              flexWrap: 'wrap',
               mb: 4,
             }}
           >
@@ -54,7 +58,9 @@ export default function WatchlistSkeleton() {
                   minWidth: '120px',
                   height: 40,
                   borderRadius: '4px',
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
                 }}
               />
 
@@ -66,7 +72,9 @@ export default function WatchlistSkeleton() {
                   minWidth: '140px',
                   height: 40,
                   borderRadius: '4px',
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
                 }}
               />
 
@@ -78,7 +86,9 @@ export default function WatchlistSkeleton() {
                   width: { xs: '100%', sm: '280px' },
                   height: 40,
                   borderRadius: '4px',
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
                 }}
               />
             </Box>
@@ -88,7 +98,7 @@ export default function WatchlistSkeleton() {
         {/* MOVIE GRID SKELETON */}
         <Box
           sx={{
-            display: "grid",
+            display: 'grid',
             gridTemplateColumns: {
               xs: 'repeat(2, 1fr)',
               sm: 'repeat(3, 1fr)',
@@ -105,7 +115,9 @@ export default function WatchlistSkeleton() {
                 width: '100%',
                 borderRadius: '8px',
                 overflow: 'hidden',
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                backgroundColor: isDark
+                  ? 'rgba(255, 255, 255, 0.05)'
+                  : 'rgba(0, 0, 0, 0.03)',
               }}
             >
               <Skeleton
@@ -113,7 +125,9 @@ export default function WatchlistSkeleton() {
                 width="100%"
                 height={280}
                 sx={{
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
                 }}
               />
             </Box>

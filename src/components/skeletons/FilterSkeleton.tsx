@@ -35,7 +35,9 @@ export default function FilterSkeleton() {
             minWidth: '120px',
             height: 40,
             borderRadius: '4px',
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+            bgcolor: isDark
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.06)',
           }}
         />
 
@@ -47,7 +49,9 @@ export default function FilterSkeleton() {
             minWidth: '140px',
             height: 40,
             borderRadius: '4px',
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+            bgcolor: isDark
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.06)',
           }}
         />
 
@@ -59,10 +63,11 @@ export default function FilterSkeleton() {
             width: { xs: '100%', sm: '280px' },
             height: 40,
             borderRadius: '4px',
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+            bgcolor: isDark
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.06)',
           }}
         />
-
       </Box>
     </Box>
   );

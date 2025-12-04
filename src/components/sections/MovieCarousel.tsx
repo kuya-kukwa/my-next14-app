@@ -1,12 +1,12 @@
-"use client";
-import { useRef, useState, useEffect, useCallback } from "react";
-import MovieCard from "../ui/MovieCard";
-import { Movie } from "@/types";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useThemeContext } from "@/contexts/ThemeContext";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
+'use client';
+import { useRef, useState, useEffect, useCallback } from 'react';
+import MovieCard from '../ui/MovieCard';
+import { Movie } from '@/types';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useThemeContext } from '@/contexts/ThemeContext';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 export default function MovieCarousel({
   movies,
@@ -29,68 +29,72 @@ export default function MovieCarousel({
 
   // --- layout helpers -------------------------------------------------
 
-  const getIsMobile = useCallback(() =>
-    typeof window !== "undefined" && window.innerWidth < 640,
-  []);
+  const getIsMobile = useCallback(
+    () => typeof window !== 'undefined' && window.innerWidth < 640,
+    []
+  );
 
-  const getScale = useCallback(({
-    isMobile,
-    isCenterCard,
-    distance,
-  }: {
-    isMobile: boolean;
-    isCenterCard: boolean;
-    distance: number;
-  }) => {
-    if (isMobile) {
-      // Keep 3 cards visible with subtle emphasis on the center card
-      if (isCenterCard) return 1.0;
-      if (distance === 1) return 0.95;
-      return 0.9;
-    }
+  const getScale = useCallback(
+    ({
+      isMobile,
+      isCenterCard,
+      distance,
+    }: {
+      isMobile: boolean;
+      isCenterCard: boolean;
+      distance: number;
+    }) => {
+      if (isMobile) {
+        // Keep 3 cards visible with subtle emphasis on the center card
+        if (isCenterCard) return 1.0;
+        if (distance === 1) return 0.95;
+        return 0.9;
+      }
 
-    if (isCenterCard) return 1.15;
-    if (distance === 1) return 0.9;
-    if (distance === 2) return 0.75;
-    return 0.6;
-  }, []);
+      if (isCenterCard) return 1.15;
+      if (distance === 1) return 0.9;
+      if (distance === 2) return 0.75;
+      return 0.6;
+    },
+    []
+  );
 
-  const getOpacity = useCallback(({
-    isMobile,
-    distance,
-  }: {
-    isMobile: boolean;
-    distance: number;
-  }) => {
-    if (isMobile) {
+  const getOpacity = useCallback(
+    ({ isMobile, distance }: { isMobile: boolean; distance: number }) => {
+      if (isMobile) {
+        if (distance === 0) return 1;
+        if (distance === 1) return 0.95;
+        if (distance === 2) return 0.85;
+        return 0.7;
+      }
+
       if (distance === 0) return 1;
-      if (distance === 1) return 0.95;
-      if (distance === 2) return 0.85;
-      return 0.7;
-    }
+      if (distance === 1) return 0.85;
+      if (distance === 2) return 0.6;
+      return 0.4;
+    },
+    []
+  );
 
-    if (distance === 0) return 1;
-    if (distance === 1) return 0.85;
-    if (distance === 2) return 0.6;
-    return 0.4;
-  }, []);
-
-  const getTranslateY = useCallback(({
-    isMobile,
-    isCenterCard,
-    distance,
-  }: {
-    isMobile: boolean;
-    isCenterCard: boolean;
-    distance: number;
-  }) => {
-    if (isCenterCard) return isMobile ? -2 : -8;
-    if (distance === 1) return isMobile ? 1 : 4;
-    return isMobile ? 2 : 8;
-  }, []);
+  const getTranslateY = useCallback(
+    ({
+      isMobile,
+      isCenterCard,
+      distance,
+    }: {
+      isMobile: boolean;
+      isCenterCard: boolean;
+      distance: number;
+    }) => {
+      if (isCenterCard) return isMobile ? -2 : -8;
+      if (distance === 1) return isMobile ? 1 : 4;
+      return isMobile ? 2 : 8;
+    },
+    []
+  );
 
   const getCardDimensions = useCallback(() => {
-    if (typeof window === "undefined") return { cardWidth: 260, gap: 8 };
+    if (typeof window === 'undefined') return { cardWidth: 260, gap: 8 };
 
     const width = window.innerWidth;
 
@@ -140,8 +144,8 @@ export default function MovieCarousel({
       containerWidthRef.current = cw;
     };
 
-    window.addEventListener("resize", handleResize, { passive: true });
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
   }, [getCardDimensions]);
 
   const updateCenterCard = useCallback(() => {
@@ -157,14 +161,18 @@ export default function MovieCarousel({
     const paddingLeft = clientWidth / 2 - dimensionsRef.current.cardWidth / 2;
     const step = dimensionsRef.current.cardWidth + dimensionsRef.current.gap;
     const estimatedScrollWidth = paddingLeft * 2 + movies.length * step;
-    const newCanScrollRight = scrollLeft < estimatedScrollWidth - clientWidth - 10;
+    const newCanScrollRight =
+      scrollLeft < estimatedScrollWidth - clientWidth - 10;
 
     // Calculate which card is closest to the center of the viewport using cached clientWidth
     const viewportCenter = scrollLeft + clientWidth / 2;
 
     // Compute closest index with O(1) arithmetic instead of looping all movies.
     // Solve cardCenterPosition(i) ~= viewportCenter => i ~= (viewportCenter - paddingLeft - cardWidth/2) / step
-    const rawIndex = Math.round((viewportCenter - paddingLeft - dimensionsRef.current.cardWidth / 2) / step);
+    const rawIndex = Math.round(
+      (viewportCenter - paddingLeft - dimensionsRef.current.cardWidth / 2) /
+        step
+    );
     const closestIndex = Math.max(0, Math.min(movies.length - 1, rawIndex));
 
     // Rate-limit updates to reduce work during fast scrolling
@@ -205,7 +213,7 @@ export default function MovieCarousel({
     // Execute all updates in a microtask to batch them
     if (needsUpdate) {
       queueMicrotask(() => {
-        updates.forEach(fn => fn());
+        updates.forEach((fn) => fn());
       });
     }
   }, [movies.length]);
@@ -213,7 +221,9 @@ export default function MovieCarousel({
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const scrollTimeoutRef: { current: NodeJS.Timeout | null } = { current: null };
+    const scrollTimeoutRef: { current: NodeJS.Timeout | null } = {
+      current: null,
+    };
     let isScrolling = false;
     const rafRef: { current: number | null } = { current: null };
 
@@ -252,7 +262,9 @@ export default function MovieCarousel({
 
       // read latest center index from ref to avoid effect dependency loops
       const currentCenter = centerIndexRef.current;
-      const targetScrollLeft = currentCenter * (dimensionsRef.current.cardWidth + dimensionsRef.current.gap);
+      const targetScrollLeft =
+        currentCenter *
+        (dimensionsRef.current.cardWidth + dimensionsRef.current.gap);
 
       const currentScroll = el.scrollLeft;
       const diff = Math.abs(currentScroll - targetScrollLeft);
@@ -260,18 +272,18 @@ export default function MovieCarousel({
       if (diff > 5) {
         el.scrollTo({
           left: targetScrollLeft,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     };
 
     updateCenterCard();
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", updateCenterCard, { passive: true });
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', updateCenterCard, { passive: true });
 
     return () => {
-      el.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", updateCenterCard);
+      el.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', updateCenterCard);
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
@@ -283,28 +295,21 @@ export default function MovieCarousel({
     centerIndexRef.current = centerIndex;
   }, [centerIndex]);
 
-  const scroll = (dir: "left" | "right") => {
+  const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
 
     const step = dimensionsRef.current.cardWidth + dimensionsRef.current.gap;
 
-    // Derive current index from actual scroll position to avoid skipping
-    const currentIndex = Math.round(el.scrollLeft / step);
-
-    const nextIndex =
-      dir === "left"
-        ? Math.max(0, currentIndex - 1)
-        : Math.min(movies.length - 1, currentIndex + 1);
-
-    const targetScrollLeft = nextIndex * step;
+    // Simple scroll: move by one card width
+    const currentScroll = el.scrollLeft;
+    const targetScrollLeft =
+      dir === 'left' ? Math.max(0, currentScroll - step) : currentScroll + step;
 
     el.scrollTo({
       left: targetScrollLeft,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
-
-    setCenterIndex(nextIndex);
   };
 
   return (
@@ -314,7 +319,12 @@ export default function MovieCarousel({
           <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
+              fontSize: {
+                xs: '1.75rem',
+                sm: '2.25rem',
+                md: '2.75rem',
+                lg: '3.5rem',
+              },
               fontWeight: 800,
               mx: 'auto',
               // Use a slightly softened white in dark mode for better visual balance
@@ -337,7 +347,7 @@ export default function MovieCarousel({
               // Stronger top margin on xs to reliably push description lower on small viewports
               mt: { xs: 4, sm: 2 },
               lineHeight: 1.6,
-              transition: 'color 0.5s'
+              transition: 'color 0.5s',
             }}
           >
             Handpicked recommendations based on ratings and popularity
@@ -349,18 +359,25 @@ export default function MovieCarousel({
       <div className="carousel-container">
         {/* Left scroll button */}
         <button
-          onClick={() => scroll("left")}
+          onClick={() => scroll('left')}
           disabled={!canScrollLeft}
-          className={`carousel-btn carousel-btn-left carousel-btn-size transition-all duration-500 ${!canScrollLeft ? 'carousel-btn-disabled' : ''}`}
+          className={`carousel-btn carousel-btn-left carousel-btn-size transition-all duration-500 ${
+            !canScrollLeft ? 'carousel-btn-disabled' : ''
+          }`}
           style={{
-            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: isDark
+              ? 'rgba(0, 0, 0, 0.6)'
+              : 'rgba(255, 255, 255, 0.95)',
             color: isDark ? '#ffffff' : '#1a1a1a',
             border: isDark ? 'none' : '1px solid #dee2e6',
-            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)'
+            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)',
           }}
           aria-label="Previous movies"
         >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" strokeWidth={3} />
+          <ChevronLeft
+            className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+            strokeWidth={3}
+          />
         </button>
 
         {/* Scrollable container with center focus */}
@@ -375,9 +392,14 @@ export default function MovieCarousel({
             };
             const isMobile = isHydrated && getIsMobile();
             // Dynamic edge padding so first/last can be centered on small screens
-            const edgePad = Math.max(12, Math.floor(containerWidth / 2 - dimensions.cardWidth / 2));
+            const edgePad = Math.max(
+              12,
+              Math.floor(containerWidth / 2 - dimensions.cardWidth / 2)
+            );
 
-            const style: React.CSSProperties = { ...(vars as React.CSSProperties) };
+            const style: React.CSSProperties = {
+              ...(vars as React.CSSProperties),
+            };
             if (isMobile) {
               style.paddingLeft = `${edgePad}px`;
               style.paddingRight = `${edgePad}px`;
@@ -393,7 +415,11 @@ export default function MovieCarousel({
 
             const scale = getScale({ isMobile, isCenterCard, distance });
             const opacity = getOpacity({ isMobile, distance });
-            const translateY = getTranslateY({ isMobile, isCenterCard, distance });
+            const translateY = getTranslateY({
+              isMobile,
+              isCenterCard,
+              distance,
+            });
 
             // Only prioritize first 2 cards on initial load to minimize preload warnings
             const isPriority = !isHydrated && index < 2;
@@ -401,19 +427,23 @@ export default function MovieCarousel({
             return (
               <div
                 key={m.id}
-                className={`carousel-item ${isCenterCard ? 'carousel-item-center' : ''}`}
+                className={`carousel-item ${
+                  isCenterCard ? 'carousel-item-center' : ''
+                }`}
                 style={{
                   transform: `scale(${scale}) translateY(${translateY}px)`,
                   opacity: opacity,
-                    zIndex: isCenterCard ? 30 : 20 - distance,
-                    willChange: 'transform, opacity',
-                    backfaceVisibility: 'hidden',
+                  zIndex: isCenterCard ? 30 : 20 - distance,
+                  willChange: 'transform, opacity',
+                  backfaceVisibility: 'hidden',
                 }}
               >
-                <MovieCard 
+                <MovieCard
                   movie={m}
                   priority={isPriority}
-                  className={isCenterCard ? 'ring-2 ring-[var(--color-primary)]' : ''}
+                  className={
+                    isCenterCard ? 'ring-2 ring-[var(--color-primary)]' : ''
+                  }
                 />
               </div>
             );
@@ -422,35 +452,42 @@ export default function MovieCarousel({
 
         {/* Right scroll button */}
         <button
-          onClick={() => scroll("right")}
+          onClick={() => scroll('right')}
           disabled={!canScrollRight}
-          className={`carousel-btn carousel-btn-right carousel-btn-size transition-all duration-500 ${!canScrollRight ? 'carousel-btn-disabled' : ''}`}
+          className={`carousel-btn carousel-btn-right carousel-btn-size transition-all duration-500 ${
+            !canScrollRight ? 'carousel-btn-disabled' : ''
+          }`}
           style={{
-            backgroundColor: isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: isDark
+              ? 'rgba(0, 0, 0, 0.6)'
+              : 'rgba(255, 255, 255, 0.95)',
             color: isDark ? '#ffffff' : '#1a1a1a',
             border: isDark ? 'none' : '1px solid #dee2e6',
-            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)'
+            boxShadow: isDark ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)',
           }}
           aria-label="Next movies"
         >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" strokeWidth={3} />
+          <ChevronRight
+            className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+            strokeWidth={3}
+          />
         </button>
 
         {/* Gradient fade edges */}
-        <div 
+        <div
           className="carousel-fade-left transition-colors duration-500"
           style={{
-            background: isDark 
+            background: isDark
               ? 'linear-gradient(to right, #0a0a0a 30%, #0a0a0a 50%, transparent)'
-              : 'linear-gradient(to right, #e8e8e8 30%, #e8e8e8 50%, transparent)'
+              : 'linear-gradient(to right, #fafafa 30%, #fafafa 50%, transparent)',
           }}
         ></div>
-        <div 
+        <div
           className="carousel-fade-right transition-colors duration-500"
           style={{
-            background: isDark 
+            background: isDark
               ? 'linear-gradient(to left, #0a0a0a 30%, #0a0a0a 50%, transparent)'
-              : 'linear-gradient(to left, #e8e8e8 30%, #e8e8e8 50%, transparent)'
+              : 'linear-gradient(to left, #fafafa 30%, #fafafa 50%, transparent)',
           }}
         ></div>
       </div>

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signUpSchema, type SignUpInput } from "@/lib/validation";
-import { authHeader } from "@/lib/session";
-import { getAppwriteBrowser } from "@/lib/appwriteClient";
-import { setToken } from "@/lib/session";
-import { useRouter } from "next/router";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signUpSchema, type SignUpInput } from '@/lib/validation';
+import { authHeader } from '@/lib/session';
+import { getAppwriteBrowser } from '@/lib/appwriteClient';
+import { setToken } from '@/lib/session';
+import { useRouter } from 'next/router';
 import {
   Box,
   Button,
@@ -20,15 +20,20 @@ import {
   IconButton,
   LinearProgress,
   Alert,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export type SignUpFormProps = {
-  onSubmit?: (data: SignUpInput & { confirmPassword: string }) => void | Promise<void>;
+  onSubmit?: (
+    data: SignUpInput & { confirmPassword: string }
+  ) => void | Promise<void>;
   className?: string;
 };
 
-export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps) {
+export default function SignUpForm({
+  onSubmit,
+  className = '',
+}: SignUpFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -37,10 +42,15 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
 
   const schema = signUpSchema
     .extend({ confirmPassword: signUpSchema.shape.password })
-    .refine((data) => data.password === (data as unknown as { confirmPassword?: string }).confirmPassword, {
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    });
+    .refine(
+      (data) =>
+        data.password ===
+        (data as unknown as { confirmPassword?: string }).confirmPassword,
+      {
+        message: 'Passwords do not match',
+        path: ['confirmPassword'],
+      }
+    );
 
   const {
     control,
@@ -48,12 +58,12 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
     watch,
     formState: { errors, isSubmitting },
   } = useForm<SignUpInput & { confirmPassword: string }>({
-    mode: "onChange",
+    mode: 'onChange',
     resolver: zodResolver(schema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
   });
 
-  const password = watch("password");
+  const password = watch('password');
 
   // Password strength calculation
   const getPasswordStrength = (pwd: string) => {
@@ -66,12 +76,17 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
     return strength;
   };
 
-  const passwordStrength = getPasswordStrength(password || "");
+  const passwordStrength = getPasswordStrength(password || '');
 
-  const handleFormSubmit = async (data: SignUpInput & { confirmPassword: string }) => {
-    console.log('[SignUpForm] Starting signup process', { email: data.email, name: data.name });
+  const handleFormSubmit = async (
+    data: SignUpInput & { confirmPassword: string }
+  ) => {
+    console.log('[SignUpForm] Starting signup process', {
+      email: data.email,
+      name: data.name,
+    });
     setError(null); // Clear any previous errors
-    
+
     if (onSubmit) {
       console.log('[SignUpForm] Using custom onSubmit handler');
       await onSubmit(data);
@@ -82,30 +97,32 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
         const { account } = getAppwriteBrowser();
         await account.create('unique()', data.email, data.password, data.name);
         console.log('[SignUpForm] Account created successfully');
-        
+
         // Delete any existing session first to avoid "session is active" error
         try {
           await account.deleteSession('current');
           console.log('[SignUpForm] Existing session deleted');
         } catch {
           // No active session or deletion failed - that's OK, continue
-          console.log('[SignUpForm] No active session to delete or deletion failed (expected)');
+          console.log(
+            '[SignUpForm] No active session to delete or deletion failed (expected)'
+          );
         }
-        
+
         console.log('[SignUpForm] Creating email password session');
         await account.createEmailPasswordSession(data.email, data.password);
         console.log('[SignUpForm] Session created successfully');
-        
+
         console.log('[SignUpForm] Generating JWT token');
-        const jwtRes = await account.createJWT() as unknown;
+        const jwtRes = (await account.createJWT()) as unknown;
         if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
-          const jwt = (jwtRes as { jwt?: string }).jwt ?? "";
+          const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
           setToken(jwt);
           console.log('[SignUpForm] JWT token stored successfully');
         } else {
           console.warn('[SignUpForm] JWT response invalid:', jwtRes);
         }
-        
+
         // Force-create local Prisma user/profile
         console.log('[SignUpForm] Creating Prisma user/profile');
         try {
@@ -114,14 +131,14 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
         } catch (profileErr) {
           console.warn('[SignUpForm] Profile creation warning:', profileErr);
         }
-        
+
         console.log('[SignUpForm] Signup completed, redirecting to home');
         setSuccess(true);
-        setTimeout(() => router.push('/home'), 1500);
+        setTimeout(() => router.push('/authenticated/home'), 1500);
       } catch (err: unknown) {
         // Extract Appwrite error message
-        let errorMessage = "Signup failed. Please try again.";
-        
+        let errorMessage = 'Signup failed. Please try again.';
+
         if (err && typeof err === 'object') {
           // Check for Appwrite error structure
           if ('message' in err && typeof err.message === 'string') {
@@ -132,8 +149,11 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
-        
-        console.error('[SignUpForm] Signup error:', { error: errorMessage, rawError: err });
+
+        console.error('[SignUpForm] Signup error:', {
+          error: errorMessage,
+          rawError: err,
+        });
         setError(errorMessage);
       }
     }
@@ -141,60 +161,28 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
 
   return (
     <Container maxWidth="sm" className={className}>
-      <Box sx={{ mt: { xs: 12, sm: 14 }, mb: { xs: 2, sm: 3 } }}>
+      <Box className="auth-container">
         {/* Header */}
-        <Box sx={{ textAlign: "center", mb: 3 }}>
-          <Typography
-            variant="h1"
-            sx={{
-              fontSize: { xs: "1.75rem", md: "2.25rem" },
-              fontWeight: 800,
-              mb: 1.5,
-              background: "linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)",
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <Box className="auth-header">
+          <Typography variant="h1" className="auth-title">
             Join Us Today
           </Typography>
-          <Typography 
-            variant="body2" 
-            color="text.secondary"
-            sx={{ fontSize: "0.95rem", fontWeight: 400 }}
-          >
+          <Typography variant="body2" className="auth-subtitle">
             Create your account and start your cinematic journey
           </Typography>
         </Box>
 
         {/* Form */}
-        <Paper 
-          elevation={0}
-          sx={{ 
-            p: { xs: 2.5, sm: 3.5 },
-            borderRadius: 3,
-            background: (theme) => 
-              theme.palette.mode === 'dark'
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(255, 255, 255, 0.9)',
-            border: (theme) => 
-              `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-            boxShadow: (theme) => 
-              theme.palette.mode === 'dark'
-                ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-                : '0 8px 32px rgba(0, 0, 0, 0.08)',
-          }}
-        >
+        <Paper elevation={0} className="auth-paper">
           {success && (
-            <Alert 
-              severity="success" 
-              sx={{ 
+            <Alert
+              severity="success"
+              sx={{
                 mb: 2.5,
                 borderRadius: 2,
                 '& .MuiAlert-icon': {
-                  fontSize: '1.5rem'
-                }
+                  fontSize: '1.5rem',
+                },
               }}
             >
               Account created successfully!
@@ -202,261 +190,191 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
           )}
 
           {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
+            <Alert
+              severity="error"
+              sx={{
                 mb: 2.5,
                 borderRadius: 2,
                 '& .MuiAlert-icon': {
-                  fontSize: '1.5rem'
-                }
+                  fontSize: '1.5rem',
+                },
               }}
             >
               {error}
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-              {/* Full Name */}
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
+          <form onSubmit={handleSubmit(handleFormSubmit)} className="auth-form">
+            {/* Full Name */}
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Full Name"
+                  fullWidth
+                  autoComplete="name"
+                  error={!!errors.name}
+                  helperText={errors.name?.message || 'At least 2 characters'}
+                  placeholder="Enter your full name"
+                />
+              )}
+            />
+
+            {/* Email */}
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Email Address"
+                  type="email"
+                  fullWidth
+                  autoComplete="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message || 'Use a valid email'}
+                  placeholder="your.email@example.com"
+                />
+              )}
+            />
+
+            {/* Password */}
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <Box>
                   <TextField
                     {...field}
-                    label="Full Name"
-                    fullWidth
-                    autoComplete="name"
-                    error={!!errors.name}
-                    helperText={errors.name?.message || "At least 2 characters"}
-                    placeholder="Enter your full name"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        },
-                        '&.Mui-focused': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                        }
-                      }
-                    }}
-                  />
-                )}
-              />
-
-              {/* Email */}
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Email Address"
-                    type="email"
-                    fullWidth
-                    autoComplete="email"
-                    error={!!errors.email}
-                    helperText={errors.email?.message || "Use a valid email"}
-                    placeholder="your.email@example.com"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        },
-                        '&.Mui-focused': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                        }
-                      }
-                    }}
-                  />
-                )}
-              />
-
-              {/* Password */}
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <Box>
-                    <TextField
-                      {...field}
-                      label="Password"
-                      type={showPassword ? "text" : "password"}
-                      fullWidth
-                      autoComplete="new-password"
-                      error={!!errors.password}
-                      helperText={
-                        errors.password?.message || 
-                        "8+ characters, must include a number or special character"
-                      }
-                      placeholder="Create a strong password"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: 2,
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                          },
-                          '&.Mui-focused': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                          }
-                        }
-                      }}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={() => setShowPassword(!showPassword)}
-                              edge="end"
-                              aria-label="toggle password visibility"
-                              sx={{
-                                transition: 'transform 0.2s ease',
-                                '&:hover': { transform: 'scale(1.1)' }
-                              }}
-                            >
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    {password && (
-                      <Box sx={{ mt: 1.5 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Password strength
-                          </Typography>
-                          <Typography 
-                            variant="caption" 
-                            sx={{ 
-                              fontWeight: 600,
-                              color: passwordStrength < 50 ? "#f44336" : passwordStrength < 75 ? "#ff9800" : "#4caf50"
-                            }}
-                          >
-                            {passwordStrength < 50 ? 'Weak' : passwordStrength < 75 ? 'Medium' : 'Strong'}
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={passwordStrength}
-                          sx={{
-                            height: 8,
-                            borderRadius: 2,
-                            backgroundColor: (theme) => theme.palette.mode === 'dark' ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
-                            "& .MuiLinearProgress-bar": {
-                              borderRadius: 2,
-                              transition: 'all 0.3s ease',
-                              backgroundColor:
-                                passwordStrength < 50
-                                  ? "#f44336"
-                                  : passwordStrength < 75
-                                  ? "#ff9800"
-                                  : "#4caf50",
-                            },
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </Box>
-                )}
-              />
-
-              {/* Confirm Password */}
-              <Controller
-                name="confirmPassword"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Confirm Password"
-                    type={showConfirmPassword ? "text" : "password"}
+                    label="Password"
+                    type={showPassword ? 'text' : 'password'}
                     fullWidth
                     autoComplete="new-password"
-                    error={!!errors.confirmPassword}
-                    helperText={errors.confirmPassword?.message || "Must match password"}
-                    placeholder="Confirm your password"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: 2,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        },
-                        '&.Mui-focused': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                        }
-                      }
-                    }}
+                    error={!!errors.password}
+                    helperText={
+                      errors.password?.message ||
+                      '8+ characters, must include a number or special character'
+                    }
+                    placeholder="Create a strong password"
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            onClick={() => setShowPassword(!showPassword)}
                             edge="end"
-                            aria-label="toggle confirm password visibility"
-                            sx={{
-                              transition: 'transform 0.2s ease',
-                              '&:hover': { transform: 'scale(1.1)' }
-                            }}
+                            aria-label="toggle password visibility"
                           >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
                       ),
                     }}
                   />
-                )}
-              />
+                  {password && (
+                    <Box className="auth-password-strength">
+                      <Box className="auth-strength-header">
+                        <Typography
+                          variant="caption"
+                          className="auth-strength-label"
+                        >
+                          Password strength
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          className={`auth-strength-value ${
+                            passwordStrength < 50
+                              ? 'auth-strength-value-weak'
+                              : passwordStrength < 75
+                              ? 'auth-strength-value-medium'
+                              : 'auth-strength-value-strong'
+                          }`}
+                        >
+                          {passwordStrength < 50
+                            ? 'Weak'
+                            : passwordStrength < 75
+                            ? 'Medium'
+                            : 'Strong'}
+                        </Typography>
+                      </Box>
+                      <LinearProgress
+                        variant="determinate"
+                        value={passwordStrength}
+                        className="auth-strength-bar"
+                        sx={{
+                          '& .MuiLinearProgress-bar': {
+                            borderRadius: 'var(--radius-md)',
+                            transition: 'all 0.3s ease',
+                            backgroundColor:
+                              passwordStrength < 50
+                                ? '#f44336'
+                                : passwordStrength < 75
+                                ? '#ff9800'
+                                : '#4caf50',
+                          },
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              )}
+            />
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                fullWidth
-                disabled={isSubmitting}
-                sx={{ 
-                  mt: 1.5, 
-                  py: 1.5,
-                  borderRadius: 2,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  boxShadow: '0 4px 14px rgba(229, 9, 20, 0.4)',
-                  background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 20px rgba(229, 9, 20, 0.5)',
-                    background: 'linear-gradient(135deg, #ff1a1f 0%, #e50914 100%)',
-                  },
-                  '&:disabled': {
-                    background: 'rgba(229, 9, 20, 0.5)',
-                    boxShadow: 'none',
+            {/* Confirm Password */}
+            <Controller
+              name="confirmPassword"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Confirm Password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  fullWidth
+                  autoComplete="new-password"
+                  error={!!errors.confirmPassword}
+                  helperText={
+                    errors.confirmPassword?.message || 'Must match password'
                   }
-                }}
-              >
-                {isSubmitting ? "Creating Account..." : "Sign Up"}
-              </Button>
-            </Box>
+                  placeholder="Confirm your password"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          edge="end"
+                          aria-label="toggle confirm password visibility"
+                        >
+                          {showConfirmPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            />
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Creating Account...' : 'Sign Up'}
+            </Button>
           </form>
 
           {/* Sign In Link */}
-          <Box sx={{ textAlign: "center", pt: 2.5, mt: 2.5, borderTop: (theme) => `1px solid ${theme.palette.divider}` }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 400 }}>
+          <Box className="auth-footer">
+            <Typography variant="body2" className="auth-footer-text">
               Already have an account?
             </Typography>
             <Button
@@ -465,19 +383,6 @@ export default function SignUpForm({ onSubmit, className = "" }: SignUpFormProps
               variant="outlined"
               size="medium"
               fullWidth
-              sx={{
-                borderRadius: 2,
-                py: 1,
-                textTransform: 'none',
-                fontWeight: 600,
-                borderWidth: 1.5,
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  borderWidth: 1.5,
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                }
-              }}
             >
               Sign In
             </Button>

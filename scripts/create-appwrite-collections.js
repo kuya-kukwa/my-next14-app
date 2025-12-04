@@ -11,9 +11,11 @@ Run with:
   node scripts/create-appwrite-collections.js
 */
 
-const { Client, Databases, Permission, Role } = require('node-appwrite');
+import { Client, Databases, Permission, Role } from 'node-appwrite';
+import dotenv from 'dotenv';
+
 // Load environment variables from .env.local explicitly
-require('dotenv').config({ path: '.env.local' });
+dotenv.config({ path: '.env.local' });
 
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
@@ -40,7 +42,7 @@ async function findCollectionByName(name) {
   }
 }
 
-async function createCollectionIfMissing(name, options = {}) {
+async function createCollectionIfMissing(name) {
   const existing = await findCollectionByName(name);
   if (existing) {
     console.log(`Collection '${name}' already exists (id=${existing.$id}). Skipping.`);

@@ -11,11 +11,12 @@ export default function HeroSkeleton() {
     <Box
       sx={{
         position: 'relative',
-        width: '100vw',
-        height: { xs: '75vh', md: '85vh', lg: '87vh' },
+        width: '100%',
+        height: '100vh',
         overflow: 'hidden',
         backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
-        marginLeft: 'calc(-50vw + 50%)',
+        marginTop: 'calc(-64px)',
+        paddingTop: '64px',
       }}
     >
       {/* Background skeleton */}
@@ -42,6 +43,9 @@ export default function HeroSkeleton() {
           height: '100%',
           px: { xs: 3, md: 6, lg: 10 },
           pb: { xs: 8, md: 10, lg: 12 },
+          paddingLeft: 'clamp(24px, 5vw, 80px)',
+          paddingRight: 'clamp(24px, 5vw, 80px)',
+          paddingBottom: 'clamp(64px, 8vh, 96px)',
           maxWidth: '64rem',
         }}
       >

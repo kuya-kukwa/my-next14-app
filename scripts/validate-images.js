@@ -5,7 +5,7 @@
  * Run with: node scripts/validate-images.js
  */
 
-const https = require('https');
+import https from 'https';
 
 // TMDB image URLs from seed data
 const imageUrls = [

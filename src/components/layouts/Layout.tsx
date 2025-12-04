@@ -86,9 +86,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         elevation={0}
         sx={{
           backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
-          borderBottom: isDark
-            ? '1px solid rgba(255,255,255,0.08)'
-            : '1px solid rgba(0,0,0,0.08)',
+          borderBottom: isHeaderStatic
+            ? isDark
+              ? '1px solid rgba(255,255,255,0.08)'
+              : '1px solid rgba(0,0,0,0.08)'
+            : 'none',
           backdropFilter: !isHeaderStatic && isIdle ? 'blur(12px)' : 'none',
           transition: 'all 0.5s',
           zIndex: 1100,

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useMovies } from '@/services/queries/movies';
-import { getToken } from '@/lib/session';
 import {
   useWatchlist,
   useAddToWatchlist,
@@ -22,6 +21,10 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import type { Movie } from '@/types';
 import { ChevronRight } from 'lucide-react';
@@ -29,10 +32,11 @@ import ErrorState from '@/components/ui/ErrorState';
 
 export default function HomePage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
@@ -55,16 +59,6 @@ export default function HomePage() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // authentication check
-  useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push('/signin');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
 
   // toggle watchlist
   const handleToggleWatchlist = (movieId: string) => {
@@ -95,6 +89,29 @@ export default function HomePage() {
     );
   }
 
+  // Apply year filter
+  if (selectedYear) {
+    filteredMovies = filteredMovies.filter(
+      (movie) => movie.year === parseInt(selectedYear)
+    );
+  }
+
+  // Apply genre filter
+  if (selectedGenre) {
+    filteredMovies = filteredMovies.filter(
+      (movie) => movie.genre === selectedGenre
+    );
+  }
+
+  // Get unique years and genres for filters
+  const availableYears = Array.from(
+    new Set(movies.map((movie) => movie.year))
+  ).sort((a, b) => b - a);
+
+  const availableGenres = Array.from(
+    new Set(movies.map((movie) => movie.genre))
+  ).sort();
+
   // organize by category
   const moviesByCategory = filteredMovies.reduce((acc, movie) => {
     if (!acc[movie.category]) acc[movie.category] = [];
@@ -112,9 +129,6 @@ export default function HomePage() {
 
   // unified loading state
   const loading = !isMounted || moviesLoading || moviesFetching || !heroMovie;
-
-  // REDIRECT until authenticated
-  if (!isAuthenticated) return null;
 
   // ERROR STATE (your ErrorState component)
   if (isError) {
@@ -159,13 +173,7 @@ export default function HomePage() {
             }}
           >
             {/* Background Image */}
-            <div
-              className="absolute inset-0"
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            >
+            <div className="img-cover">
               <Image
                 src={heroImageUrl || heroMovie.image}
                 alt={heroMovie.title}
@@ -173,19 +181,6 @@ export default function HomePage() {
                 priority
                 sizes="100vw"
                 quality={95}
-                style={{
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                }}
-              />
-              {/* Gradient Overlay - subtle, only at bottom for text readability */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: isDark
-                    ? 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 25%, transparent 50%)'
-                    : 'linear-gradient(to top, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 25%, transparent 50%)',
-                }}
               />
             </div>
 
@@ -244,7 +239,7 @@ export default function HomePage() {
                   {heroMovie.genre}
                 </span>
 
-                {/* Duration if available */}
+                {/* Duration */}
                 {heroMovie.duration && (
                   <span
                     className="text-sm md:text-base"
@@ -347,120 +342,74 @@ export default function HomePage() {
 
           {/* Movie Rows by Category */}
           <section className="relative z-20 -mt-32 md:-mt-40 lg:-mt-48 pb-16 md:pb-20 lg:pb-24">
-            {/* Filter Section */}
-            <Box
-              sx={{
-                position: 'relative',
-                zIndex: 30,
-                py: 4,
-                px: { xs: 3, md: 6 },
+            <div
+              className="mb-8"
+              style={{
+                paddingLeft: 'clamp(24px, 5vw, 80px)',
+                paddingRight: 'clamp(24px, 5vw, 80px)',
               }}
             >
               <Box
-                sx={{
-                  maxWidth: '1200px',
-                  mx: 'auto',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: 3,
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                }}
+                className="watchlist-filters"
+                sx={{ justifyContent: 'flex-end', marginTop: 4 }}
               >
+                {/* Year Filter */}
+                <FormControl size="small" className="watchlist-filter-control">
+                  <InputLabel>Year</InputLabel>
+                  <Select
+                    value={selectedYear}
+                    label="Year"
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="filter-input-root"
+                  >
+                    <MenuItem value="">All Years</MenuItem>
+                    {availableYears.map((year) => (
+                      <MenuItem key={year} value={year.toString()}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Genre Filter */}
+                <FormControl
+                  size="small"
+                  className="watchlist-filter-control genre"
+                >
+                  <InputLabel>Genre</InputLabel>
+                  <Select
+                    value={selectedGenre}
+                    label="Genre"
+                    onChange={(e) => setSelectedGenre(e.target.value)}
+                    className="filter-input-root"
+                  >
+                    <MenuItem value="">All Genres</MenuItem>
+                    {availableGenres.map((genre) => (
+                      <MenuItem key={genre} value={genre}>
+                        {genre}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
                 {/* Search Input */}
                 <TextField
                   placeholder="Search movies..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  sx={{
-                    width: { xs: '100%', sm: '300px' },
-                    '& .MuiOutlinedInput-root': {
-                      color: isDark ? '#fff' : '#0a0a0a',
-                      backgroundColor: isDark
-                        ? 'rgba(255,255,255,0.05)'
-                        : 'rgba(0,0,0,0.03)',
-                      '& fieldset': {
-                        borderColor: isDark
-                          ? 'rgba(255,255,255,0.2)'
-                          : 'rgba(0,0,0,0.1)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: isDark
-                          ? 'rgba(255,255,255,0.3)'
-                          : 'rgba(0,0,0,0.2)',
-                      },
-                    },
-                    '& .MuiOutlinedInput-input::placeholder': {
-                      color: isDark
-                        ? 'rgba(255,255,255,0.5)'
-                        : 'rgba(0,0,0,0.5)',
-                    },
-                  }}
                   size="small"
+                  className="watchlist-search"
+                  InputProps={{
+                    className: 'filter-input-root',
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon className="search-icon" />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
-
-                {/* Category Select */}
-                <Select
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value as string)}
-                  sx={{
-                    minWidth: '180px',
-                    color: isDark ? '#fff' : '#0a0a0a',
-                    backgroundColor: isDark
-                      ? 'rgba(255,255,255,0.05)'
-                      : 'rgba(0,0,0,0.03)',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: isDark
-                        ? 'rgba(255,255,255,0.2)'
-                        : 'rgba(0,0,0,0.1)',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: isDark
-                        ? 'rgba(255,255,255,0.3)'
-                        : 'rgba(0,0,0,0.2)',
-                    },
-                  }}
-                  size="small"
-                >
-                  <MenuItem value="all">All Categories</MenuItem>
-                  <MenuItem value="action">Action</MenuItem>
-                  <MenuItem value="drama">Drama</MenuItem>
-                  <MenuItem value="comedy">Comedy</MenuItem>
-                  <MenuItem value="horror">Horror</MenuItem>
-                  <MenuItem value="sci-fi">Sci-Fi</MenuItem>
-                  <MenuItem value="thriller">Thriller</MenuItem>
-                </Select>
-
-                {/* Clear Button */}
-                {(searchTerm || categoryFilter !== 'all') && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      setSearchTerm('');
-                      setCategoryFilter('all');
-                    }}
-                    sx={{
-                      color: isDark ? '#fff' : '#0a0a0a',
-                      borderColor: isDark
-                        ? 'rgba(255,255,255,0.3)'
-                        : 'rgba(0,0,0,0.2)',
-                      '&:hover': {
-                        borderColor: isDark
-                          ? 'rgba(255,255,255,0.5)'
-                          : 'rgba(0,0,0,0.4)',
-                        backgroundColor: isDark
-                          ? 'rgba(255,255,255,0.05)'
-                          : 'rgba(0,0,0,0.02)',
-                      },
-                      height: '36px',
-                    }}
-                    size="small"
-                  >
-                    Clear Filters
-                  </Button>
-                )}
               </Box>
-            </Box>
+            </div>
             {Object.entries(moviesByCategory).map(
               ([category, categoryMovies]) => (
                 <div

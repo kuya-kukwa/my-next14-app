@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useEffect, ReactNode, startTransition } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  startTransition,
+} from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { darkTheme, lightTheme } from '@/theme/mui';
@@ -24,7 +31,9 @@ interface ThemeContextProviderProps {
   children: ReactNode;
 }
 
-export const ThemeContextProvider = ({ children }: ThemeContextProviderProps) => {
+export const ThemeContextProvider = ({
+  children,
+}: ThemeContextProviderProps) => {
   const [mode, setMode] = useState<ThemeMode>('dark');
   const [mounted, setMounted] = useState(false);
 
@@ -40,20 +49,30 @@ export const ThemeContextProvider = ({ children }: ThemeContextProviderProps) =>
   // Save theme to localStorage when it changes
   useEffect(() => {
     if (mounted) {
+      // Apply theme class to document root for CSS custom properties
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(mode);
+
       // Defer localStorage write to idle time to avoid blocking interactions
       const win = window as unknown as Window & {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
+        requestIdleCallback?: (
+          cb: () => void,
+          opts?: { timeout?: number }
+        ) => number;
         cancelIdleCallback?: (id?: number) => void;
       };
 
       if (win.requestIdleCallback) {
-        const id = win.requestIdleCallback(() => {
-          try {
-            localStorage.setItem('theme-mode', mode);
-          } catch {
-            /* ignore */
-          }
-        }, { timeout: 1000 });
+        const id = win.requestIdleCallback(
+          () => {
+            try {
+              localStorage.setItem('theme-mode', mode);
+            } catch {
+              /* ignore */
+            }
+          },
+          { timeout: 1000 }
+        );
         return () => win.cancelIdleCallback?.(id);
       }
 

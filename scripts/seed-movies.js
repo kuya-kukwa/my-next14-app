@@ -11,9 +11,10 @@ Run with:
 */
 
 // Load environment variables from .env.local explicitly
-require('dotenv').config({ path: '.env.local' });
-const { Client, Databases, ID } = require('node-appwrite');
-const path = require('path');
+import dotenv from 'dotenv';
+import { Client, Databases } from 'node-appwrite';
+
+dotenv.config({ path: '.env.local' });
 
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;

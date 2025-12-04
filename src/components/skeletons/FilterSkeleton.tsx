@@ -11,40 +11,52 @@ export default function FilterSkeleton() {
     <Box
       sx={{
         position: 'relative',
-        zIndex: 30,
-        py: 4,
+        zIndex: 20,
+        py: 2,
         px: { xs: 3, md: 6 },
+        paddingLeft: 'clamp(24px, 5vw, 80px)',
+        paddingRight: 'clamp(24px, 5vw, 80px)',
       }}
     >
       <Box
         sx={{
-          maxWidth: '1200px',
-          mx: 'auto',
           display: 'flex',
-          justifyContent: 'center',
-          gap: 3,
+          justifyContent: 'flex-end',
+          gap: 2,
           flexWrap: 'wrap',
           alignItems: 'center',
         }}
       >
-        {/* Search Input Skeleton */}
+        {/* Year Filter Skeleton */}
         <Skeleton
           variant="rectangular"
           animation="wave"
           sx={{
-            width: { xs: '100%', sm: '300px' },
+            minWidth: '120px',
             height: 40,
             borderRadius: '4px',
             bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
           }}
         />
 
-        {/* Category Select Skeleton */}
+        {/* Genre Filter Skeleton */}
         <Skeleton
           variant="rectangular"
           animation="wave"
           sx={{
-            minWidth: '180px',
+            minWidth: '140px',
+            height: 40,
+            borderRadius: '4px',
+            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+          }}
+        />
+
+        {/* Search Input Skeleton */}
+        <Skeleton
+          variant="rectangular"
+          animation="wave"
+          sx={{
+            width: { xs: '100%', sm: '280px' },
             height: 40,
             borderRadius: '4px',
             bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',

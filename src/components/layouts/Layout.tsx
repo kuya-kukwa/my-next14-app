@@ -6,21 +6,17 @@ import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Footer from '../ui/Footer';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { getToken, clearToken } from '@/lib/session';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
-import useIdle from '@/lib/useIdle';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { mode, toggleTheme } = useThemeContext();
+  const { mode } = useThemeContext();
   const isDark = mode === 'dark';
   const router = useRouter();
-  const isIdle = useIdle(400);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const isSignInPage = router.pathname === '/signin';

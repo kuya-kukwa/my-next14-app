@@ -11,9 +11,11 @@ Run with:
 */
 
 // Load environment variables from .env.local explicitly
-require('dotenv').config({ path: '.env.local' });
-const { PrismaClient } = require('@prisma/client');
-const { Client, Databases, ID } = require('node-appwrite');
+import dotenv from 'dotenv';
+import { PrismaClient } from '@prisma/client';
+import { Client, Databases } from 'node-appwrite';
+
+dotenv.config({ path: '.env.local' });
 
 const prisma = new PrismaClient();
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
@@ -92,7 +94,7 @@ async function upsertDocument(collectionName, docId, data) {
 
     // === 2. Migrate Movies from static data ===
     console.log('🎬 Migrating movies from src/data/movies.ts...');
-    const movies = require('../src/data/movies.ts').movies || [];
+    const { movies = [] } = await import('../src/data/movies.ts');
     console.log(`Found ${movies.length} movies\n`);
 
     const now = new Date().toISOString();

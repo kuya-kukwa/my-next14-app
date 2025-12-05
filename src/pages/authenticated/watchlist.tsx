@@ -1,18 +1,30 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Chip from '@mui/material/Chip';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import StarIcon from '@mui/icons-material/Star';
 import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
+import InputAdornment from '@mui/material/InputAdornment';
+import Modal from '@mui/material/Modal';
 import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import SearchIcon from '@mui/icons-material/Search';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { useMovies } from '@/services/queries/movies';
@@ -20,21 +32,21 @@ import {
   useWatchlist,
   useRemoveFromWatchlist,
 } from '@/services/queries/watchlist';
-import { getToken } from '@/lib/session';
 
-import MovieCard from '@/components/ui/MovieCard';
 import ErrorState from '@/components/ui/ErrorState';
 import { WatchlistSkeleton } from '@/components/skeletons';
+import MovieCard from '@/components/ui/MovieCard';
+import type { Movie } from '@/types';
 
 export default function WatchlistPage() {
   const router = useRouter();
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [genreFilter, setGenreFilter] = useState('all');
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   // =============================
   // LOAD MOVIES + WATCHLIST DATA
@@ -58,20 +70,87 @@ export default function WatchlistPage() {
   const removeFromWatchlist = useRemoveFromWatchlist();
 
   // =============================
-  // AUTH CHECK
+  // MEMOIZED DATA & HANDLERS
   // =============================
-  useEffect(() => {
-    const token = getToken();
+  const watchlistMovieIds = watchlistData?.movieIds || [];
+  const allMovies = moviesData?.movies || [];
 
-    if (!token) {
-      router.push('/auths/signin');
-      return;
+  // Memoize watchlist movies
+  const watchlistMovies = useMemo(
+    () => allMovies.filter((movie) => watchlistMovieIds.includes(movie.id)),
+    [allMovies, watchlistMovieIds]
+  );
+
+  // Memoize available years and genres
+  const availableYears = useMemo(
+    () =>
+      Array.from(new Set(watchlistMovies.map((movie) => movie.year))).sort(
+        (a, b) => b - a
+      ),
+    [watchlistMovies]
+  );
+
+  const availableGenres = useMemo(
+    () =>
+      Array.from(new Set(watchlistMovies.map((movie) => movie.genre))).sort(),
+    [watchlistMovies]
+  );
+
+  // Memoize filtered movies
+  const filteredMovies = useMemo(() => {
+    let filtered = watchlistMovies;
+
+    // Apply search filter
+    if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter((movie) =>
+        movie.title.toLowerCase().includes(lowerSearchTerm)
+      );
     }
 
-    setIsAuthenticated(true);
-  }, [router]);
+    // Apply year filter
+    if (selectedYear) {
+      const yearNum = parseInt(selectedYear);
+      filtered = filtered.filter((movie) => movie.year === yearNum);
+    }
 
-  if (!isAuthenticated) return null;
+    // Apply genre filter
+    if (selectedGenre) {
+      filtered = filtered.filter((movie) => movie.genre === selectedGenre);
+    }
+
+    return filtered;
+  }, [watchlistMovies, searchTerm, selectedYear, selectedGenre]);
+
+  const handleRemoveFromWatchlist = useCallback(
+    (movieId: string) => {
+      removeFromWatchlist.mutate(movieId);
+    },
+    [removeFromWatchlist]
+  );
+
+  const handleMovieClick = useCallback((movie: Movie) => {
+    setSelectedMovie(movie);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedMovie(null);
+  }, []);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+    },
+    []
+  );
+
+  const handleYearChange = useCallback((e: any) => {
+    setSelectedYear(e.target.value);
+  }, []);
+
+  const handleGenreChange = useCallback((e: any) => {
+    setSelectedGenre(e.target.value);
+  }, []);
 
   // =============================
   // LOADING UI
@@ -98,284 +177,302 @@ export default function WatchlistPage() {
   }
 
   // =============================
-  // FILTER WATCHLIST MOVIES
-  // =============================
-  const watchlistMovieIds = watchlistData?.movieIds || [];
-  const allMovies = moviesData?.movies || [];
-  let filteredMovies = allMovies.filter((movie) =>
-    watchlistMovieIds.includes(movie.id)
-  );
-
-  // Apply search filter
-  if (searchTerm) {
-    filteredMovies = filteredMovies.filter((movie) =>
-      movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
-  // Apply category filter
-  if (categoryFilter !== 'all') {
-    filteredMovies = filteredMovies.filter(
-      (movie) => movie.category.toLowerCase() === categoryFilter.toLowerCase()
-    );
-  }
-
-  // Apply genre filter
-  if (genreFilter !== 'all') {
-    filteredMovies = filteredMovies.filter(
-      (movie) => movie.genre.toLowerCase() === genreFilter.toLowerCase()
-    );
-  }
-
-  const handleRemoveFromWatchlist = (movieId: string) => {
-    removeFromWatchlist.mutate(movieId);
-  };
-
-  // =============================
   // PAGE UI
   // =============================
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: isDark ? '#0a0a0a' : '#f5f5f5',
-        pt: { xs: 12, sm: 14, md: 16 },
-        pb: 8,
-        transition: 'background-color 0.5s',
-      }}
-    >
-      <Container maxWidth="xl">
-        <Box sx={{ mb: 6, textAlign: 'center' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 2,
-              mb: 2,
-            }}
-          >
-            <BookmarkIcon sx={{ fontSize: '2.5rem', color: '#e50914' }} />
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 800,
-                color: isDark ? '#fff' : '#0a0a0a',
-              }}
-            >
-              My Watchlist
-            </Typography>
-          </Box>
-
-          <Typography
-            sx={{
-              maxWidth: 600,
-              mx: 'auto',
-              color: isDark ? '#b3b3b3' : '#666',
-            }}
-          >
-            Your personal list of movies saved for later.
+    <Box className="watchlist-page">
+      <Container maxWidth="lg">
+        {/* Header Section */}
+        <Box className="watchlist-header">
+          <Typography variant="h3" className="watchlist-title">
+            My Watchlist
           </Typography>
-        </Box>
 
-        {/* Filter Bar Wrapper — centers content like the title */}
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <Box
-            sx={{
-              maxWidth: '1200px',
-              width: '100%',
-              textAlign: 'center',
-              mb: 6,
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 2,
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              py: 1.5, // ↑ add vertical padding to make bar taller
-            }}
-          >
-            {/* Search Input */}
-            <TextField
-              placeholder="Search movies..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{
-                width: { xs: '100%', sm: '350px' }, // responsive width
-                '& .MuiOutlinedInput-root': {
-                  color: isDark ? '#fff' : '#0a0a0a',
-                  backgroundColor: isDark
-                    ? 'rgba(255,255,255,0.05)'
-                    : 'rgba(0,0,0,0.03)',
-                  '& fieldset': {
-                    borderColor: isDark
-                      ? 'rgba(255,255,255,0.2)'
-                      : 'rgba(0,0,0,0.1)',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: isDark
-                      ? 'rgba(255,255,255,0.3)'
-                      : 'rgba(0,0,0,0.2)',
-                  },
-                },
-                '& .MuiOutlinedInput-input::placeholder': {
-                  color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
-                },
-              }}
-              size="small"
-            />
+          <Box className="watchlist-controls">
+            <Typography className="watchlist-count">
+              Your personal collection of Movies
+            </Typography>
 
-            {/* Category Select */}
-            <Select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value as string)}
-              sx={{
-                minWidth: '180px',
-                color: isDark ? '#fff' : '#0a0a0a',
-                backgroundColor: isDark
-                  ? 'rgba(255,255,255,0.05)'
-                  : 'rgba(0,0,0,0.03)',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: isDark
-                    ? 'rgba(255,255,255,0.2)'
-                    : 'rgba(0,0,0,0.1)',
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: isDark
-                    ? 'rgba(255,255,255,0.3)'
-                    : 'rgba(0,0,0,0.2)',
-                },
-              }}
-              size="small"
-            >
-              <MenuItem value="all">All Categories</MenuItem>
-              <MenuItem value="action">Action</MenuItem>
-              <MenuItem value="drama">Drama</MenuItem>
-              <MenuItem value="comedy">Comedy</MenuItem>
-              <MenuItem value="horror">Horror</MenuItem>
-              <MenuItem value="sci-fi">Sci-Fi</MenuItem>
-              <MenuItem value="thriller">Thriller</MenuItem>
-            </Select>
+            <Box className="watchlist-filters">
+              {/* Year Filter */}
+              <FormControl size="small" className="watchlist-filter-control">
+                <InputLabel>Year</InputLabel>
+                <Select
+                  value={selectedYear}
+                  label="Year"
+                  onChange={handleYearChange}
+                  className="filter-input-root"
+                >
+                  <MenuItem value="">All Years</MenuItem>
+                  {availableYears.map((year) => (
+                    <MenuItem key={year} value={year.toString()}>
+                      {year}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            {/* Clear Button */}
-            {(searchTerm ||
-              categoryFilter !== 'all' ||
-              genreFilter !== 'all') && (
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setSearchTerm('');
-                  setCategoryFilter('all');
-                  setGenreFilter('all');
-                }}
-                sx={{
-                  color: isDark ? '#fff' : '#0a0a0a',
-                  borderColor: isDark
-                    ? 'rgba(255,255,255,0.3)'
-                    : 'rgba(0,0,0,0.2)',
-                  '&:hover': {
-                    borderColor: isDark
-                      ? 'rgba(255,255,255,0.5)'
-                      : 'rgba(0,0,0,0.4)',
-                    backgroundColor: isDark
-                      ? 'rgba(255,255,255,0.05)'
-                      : 'rgba(0,0,0,0.02)',
-                  },
-                  height: '36px', // match TextField height
-                }}
+              {/* Genre Filter */}
+              <FormControl
                 size="small"
+                className="watchlist-filter-control genre"
               >
-                Clear Filters
-              </Button>
-            )}
+                <InputLabel>Genre</InputLabel>
+                <Select
+                  value={selectedGenre}
+                  label="Genre"
+                  onChange={handleGenreChange}
+                  className="filter-input-root"
+                >
+                  <MenuItem value="">All Genres</MenuItem>
+                  {availableGenres.map((genre) => (
+                    <MenuItem key={genre} value={genre}>
+                      {genre}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Search Input */}
+              <TextField
+                placeholder="Search watchlist..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                size="small"
+                className="watchlist-search"
+                InputProps={{
+                  className: 'filter-input-root',
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon className="search-icon" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
           </Box>
         </Box>
 
         {/* Empty State */}
         {filteredMovies.length === 0 ? (
-          <Box sx={{ textAlign: 'center', py: 12 }}>
+          <Box className="watchlist-empty">
             <BookmarkIcon
+              className="watchlist-empty-icon"
               sx={{
-                fontSize: 80,
                 color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-                mb: 3,
               }}
             />
 
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 600,
-                color: isDark ? '#fff' : '#0a0a0a',
-                mb: 2,
-              }}
-            >
-              Your watchlist is empty
+            <Typography variant="h5" className="watchlist-empty-title">
+              {searchTerm ? 'No movies found' : 'Your watchlist is empty'}
             </Typography>
 
-            <Typography
-              sx={{
-                maxWidth: 400,
-                mx: 'auto',
-                color: isDark ? '#b3b3b3' : '#666',
-                mb: 4,
-              }}
-            >
-              Start building your watchlist by browsing movies.
+            <Typography className="watchlist-empty-text">
+              {searchTerm
+                ? 'Try searching for something else'
+                : 'Start building your watchlist by browsing movies.'}
             </Typography>
 
-            <Link href="/authenticated/home" style={{ textDecoration: 'none' }}>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: isDark ? '#e50914' : '#e50914',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  px: 4,
-                  py: 1.2,
-                  borderRadius: 2,
-                  '&:hover': {
-                    backgroundColor: isDark ? '#b2070f' : '#b2070f',
-                  },
-                }}
+            {!searchTerm && (
+              <Link
+                href="/authenticated/home"
+                style={{ textDecoration: 'none' }}
               >
-                Browse Movies
-              </Button>
-            </Link>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: '#e50914',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                    px: 4,
+                    py: 1.2,
+                    borderRadius: 2,
+                    '&:hover': {
+                      backgroundColor: '#b2070f',
+                    },
+                  }}
+                >
+                  Browse Movies
+                </Button>
+              </Link>
+            )}
           </Box>
         ) : (
-          <>
-            {/* Grid */}
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(6, 1fr)',
-                gap: 3,
-              }}
-            >
-              {filteredMovies.map((movie) => (
-                <Box key={movie.id} sx={{ position: 'relative' }}>
-                  <MovieCard movie={movie} />
+          <Box className="watchlist-grid">
+            {filteredMovies.map((movie, index) => (
+              <Box
+                key={movie.id}
+                onClick={() => handleMovieClick(movie)}
+                className="watchlist-card"
+                sx={{ position: 'relative' }}
+              >
+                {/* Remove from Watchlist Icon */}
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFromWatchlist(movie.id);
+                  }}
+                  className="watchlist-card-remove"
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    zIndex: 10,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    backdropFilter: 'blur(8px)',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    color: '#ef4444',
+                    width: 36,
+                    height: 36,
+                    '&:hover': {
+                      backgroundColor: '#e50914',
+                      borderColor: '#e50914',
+                      transform: 'scale(1.1)',
+                    },
+                    transition: 'all 0.3s ease',
+                  }}
+                  aria-label="Remove from watchlist"
+                >
+                  <BookmarkIcon sx={{ fontSize: 18 }} />
+                </IconButton>
 
-                  <IconButton
-                    onClick={() => handleRemoveFromWatchlist(movie.id)}
-                    sx={{
-                      position: 'absolute',
-                      top: 12,
-                      right: 12,
-                      background: 'rgba(0,0,0,0.8)',
-                      '&:hover': {
-                        background: 'rgba(229,9,20,0.9)',
-                      },
-                    }}
-                  >
-                    <BookmarkIcon sx={{ color: '#ef4444' }} />
-                  </IconButton>
+                {/* Movie Poster */}
+                <Box>
+                  <MovieCard movie={movie} priority={index < 4} />
                 </Box>
-              ))}
-            </Box>
-          </>
+              </Box>
+            ))}
+          </Box>
         )}
       </Container>
+
+      {/* Right-Side Slide Modal */}
+      <Modal
+        open={!!selectedMovie}
+        onClose={handleCloseModal}
+        className="watchlist-modal"
+      >
+        <Box onClick={handleCloseModal} className="watchlist-modal-backdrop">
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            className="watchlist-modal-panel"
+          >
+            {selectedMovie && (
+              <>
+                {/* Close Button */}
+                <IconButton
+                  onClick={handleCloseModal}
+                  className="watchlist-modal-close modal-icon-close"
+                >
+                  <CloseIcon />
+                </IconButton>
+
+                {/* Movie Poster */}
+                <Box className="watchlist-card-poster">
+                  <Image
+                    src={selectedMovie.image || selectedMovie.thumbnail}
+                    alt={selectedMovie.title}
+                    fill
+                    sizes="550px"
+                    priority
+                  />
+                  <Box />
+                </Box>
+
+                {/* Content */}
+                <Box className="watchlist-modal-content">
+                  <Typography variant="h4" className="watchlist-modal-title">
+                    {selectedMovie.title}
+                  </Typography>
+
+                  {/* Meta Info */}
+                  <Box className="watchlist-modal-meta">
+                    {/* Year */}
+                    <Box className="watchlist-modal-meta-item">
+                      <CalendarTodayIcon className="modal-icon-meta" />
+                      <Typography className="watchlist-modal-meta-text">
+                        {selectedMovie.year}
+                      </Typography>
+                    </Box>
+
+                    {/* Duration */}
+                    {selectedMovie.duration && (
+                      <Box className="watchlist-modal-meta-item">
+                        <AccessTimeIcon className="modal-icon-meta" />
+                        <Typography className="watchlist-modal-meta-text">
+                          {Math.floor(selectedMovie.duration / 60)}h{' '}
+                          {selectedMovie.duration % 60}m
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* Rating */}
+                    <Box className="watchlist-modal-meta-item">
+                      <StarIcon className="modal-icon-star" />
+                      <Typography className="watchlist-modal-rating-value">
+                        {selectedMovie.rating}
+                        <Typography
+                          component="span"
+                          className="watchlist-modal-rating-max"
+                        >
+                          / 5
+                        </Typography>
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Genre */}
+                  <Box className="watchlist-modal-genre">
+                    <Chip
+                      label={selectedMovie.genre}
+                      className="modal-chip-genre"
+                    />
+                  </Box>
+
+                  {/* Description */}
+                  {selectedMovie.description && (
+                    <Box className="watchlist-modal-synopsis">
+                      <Typography
+                        variant="h6"
+                        className="watchlist-modal-synopsis-title"
+                      >
+                        Synopsis
+                      </Typography>
+                      <Typography className="watchlist-modal-synopsis-text">
+                        {selectedMovie.description}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Action Buttons */}
+                  <Box className="watchlist-modal-actions">
+                    <Button
+                      variant="contained"
+                      startIcon={<PlayArrowIcon />}
+                      fullWidth
+                      className="modal-btn-primary"
+                    >
+                      Watch Now
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<BookmarkIcon />}
+                      fullWidth
+                      onClick={() => {
+                        handleRemoveFromWatchlist(selectedMovie.id);
+                        setSelectedMovie(null);
+                      }}
+                      className="modal-btn-outlined"
+                    >
+                      Remove from Watchlist
+                    </Button>
+                  </Box>
+                </Box>
+              </>
+            )}
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 }

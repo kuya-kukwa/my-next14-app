@@ -9,90 +9,107 @@ export default function WatchlistSkeleton() {
   const isDark = mode === 'dark';
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundColor: isDark ? "#0a0a0a" : "#f5f5f5",
-        pt: { xs: 12, sm: 14, md: 16 },
-        pb: 8,
-        transition: "background-color 0.5s",
-      }}
-    >
-      <Container maxWidth="xl">
+    <Box className="watchlist-page">
+      <Container maxWidth="lg">
         {/* HEADER SKELETON */}
-        <Box sx={{ mb: 6, textAlign: "center" }}>
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2, mb: 2 }}>
-            <Skeleton variant="rectangular" width={50} height={50} sx={{ bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)' }} />
-            <Skeleton variant="text" width={300} height={100} sx={{ bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)' }} />
-          </Box>
-          <Skeleton variant="text" width={400} height={20} sx={{ mx: "auto", bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)' }} />
-        </Box>
-
-        {/* FILTER BAR SKELETON */}
-        <Box sx={{ width: "100%", display: "flex", justifyContent: "center", mb: 6 }}>
-          <Box
+        <Box className="watchlist-header">
+          {/* Title */}
+          <Skeleton
+            variant="text"
+            width={250}
+            height={60}
+            className="watchlist-title"
             sx={{
-              maxWidth: "1200px",
-              width: "100%",
-              textAlign: "center",
-              display: "flex",
-              justifyContent: "center",
-              gap: 2,
-              flexWrap: "wrap",
-              alignItems: "center",
-              py: 1.5,
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
             }}
-          >
-            {/* Search Input Skeleton */}
+          />
+
+          {/* Controls container */}
+          <Box className="watchlist-controls">
+            {/* Count skeleton */}
             <Skeleton
-              variant="rectangular"
-              animation="wave"
+              variant="text"
+              width={180}
+              height={24}
+              className="watchlist-count"
               sx={{
-                width: { xs: "100%", sm: "350px" },
-                height: 40,
-                borderRadius: '4px',
-                bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+                bgcolor: isDark
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.06)',
               }}
             />
 
-            {/* Category Select Skeleton */}
-            <Skeleton
-              variant="rectangular"
-              animation="wave"
-              sx={{
-                minWidth: '180px',
-                height: 40,
-                borderRadius: '4px',
-                bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-              }}
-            />
+            {/* Filter bar */}
+            <Box className="watchlist-filters">
+              {/* Year Filter Skeleton */}
+              <Skeleton
+                variant="rectangular"
+                animation="wave"
+                className="watchlist-filter-control"
+                sx={{
+                  minWidth: '120px',
+                  height: 40,
+                  borderRadius: '5px',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
+                }}
+              />
+
+              {/* Genre Filter Skeleton */}
+              <Skeleton
+                variant="rectangular"
+                animation="wave"
+                className="watchlist-filter-control genre"
+                sx={{
+                  minWidth: '140px',
+                  height: 40,
+                  borderRadius: '5px',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
+                }}
+              />
+
+              {/* Search Input Skeleton */}
+              <Skeleton
+                variant="rectangular"
+                animation="wave"
+                className="watchlist-search"
+                sx={{
+                  width: { xs: '100%', sm: '300px' },
+                  height: 40,
+                  borderRadius: '5px',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
+                }}
+              />
+            </Box>
           </Box>
         </Box>
 
         {/* MOVIE GRID SKELETON */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(6, 1fr)",
-            gap: 3,
-          }}
-        >
-          {Array.from({ length: 6 }).map((_, index) => (
+        <Box className="watchlist-grid">
+          {Array.from({ length: 10 }).map((_, index) => (
             <Box
               key={index}
+              className="watchlist-card"
               sx={{
-                width: '100%',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                position: 'relative',
               }}
             >
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={300}
+                height={280}
                 sx={{
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+                  bgcolor: isDark
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : 'rgba(0, 0, 0, 0.06)',
+                  borderRadius: '12px',
                 }}
               />
             </Box>

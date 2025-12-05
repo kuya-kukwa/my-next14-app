@@ -14,7 +14,11 @@ export default function Home() {
       try {
         const response = await fetch('/api/movies?top=true');
         const data = await response.json();
-        setTopMovies(data.movies);
+        // Limit to top 10 highest rated movies
+        const top10 = data.movies
+          .sort((a: Movie, b: Movie) => b.rating - a.rating)
+          .slice(0, 10);
+        setTopMovies(top10);
       } catch (error) {
         console.error('Error fetching top movies:', error);
       }

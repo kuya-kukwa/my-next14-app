@@ -11,46 +11,72 @@ export default function FilterSkeleton() {
     <Box
       sx={{
         position: 'relative',
-        zIndex: 30,
-        py: 4,
-        px: { xs: 3, md: 6 },
+        zIndex: 20,
+        marginTop: '32px',
+        marginBottom: '32px',
+        paddingLeft: 'clamp(24px, 5vw, 80px)',
+        paddingRight: 'clamp(24px, 5vw, 80px)',
       }}
     >
       <Box
+        className="mb-8"
         sx={{
-          maxWidth: '1200px',
-          mx: 'auto',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 3,
-          flexWrap: 'wrap',
-          alignItems: 'center',
+          paddingLeft: 'clamp(24px, 5vw, 80px)',
+          paddingRight: 'clamp(24px, 5vw, 80px)',
         }}
       >
-        {/* Search Input Skeleton */}
-        <Skeleton
-          variant="rectangular"
-          animation="wave"
+        <Box
+          className="watchlist-filters"
           sx={{
-            width: { xs: '100%', sm: '300px' },
-            height: 40,
-            borderRadius: '4px',
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+            justifyContent: 'flex-end',
+            marginTop: 4,
           }}
-        />
+        >
+          {/* Year Filter Skeleton */}
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            className="watchlist-filter-control"
+            sx={{
+              minWidth: '120px',
+              height: 40,
+              borderRadius: '5px',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
+          />
 
-        {/* Category Select Skeleton */}
-        <Skeleton
-          variant="rectangular"
-          animation="wave"
-          sx={{
-            minWidth: '180px',
-            height: 40,
-            borderRadius: '4px',
-            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-          }}
-        />
+          {/* Genre Filter Skeleton */}
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            className="watchlist-filter-control genre"
+            sx={{
+              minWidth: '140px',
+              height: 40,
+              borderRadius: '5px',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
+          />
 
+          {/* Search Input Skeleton */}
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            className="watchlist-search"
+            sx={{
+              width: { xs: '100%', sm: '300px' },
+              height: 40,
+              borderRadius: '5px',
+              bgcolor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );

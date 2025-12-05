@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -18,7 +17,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Modal from '@mui/material/Modal';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import SearchIcon from '@mui/icons-material/Search';
@@ -39,7 +38,6 @@ import MovieCard from '@/components/ui/MovieCard';
 import type { Movie } from '@/types';
 
 export default function WatchlistPage() {
-  const router = useRouter();
   const { mode } = useThemeContext();
   const isDark = mode === 'dark';
 
@@ -72,8 +70,8 @@ export default function WatchlistPage() {
   // =============================
   // MEMOIZED DATA & HANDLERS
   // =============================
-  const watchlistMovieIds = watchlistData?.movieIds || [];
-  const allMovies = moviesData?.movies || [];
+  const watchlistMovieIds = useMemo(() => watchlistData?.movieIds || [], [watchlistData]);
+  const allMovies = useMemo(() => moviesData?.movies || [], [moviesData]);
 
   // Memoize watchlist movies
   const watchlistMovies = useMemo(
@@ -144,11 +142,11 @@ export default function WatchlistPage() {
     []
   );
 
-  const handleYearChange = useCallback((e: any) => {
+  const handleYearChange = useCallback((e: SelectChangeEvent<string>) => {
     setSelectedYear(e.target.value);
   }, []);
 
-  const handleGenreChange = useCallback((e: any) => {
+  const handleGenreChange = useCallback((e: SelectChangeEvent<string>) => {
     setSelectedGenre(e.target.value);
   }, []);
 

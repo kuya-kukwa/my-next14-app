@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useMovies } from '@/services/queries/movies';
 import {
@@ -31,10 +30,8 @@ import { ChevronRight } from 'lucide-react';
 import ErrorState from '@/components/ui/ErrorState';
 
 export default function HomePage() {
-  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
@@ -79,13 +76,6 @@ export default function HomePage() {
   if (searchTerm) {
     filteredMovies = filteredMovies.filter((movie) =>
       movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
-  // Apply category filter
-  if (categoryFilter !== 'all') {
-    filteredMovies = filteredMovies.filter(
-      (movie) => movie.category.toLowerCase() === categoryFilter.toLowerCase()
     );
   }
 

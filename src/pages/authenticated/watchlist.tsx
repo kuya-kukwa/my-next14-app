@@ -70,7 +70,10 @@ export default function WatchlistPage() {
   // =============================
   // MEMOIZED DATA & HANDLERS
   // =============================
-  const watchlistMovieIds = useMemo(() => watchlistData?.movieIds || [], [watchlistData]);
+  const watchlistMovieIds = useMemo(
+    () => watchlistData?.movieIds || [],
+    [watchlistData]
+  );
   const allMovies = useMemo(() => moviesData?.movies || [], [moviesData]);
 
   // Memoize watchlist movies

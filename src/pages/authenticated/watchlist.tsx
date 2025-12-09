@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -31,8 +31,10 @@ import {
   useWatchlist,
   useRemoveFromWatchlist,
 } from '@/services/queries/watchlist';
+import { useWatchlistConfirm } from '@/hooks/useWatchlistConfirm';
 
 import ErrorState from '@/components/ui/ErrorState';
+import { WatchlistConfirmDialog } from '@/components/ui/WatchlistConfirmDialog';
 import { WatchlistSkeleton } from '@/components/skeletons';
 import MovieCard from '@/components/ui/MovieCard';
 import type { Movie } from '@/types';
@@ -66,6 +68,60 @@ export default function WatchlistPage() {
   } = useWatchlist();
 
   const removeFromWatchlist = useRemoveFromWatchlist();
+
+  // watchlist confirmation
+  const { confirmState, openConfirm, closeConfirm, confirmAction } =
+    useWatchlistConfirm((movieId) => {
+      removeFromWatchlist.mutate(movieId);
+    });
+
+  // Prevent body scrolling when modals are open
+  useEffect(() => {
+    const isModalOpen = !!selectedMovie || confirmState.isOpen;
+
+    if (isModalOpen) {
+      // Calculate scrollbar width
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+
+      // Store current scroll position
+      const scrollY = window.scrollY;
+
+      // Apply styles to prevent scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      // Get the scroll position from the fixed body
+      const scrollY = document.body.style.top;
+
+      // Remove styles
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.documentElement.style.overflow = '';
+
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [selectedMovie, confirmState.isOpen]);
 
   // =============================
   // MEMOIZED DATA & HANDLERS
@@ -124,10 +180,10 @@ export default function WatchlistPage() {
   }, [watchlistMovies, searchTerm, selectedYear, selectedGenre]);
 
   const handleRemoveFromWatchlist = useCallback(
-    (movieId: string) => {
-      removeFromWatchlist.mutate(movieId);
+    (movieId: string, movieTitle: string) => {
+      openConfirm(movieId, movieTitle, 'remove');
     },
-    [removeFromWatchlist]
+    [openConfirm]
   );
 
   const handleMovieClick = useCallback((movie: Movie) => {
@@ -275,10 +331,7 @@ export default function WatchlistPage() {
             </Typography>
 
             {!searchTerm && (
-              <Link
-                href="/authenticated/home"
-                style={{ textDecoration: 'none' }}
-              >
+              <Link href="/authenticated/home" className="no-text-decoration">
                 <Button
                   variant="contained"
                   sx={{
@@ -311,7 +364,7 @@ export default function WatchlistPage() {
                 <IconButton
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemoveFromWatchlist(movie.id);
+                    handleRemoveFromWatchlist(movie.id, movie.title);
                   }}
                   className="watchlist-card-remove"
                   sx={{
@@ -352,6 +405,15 @@ export default function WatchlistPage() {
         open={!!selectedMovie}
         onClose={handleCloseModal}
         className="watchlist-modal"
+        aria-labelledby="movie-details-title"
+        aria-describedby="movie-details-description"
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            },
+          },
+        }}
       >
         <Box onClick={handleCloseModal} className="watchlist-modal-backdrop">
           <Box
@@ -382,7 +444,11 @@ export default function WatchlistPage() {
 
                 {/* Content */}
                 <Box className="watchlist-modal-content">
-                  <Typography variant="h4" className="watchlist-modal-title">
+                  <Typography
+                    variant="h4"
+                    className="watchlist-modal-title"
+                    id="movie-details-title"
+                  >
                     {selectedMovie.title}
                   </Typography>
 
@@ -439,7 +505,10 @@ export default function WatchlistPage() {
                       >
                         Synopsis
                       </Typography>
-                      <Typography className="watchlist-modal-synopsis-text">
+                      <Typography
+                        className="watchlist-modal-synopsis-text"
+                        id="movie-details-description"
+                      >
                         {selectedMovie.description}
                       </Typography>
                     </Box>
@@ -460,7 +529,10 @@ export default function WatchlistPage() {
                       startIcon={<BookmarkIcon />}
                       fullWidth
                       onClick={() => {
-                        handleRemoveFromWatchlist(selectedMovie.id);
+                        handleRemoveFromWatchlist(
+                          selectedMovie.id,
+                          selectedMovie.title
+                        );
                         setSelectedMovie(null);
                       }}
                       className="modal-btn-outlined"
@@ -474,6 +546,16 @@ export default function WatchlistPage() {
           </Box>
         </Box>
       </Modal>
+
+      {/* Watchlist Confirmation Dialog */}
+      <WatchlistConfirmDialog
+        open={confirmState.isOpen}
+        movieTitle={confirmState.movieTitle}
+        action={confirmState.action}
+        onConfirm={confirmAction}
+        onCancel={closeConfirm}
+        isLoading={removeFromWatchlist.isPending}
+      />
     </Box>
   );
 }

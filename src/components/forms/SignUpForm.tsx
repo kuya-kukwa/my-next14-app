@@ -9,6 +9,7 @@ import { authHeader } from '@/lib/session';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { setToken } from '@/lib/session';
 import { useRouter } from 'next/router';
+import { useMutation } from '@tanstack/react-query';
 import {
   Box,
   Button,
@@ -24,21 +25,13 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export type SignUpFormProps = {
-  onSubmit?: (
-    data: SignUpInput & { confirmPassword: string }
-  ) => void | Promise<void>;
   className?: string;
 };
 
-export default function SignUpForm({
-  onSubmit,
-  className = '',
-}: SignUpFormProps) {
+export default function SignUpForm({ className = '' }: SignUpFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const schema = signUpSchema
     .extend({ confirmPassword: signUpSchema.shape.password })
@@ -56,7 +49,7 @@ export default function SignUpForm({
     control,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignUpInput & { confirmPassword: string }>({
     mode: 'onChange',
     resolver: zodResolver(schema),
@@ -78,19 +71,13 @@ export default function SignUpForm({
 
   const passwordStrength = getPasswordStrength(password || '');
 
-  const handleFormSubmit = async (
-    data: SignUpInput & { confirmPassword: string }
-  ) => {
-    console.log('[SignUpForm] Starting signup process', {
-      email: data.email,
-      name: data.name,
-    });
-    setError(null); // Clear any previous errors
+  const signUpMutation = useMutation({
+    mutationFn: async (data: SignUpInput & { confirmPassword: string }) => {
+      console.log('[SignUpForm] Starting signup process', {
+        email: data.email,
+        name: data.name,
+      });
 
-    if (onSubmit) {
-      console.log('[SignUpForm] Using custom onSubmit handler');
-      await onSubmit(data);
-    } else {
       // Default: create Appwrite account
       try {
         console.log('[SignUpForm] Creating Appwrite account');
@@ -133,7 +120,6 @@ export default function SignUpForm({
         }
 
         console.log('[SignUpForm] Signup completed, redirecting to home');
-        setSuccess(true);
         setTimeout(() => router.push('/authenticated/home'), 1500);
       } catch (err: unknown) {
         // Extract Appwrite error message
@@ -150,13 +136,15 @@ export default function SignUpForm({
           errorMessage = err.message;
         }
 
-        console.error('[SignUpForm] Signup error:', {
-          error: errorMessage,
-          rawError: err,
-        });
-        setError(errorMessage);
+        throw new Error(errorMessage);
       }
-    }
+    },
+  });
+
+  const handleFormSubmit = (
+    data: SignUpInput & { confirmPassword: string }
+  ) => {
+    signUpMutation.mutate(data);
   };
 
   return (
@@ -174,7 +162,7 @@ export default function SignUpForm({
 
         {/* Form */}
         <Paper elevation={0} className="auth-paper">
-          {success && (
+          {signUpMutation.isSuccess && (
             <Alert
               severity="success"
               sx={{
@@ -184,12 +172,13 @@ export default function SignUpForm({
                   fontSize: '1.5rem',
                 },
               }}
+              onClose={() => signUpMutation.reset()}
             >
               Account created successfully!
             </Alert>
           )}
 
-          {error && (
+          {signUpMutation.error && (
             <Alert
               severity="error"
               sx={{
@@ -199,8 +188,9 @@ export default function SignUpForm({
                   fontSize: '1.5rem',
                 },
               }}
+              onClose={() => signUpMutation.reset()}
             >
-              {error}
+              {signUpMutation.error.message}
             </Alert>
           )}
 
@@ -366,9 +356,9 @@ export default function SignUpForm({
               variant="contained"
               size="large"
               fullWidth
-              disabled={isSubmitting}
+              disabled={signUpMutation.isPending}
             >
-              {isSubmitting ? 'Creating Account...' : 'Sign Up'}
+              {signUpMutation.isPending ? 'Creating Account...' : 'Sign Up'}
             </Button>
           </form>
 

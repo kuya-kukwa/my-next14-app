@@ -6,7 +6,9 @@ import {
   useAddToWatchlist,
   useRemoveFromWatchlist,
 } from '@/services/queries/watchlist';
+import { useWatchlistConfirm } from '@/hooks/useWatchlistConfirm';
 import MovieCard from '@/components/ui/MovieCard';
+import { WatchlistConfirmDialog } from '@/components/ui/WatchlistConfirmDialog';
 import {
   HeroSkeleton,
   MovieRowSkeleton,
@@ -32,7 +34,6 @@ import ErrorState from '@/components/ui/ErrorState';
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   const { mode } = useThemeContext();
@@ -52,18 +53,71 @@ export default function HomePage() {
   const removeFromWatchlist = useRemoveFromWatchlist();
   const watchlistMovieIds = watchlistData?.movieIds || [];
 
+  // watchlist confirmation
+  const { confirmState, openConfirm, closeConfirm, confirmAction } =
+    useWatchlistConfirm((movieId, action) => {
+      if (action === 'add') {
+        addToWatchlist.mutate({ movieId });
+      } else {
+        removeFromWatchlist.mutate(movieId);
+      }
+    });
+
   // mount check
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // toggle watchlist
-  const handleToggleWatchlist = (movieId: string) => {
-    if (watchlistMovieIds.includes(movieId)) {
-      removeFromWatchlist.mutate(movieId);
+  // Prevent body scrolling when modal is open
+  useEffect(() => {
+    if (confirmState.isOpen) {
+      // Calculate scrollbar width
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+
+      // Store current scroll position
+      const scrollY = window.scrollY;
+
+      // Apply styles to prevent scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.documentElement.style.overflow = 'hidden';
     } else {
-      addToWatchlist.mutate({ movieId });
+      // Get the scroll position from the fixed body
+      const scrollY = document.body.style.top;
+
+      // Remove styles
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.documentElement.style.overflow = '';
+
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
     }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [confirmState.isOpen]);
+
+  // toggle watchlist
+  const handleToggleWatchlist = (movieId: string, movieTitle: string) => {
+    const action = watchlistMovieIds.includes(movieId) ? 'remove' : 'add';
+    openConfirm(movieId, movieTitle, action);
   };
 
   // movies fallback
@@ -79,13 +133,6 @@ export default function HomePage() {
     );
   }
 
-  // Apply year filter
-  if (selectedYear) {
-    filteredMovies = filteredMovies.filter(
-      (movie) => movie.year === parseInt(selectedYear)
-    );
-  }
-
   // Apply genre filter
   if (selectedGenre) {
     filteredMovies = filteredMovies.filter(
@@ -93,11 +140,7 @@ export default function HomePage() {
     );
   }
 
-  // Get unique years and genres for filters
-  const availableYears = Array.from(
-    new Set(movies.map((movie) => movie.year))
-  ).sort((a, b) => b - a);
-
+  // Get unique genres for filter
   const availableGenres = Array.from(
     new Set(movies.map((movie) => movie.genre))
   ).sort();
@@ -143,6 +186,7 @@ export default function HomePage() {
         <MovieRowSkeleton />
         <MovieRowSkeleton />
         <MovieRowSkeleton />
+        <MovieRowSkeleton />
       </Box>
     );
   }
@@ -154,12 +198,13 @@ export default function HomePage() {
       {heroMovie && (
         <>
           {/* Hero Section */}
-          <div
-            className="relative w-full overflow-hidden"
-            style={{
-              height: '89vh',
+          <Box
+            sx={{
+              position: 'relative',
               width: '100vw',
+              height: { xs: '45vh', md: '65vh', lg: '89vh' },
               marginLeft: 'calc(-50vw + 50%)',
+              overflow: 'hidden',
             }}
           >
             {/* Background Image */}
@@ -170,105 +215,112 @@ export default function HomePage() {
               priority
               sizes="100vw"
               quality={95}
-              style={{
-                objectFit: 'cover',
-                objectPosition: 'center',
+              className="hero-image"
+            />
+
+            {/* Gradient Overlay for Better Text Readability */}
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                background: isDark
+                  ? 'linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.7) 30%, rgba(10, 10, 10, 0.3) 60%, transparent 100%)'
+                  : 'linear-gradient(to top, rgba(250, 250, 250, 0.95) 0%, rgba(250, 250, 250, 0.7) 30%, rgba(250, 250, 250, 0.3) 60%, transparent 100%)',
+                zIndex: 10,
               }}
             />
 
             {/* Content */}
-            <div
-              className="relative z-20 flex flex-col justify-end h-full"
-              style={{
-                paddingLeft: 'clamp(24px, 5vw, 80px)',
-                paddingRight: 'clamp(24px, 5vw, 80px)',
-                paddingBottom: 'clamp(64px, 8vh, 96px)',
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                height: '100%',
+                paddingLeft: { xs: '24px', sm: '5vw', lg: '80px' },
+                paddingRight: { xs: '24px', sm: '5vw', lg: '80px' },
+                paddingBottom: {
+                  xs: '32px',
+                  sm: '48px',
+                  md: '64px',
+                  lg: '96px',
+                },
                 maxWidth: '64rem',
               }}
             >
               {/* Title */}
-              <h1
-                className="font-bold mb-4 md:mb-5 lg:mb-6"
-                style={{
-                  fontSize: 'clamp(36px, 6vw, 84px)',
+              <Box
+                component="h1"
+                sx={{
+                  fontWeight: 'bold',
+                  fontSize: { xs: '32px', sm: '48px', md: '60px', lg: '84px' },
                   lineHeight: 1.1,
                   textShadow: isDark
                     ? '2px 4px 8px rgba(0, 0, 0, 0.8)'
                     : '2px 4px 8px rgba(0, 0, 0, 0.3)',
+                  mb: { xs: 2, md: 3, lg: 4 },
                 }}
               >
                 {heroMovie.title}
-              </h1>
+              </Box>
 
               {/* Info Badges */}
-              <div
-                className="flex items-center flex-wrap"
-                style={{
-                  gap: 'clamp(12px, 1.5vw, 16px)',
-                  marginBottom: 'clamp(20px, 3vh, 28px)',
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: { xs: '8px', md: '12px', lg: '16px' },
+                  mb: { xs: 2, md: 3, lg: 4 },
                 }}
               >
                 {/* Year Badge */}
-                <span
-                  className="px-2.5 py-1 text-xs md:text-sm font-medium rounded"
-                  style={{
-                    color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
-                    border: isDark
-                      ? '1px solid rgba(156, 163, 175, 0.3)'
-                      : '1px solid rgba(0, 0, 0, 0.2)',
-                  }}
-                >
-                  {heroMovie.year}
-                </span>
+                <span className="hero-info-badge">{heroMovie.year}</span>
 
                 {/* Genre */}
-                <span
-                  className="text-sm md:text-base"
-                  style={{
-                    color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
-                  }}
-                >
-                  {heroMovie.genre}
-                </span>
+                <span className="hero-info-text">{heroMovie.genre}</span>
 
                 {/* Duration */}
                 {heroMovie.duration && (
-                  <span
-                    className="text-sm md:text-base"
-                    style={{
-                      color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
-                    }}
-                  >
+                  <span className="hero-info-text">
                     {Math.floor(heroMovie.duration / 60)}h{' '}
                     {heroMovie.duration % 60}m
                   </span>
                 )}
-              </div>
+              </Box>
 
               {/* Description */}
               {heroMovie.description && (
-                <p
-                  className="mb-6 md:mb-7 lg:mb-8 leading-relaxed"
-                  style={{
+                <Box
+                  component="p"
+                  sx={{
                     maxWidth: '42rem',
-                    fontSize: 'clamp(14px, 1.5vw, 18px)',
+                    fontSize: { xs: '14px', md: '16px', lg: '18px' },
+                    lineHeight: 'relaxed',
                     textShadow: isDark
                       ? '1px 2px 4px rgba(0, 0, 0, 0.7)'
                       : '1px 2px 4px rgba(0, 0, 0, 0.2)',
                     display: '-webkit-box',
-                    WebkitLineClamp: 3,
+                    WebkitLineClamp: { xs: 2, md: 3 },
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
+                    mb: { xs: 3, md: 4, lg: 5 },
                   }}
                 >
                   {heroMovie.description}
-                </p>
+                </Box>
               )}
 
               {/* Action Buttons */}
-              <div
-                className="flex items-center"
-                style={{ gap: 'clamp(12px, 1.5vw, 16px)' }}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 1.5, sm: 2 },
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                }}
               >
                 <Button
                   variant="contained"
@@ -296,7 +348,9 @@ export default function HomePage() {
                 <Button
                   variant="outlined"
                   startIcon={<BookmarkIcon />}
-                  onClick={() => handleToggleWatchlist(heroMovie.id)}
+                  onClick={() =>
+                    handleToggleWatchlist(heroMovie.id, heroMovie.title)
+                  }
                   sx={{
                     color: isDark ? '#ffffff' : '#0a0a0a',
                     borderColor: isDark
@@ -328,41 +382,17 @@ export default function HomePage() {
                     ? 'Remove from Watchlist'
                     : 'Add to Watchlist'}
                 </Button>
-              </div>
-            </div>
-          </div>
+              </Box>
+            </Box>
+          </Box>
 
           {/* Movie Rows by Category */}
           <section className="relative z-20 -mt-32 md:-mt-40 lg:-mt-48 pb-16 md:pb-20 lg:pb-24">
-            <div
-              className="mb-8"
-              style={{
-                paddingLeft: 'clamp(24px, 5vw, 80px)',
-                paddingRight: 'clamp(24px, 5vw, 80px)',
-              }}
-            >
+            <div className="filters-container">
               <Box
                 className="watchlist-filters"
                 sx={{ justifyContent: 'flex-end', marginTop: 4 }}
               >
-                {/* Year Filter */}
-                <FormControl size="small" className="watchlist-filter-control">
-                  <InputLabel>Year</InputLabel>
-                  <Select
-                    value={selectedYear}
-                    label="Year"
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    className="filter-input-root"
-                  >
-                    <MenuItem value="">All Years</MenuItem>
-                    {availableYears.map((year) => (
-                      <MenuItem key={year} value={year.toString()}>
-                        {year}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
                 {/* Genre Filter */}
                 <FormControl
                   size="small"
@@ -404,37 +434,12 @@ export default function HomePage() {
             </div>
             {Object.entries(moviesByCategory).map(
               ([category, categoryMovies]) => (
-                <div
-                  key={category}
-                  className="mb-10 md:mb-12 lg:mb-14"
-                  style={{
-                    paddingLeft: 'clamp(24px, 5vw, 80px)',
-                    paddingRight: 'clamp(24px, 5vw, 80px)',
-                  }}
-                >
+                <div key={category} className="movie-category-section">
                   <div className="flex items-center justify-between mb-5 md:mb-6">
-                    <h2
-                      className="text-xl md:text-2xl lg:text-3xl font-semibold"
-                      style={{ color: isDark ? '#ffffff' : '#0a0a0a' }}
-                    >
+                    <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold movie-category-title">
                       {category}
                     </h2>
-                    <button
-                      className="text-sm flex items-center gap-1 transition-colors"
-                      style={{
-                        color: isDark ? 'rgba(156, 163, 175, 1)' : '#737373',
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = isDark
-                          ? '#ffffff'
-                          : '#0a0a0a')
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = isDark
-                          ? 'rgba(156, 163, 175, 1)'
-                          : '#737373')
-                      }
-                    >
+                    <button className="text-sm flex items-center gap-1 category-see-all-btn">
                       <span>See all</span>
                       <ChevronRight size={16} />
                     </button>
@@ -443,15 +448,13 @@ export default function HomePage() {
                     {categoryMovies.map((movie) => (
                       <div
                         key={movie.id}
-                        className="relative flex-shrink-0 cursor-pointer"
-                        style={{ width: '210px' }}
+                        className="relative flex-shrink-0 cursor-pointer movie-card-container"
                       >
-                        <MovieCard movie={movie} priority={false} />
+                        <MovieCard key={movie.id} movie={movie} />
                         <IconButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleWatchlist(movie.id);
-                          }}
+                          onClick={() =>
+                            handleToggleWatchlist(movie.id, movie.title)
+                          }
                           sx={{
                             position: 'absolute',
                             top: 12,
@@ -496,15 +499,28 @@ export default function HomePage() {
             )}
           </section>
 
-          <style jsx global>{`
+          <style jsx global>
+            {`
             .scrollbar-hide::-webkit-scrollbar {
               display: none;
             }
             .scrollbar-hide {
               -ms-overflow-style: none;
               scrollbar-width: none;
+          `}
+          </style>
+
+          {/* Watchlist Confirmation Dialog */}
+          <WatchlistConfirmDialog
+            open={confirmState.isOpen}
+            movieTitle={confirmState.movieTitle}
+            action={confirmState.action}
+            onConfirm={confirmAction}
+            onCancel={closeConfirm}
+            isLoading={
+              addToWatchlist.isPending || removeFromWatchlist.isPending
             }
-          `}</style>
+          />
         </>
       )}
     </>

@@ -8,6 +8,7 @@ import { signInSchema, type SignInInput } from '@/lib/validation';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { setToken } from '@/lib/session';
 import { useRouter } from 'next/router';
+import { useMutation } from '@tanstack/react-query';
 import {
   Box,
   Button,
@@ -24,35 +25,29 @@ import {
 import { Visibility, VisibilityOff, Google } from '@mui/icons-material';
 
 export type SignInFormProps = {
-  onSubmit?: (data: SignInInput) => void | Promise<void>;
   className?: string;
 };
 
-export default function SignInForm({
-  onSubmit,
-  className = '',
-}: SignInFormProps) {
+export default function SignInForm({ className = '' }: SignInFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignInInput>({
     mode: 'onChange',
     resolver: zodResolver(signInSchema),
     defaultValues: { email: '', password: '' },
   });
 
-  const handleFormSubmit = async (data: SignInInput) => {
-    console.log('[SignInForm] Starting signin process', { email: data.email });
-    setError(null);
-    if (onSubmit) {
-      console.log('[SignInForm] Using custom onSubmit handler');
-      await onSubmit(data);
-    } else {
+  const signInMutation = useMutation({
+    mutationFn: async (data: SignInInput) => {
+      console.log('[SignInForm] Starting signin process', {
+        email: data.email,
+      });
+
       try {
         console.log('[SignInForm] Preparing to create Appwrite session');
         const { account } = getAppwriteBrowser();
@@ -98,9 +93,13 @@ export default function SignInForm({
           error: message,
           rawError: err,
         });
-        setError(message);
+        throw err;
       }
-    }
+    },
+  });
+
+  const handleFormSubmit = (data: SignInInput) => {
+    signInMutation.mutate(data);
   };
 
   return (
@@ -118,7 +117,7 @@ export default function SignInForm({
 
         {/* Form */}
         <Paper elevation={0} className="auth-paper">
-          {error && (
+          {signInMutation.error && (
             <Alert
               severity="error"
               sx={{
@@ -128,9 +127,11 @@ export default function SignInForm({
                   fontSize: '1.5rem',
                 },
               }}
-              onClose={() => setError(null)}
+              onClose={() => signInMutation.reset()}
             >
-              {error}
+              {signInMutation.error instanceof Error
+                ? signInMutation.error.message
+                : 'Invalid email or password'}
             </Alert>
           )}
 
@@ -202,9 +203,9 @@ export default function SignInForm({
               variant="contained"
               size="large"
               fullWidth
-              disabled={isSubmitting}
+              disabled={signInMutation.isPending}
             >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
+              {signInMutation.isPending ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
 

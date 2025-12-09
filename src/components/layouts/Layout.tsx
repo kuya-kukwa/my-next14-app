@@ -6,8 +6,16 @@ import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import Footer from '../ui/Footer';
 import { useThemeContext } from '@/contexts/ThemeContext';
 import { getToken, clearToken } from '@/lib/session';
@@ -18,6 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isDark = mode === 'dark';
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
@@ -52,6 +61,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     id: string
   ) => {
     e.preventDefault();
+    if (router.pathname !== '/') {
+      router.push(`/#${id}`);
+    } else {
+      const element = document.getElementById(id);
+      if (element)
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  const handleMobileNavClick = (href: string) => {
+    closeMobileMenu();
+    router.push(href);
+  };
+
+  const handleMobileScrollTo = (id: string) => {
+    closeMobileMenu();
     if (router.pathname !== '/') {
       router.push(`/#${id}`);
     } else {
@@ -109,6 +142,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             justifyContent: 'space-between',
           }}
         >
+          {/* Mobile Menu Button */}
+          {!isHomePage && (
+            <IconButton
+              onClick={toggleMobileMenu}
+              sx={{
+                display: { xs: 'flex', md: 'none' },
+                color: isDark ? '#ffffff' : '#0a0a0a',
+                mr: 1,
+              }}
+              aria-label="open menu"
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+
           {/* Logo */}
           <Link
             href={isAuthenticated ? '/home' : '/'}
@@ -313,6 +361,195 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        anchor="left"
+        open={mobileMenuOpen}
+        onClose={closeMobileMenu}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: '280px',
+            backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
+            color: isDark ? '#f5f5f5' : '#0a0a0a',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            p: 2,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Box
+            component="span"
+            sx={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              letterSpacing: '-0.025em',
+              color: isDark ? '#ffffff' : '#0a0a0a',
+            }}
+          >
+            NextFlix
+          </Box>
+          <IconButton
+            onClick={closeMobileMenu}
+            sx={{ color: isDark ? '#ffffff' : '#0a0a0a' }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Divider
+          sx={{
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          }}
+        />
+        <List sx={{ pt: 2 }}>
+          {isAuthenticated && (
+            <>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => handleMobileNavClick('/authenticated/home')}
+                  sx={{
+                    py: 1.5,
+                    '&:hover': {
+                      backgroundColor: isDark
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(0,0,0,0.05)',
+                    },
+                  }}
+                >
+                  <ListItemText
+                    primary="Movies"
+                    primaryTypographyProps={{
+                      fontWeight: 500,
+                      fontSize: '1rem',
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    handleMobileNavClick('/authenticated/watchlist')
+                  }
+                  sx={{
+                    py: 1.5,
+                    '&:hover': {
+                      backgroundColor: isDark
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(0,0,0,0.05)',
+                    },
+                  }}
+                >
+                  <ListItemText
+                    primary="Watchlist"
+                    primaryTypographyProps={{
+                      fontWeight: 500,
+                      fontSize: '1rem',
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            </>
+          )}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handleMobileScrollTo('value-proposition')}
+              sx={{
+                py: 1.5,
+                '&:hover': {
+                  backgroundColor: isDark
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(0,0,0,0.05)',
+                },
+              }}
+            >
+              <ListItemText
+                primary="Why Us"
+                primaryTypographyProps={{
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handleMobileScrollTo('trending')}
+              sx={{
+                py: 1.5,
+                '&:hover': {
+                  backgroundColor: isDark
+                    ? 'rgba(255,255,255,0.05)'
+                    : 'rgba(0,0,0,0.05)',
+                },
+              }}
+            >
+              <ListItemText
+                primary="Trending"
+                primaryTypographyProps={{
+                  fontWeight: 500,
+                  fontSize: '1rem',
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        {isAuthenticated && (
+          <>
+            <Divider
+              sx={{
+                borderColor: isDark
+                  ? 'rgba(255,255,255,0.1)'
+                  : 'rgba(0,0,0,0.1)',
+                my: 2,
+              }}
+            />
+            <Box sx={{ px: 2, pb: 2 }}>
+              <Button
+                fullWidth
+                onClick={() => handleMobileNavClick('/profile')}
+                variant="outlined"
+                startIcon={<AccountCircleIcon />}
+                sx={{
+                  mb: 1.5,
+                  color: isDark ? '#e5e5e5' : '#0a0a0a',
+                  borderColor: isDark ? '#e5e5e5' : '#0a0a0a',
+                  '&:hover': {
+                    borderColor: isDark ? '#ffffff' : '#000000',
+                  },
+                }}
+              >
+                Profile
+              </Button>
+              <Button
+                fullWidth
+                onClick={() => {
+                  closeMobileMenu();
+                  handleLogout();
+                }}
+                variant="outlined"
+                startIcon={<LogoutIcon />}
+                sx={{
+                  color: '#e50914',
+                  borderColor: '#e50914',
+                  '&:hover': {
+                    backgroundColor: '#e50914',
+                    color: '#ffffff',
+                    borderColor: '#e50914',
+                  },
+                }}
+              >
+                Logout
+              </Button>
+            </Box>
+          </>
+        )}
+      </Drawer>
 
       {/* Page Content */}
       <Box component="main" sx={{ flex: 1 }}>

@@ -22,10 +22,9 @@
   --color-gray-400: #cccccc;
   --color-gray-300: #e5e5e5;
   --color-gray-200: #f5f5f5;
-  --color-white: #ffffff;
 
   /* Semantic Colors - Dark Theme */
-  --color-text-primary: var(--color-white);
+  --color-text-primary: var(--color-gray-200);
   --color-text-secondary: var(--color-gray-300);
   --color-text-muted: var(--color-gray-500);
   --color-text-accent: var(--color-primary);
@@ -208,6 +207,17 @@ body {
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: auto;
   font-weight: 400;
+}
+
+/* Prevent scrolling when modals are open */
+body.modal-open {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+}
+
+html:has(body.modal-open) {
+  overflow: hidden;
 }
 
 *,
@@ -1816,4 +1826,88 @@ p {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+/* ────────────────────────────────────────────── */
+/* HERO SECTION STYLES                            */
+/* ────────────────────────────────────────────── */
+
+.hero-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-info-badge {
+  padding: 0.625rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-light);
+}
+
+@media (min-width: 768px) {
+  .hero-info-badge {
+    font-size: 0.875rem;
+  }
+}
+
+.hero-info-text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+  .hero-info-text {
+    font-size: 1rem;
+  }
+}
+
+.movie-category-section {
+  margin-bottom: 2.5rem;
+  padding-left: clamp(24px, 5vw, 80px);
+  padding-right: clamp(24px, 5vw, 80px);
+}
+
+@media (min-width: 768px) {
+  .movie-category-section {
+    margin-bottom: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .movie-category-section {
+    margin-bottom: 3.5rem;
+  }
+}
+
+.movie-category-title {
+  color: var(--color-text-primary);
+}
+
+.category-see-all-btn {
+  color: var(--color-text-muted);
+  transition: color 0.3s ease;
+}
+
+.category-see-all-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.movie-card-container {
+  width: 210px;
+}
+
+.filters-container {
+  margin-bottom: 2rem;
+  padding-left: clamp(24px, 5vw, 80px);
+  padding-right: clamp(24px, 5vw, 80px);
+}
+
+/* ────────────────────────────────────────────── */
+/* UTILITY CLASSES                                */
+/* ────────────────────────────────────────────── */
+
+.no-text-decoration {
+  text-decoration: none;
 }

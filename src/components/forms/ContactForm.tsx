@@ -1,99 +1,87 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { contactSchema, type ContactInput } from "@/lib/validation";
-import {
-  Box,
-  Button,
-  TextField,
-  Alert,
-} from "@mui/material";
+import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { contactSchema, type ContactInput } from '@/lib/validation';
+import { useSendContact } from '@/services/queries/contact';
+import { Box, Button, TextField, Alert } from '@mui/material';
 
 export type ContactFormProps = {
-  onSubmit?: (data: ContactInput) => void | Promise<void>;
   className?: string;
 };
 
-export default function ContactForm({ onSubmit, className = "" }: ContactFormProps) {
+export default function ContactForm({ className = '' }: ContactFormProps) {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors },
     reset,
-  } = useForm<ContactInput>({ 
-    resolver: zodResolver(contactSchema), 
-    mode: "onChange",
+  } = useForm<ContactInput>({
+    resolver: zodResolver(contactSchema),
+    mode: 'onChange',
     defaultValues: {
-      name: "",
-      email: "",
-      subject: "",
-      message: ""
-    }
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+    },
   });
 
-  const [serverError, setServerError] = useState<string | null>(null);
+  const sendContactMutation = useSendContact();
 
-  const handleFormSubmit = async (data: ContactInput) => {
-    if (onSubmit) {
-      await onSubmit(data);
-    } else {
-      setServerError(null);
-      try {
-        const res = await fetch("/api/contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.error ? JSON.stringify(body.error) : "Failed to send message");
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err ?? "Something went wrong");
-        setServerError(message);
-        return;
-      }
-    }
-    reset(); // Clear form after successful submission
+  const handleFormSubmit = (data: ContactInput) => {
+    sendContactMutation.mutate(data, {
+      onSuccess: () => {
+        reset();
+      },
+    });
   };
 
   return (
     <Box className={className}>
-      {serverError && (
-        <Alert 
-          severity="error" 
-          sx={{ 
+      {sendContactMutation.error && (
+        <Alert
+          severity="error"
+          sx={{
             mb: 2.5,
             borderRadius: 2,
             '& .MuiAlert-icon': {
-              fontSize: '1.5rem'
-            }
-          }} 
-          onClose={() => setServerError(null)}
+              fontSize: '1.5rem',
+            },
+          }}
+          onClose={() => sendContactMutation.reset()}
         >
-          {serverError}
+          {sendContactMutation.error instanceof Error
+            ? sendContactMutation.error.message
+            : 'Failed to send message'}
         </Alert>
       )}
-      {isSubmitSuccessful && (
-        <Alert 
-          severity="success" 
-          sx={{ 
+      {sendContactMutation.isSuccess && (
+        <Alert
+          severity="success"
+          sx={{
             mb: 2.5,
             borderRadius: 2,
             '& .MuiAlert-icon': {
-              fontSize: '1.5rem'
-            }
+              fontSize: '1.5rem',
+            },
           }}
         >
-          ✓ Thank you! Your message has been sent successfully. We&apos;ll get back to you soon.
+          ✓ Thank you! Your message has been sent successfully. We&apos;ll get
+          back to you soon.
         </Alert>
       )}
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2.5 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 2.5,
+            }}
+          >
             <Controller
               name="name"
               control={control}
@@ -118,8 +106,8 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
                       '&.Mui-focused': {
                         transform: 'translateY(-2px)',
                         boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                      }
-                    }
+                      },
+                    },
                   }}
                 />
               )}
@@ -150,8 +138,8 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
                       '&.Mui-focused': {
                         transform: 'translateY(-2px)',
                         boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                      }
-                    }
+                      },
+                    },
                   }}
                 />
               )}
@@ -182,8 +170,8 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
                     '&.Mui-focused': {
                       transform: 'translateY(-2px)',
                       boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                    }
-                  }
+                    },
+                  },
                 }}
               />
             )}
@@ -214,8 +202,8 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
                     '&.Mui-focused': {
                       transform: 'translateY(-2px)',
                       boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                    }
-                  }
+                    },
+                  },
                 }}
               />
             )}
@@ -225,9 +213,9 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
             type="submit"
             variant="contained"
             size="large"
-            disabled={isSubmitting}
-            sx={{ 
-              mt: 1.5, 
+            disabled={sendContactMutation.isPending}
+            sx={{
+              mt: 1.5,
               py: 1.5,
               borderRadius: 2,
               fontSize: '1rem',
@@ -244,10 +232,10 @@ export default function ContactForm({ onSubmit, className = "" }: ContactFormPro
               '&:disabled': {
                 background: 'rgba(229, 9, 20, 0.5)',
                 boxShadow: 'none',
-              }
+              },
             }}
           >
-            {isSubmitting ? "Sending..." : "Send Message"}
+            {sendContactMutation.isPending ? 'Sending...' : 'Send Message'}
           </Button>
         </Box>
       </form>

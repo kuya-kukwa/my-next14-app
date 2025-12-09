@@ -72,11 +72,12 @@ export default function HomePage() {
   useEffect(() => {
     if (confirmState.isOpen) {
       // Calculate scrollbar width
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+
       // Store current scroll position
       const scrollY = window.scrollY;
-      
+
       // Apply styles to prevent scroll
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
@@ -87,7 +88,7 @@ export default function HomePage() {
     } else {
       // Get the scroll position from the fixed body
       const scrollY = document.body.style.top;
-      
+
       // Remove styles
       document.body.style.position = '';
       document.body.style.top = '';
@@ -95,7 +96,7 @@ export default function HomePage() {
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
       document.documentElement.style.overflow = '';
-      
+
       // Restore scroll position
       if (scrollY) {
         window.scrollTo(0, parseInt(scrollY || '0') * -1);

@@ -32,7 +32,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sessionExpiredDialogOpen, setSessionExpiredDialogOpen] = useState(false);
+  const [sessionExpiredDialogOpen, setSessionExpiredDialogOpen] =
+    useState(false);
 
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
@@ -43,29 +44,33 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const checkAuth = () => {
       const token = getToken();
       const hasValidToken = !!token && !isTokenExpired();
-      
+
       // If on protected route and token expired, show dialog
-      if (token && !hasValidToken && (router.pathname.startsWith('/authenticated'))) {
+      if (
+        token &&
+        !hasValidToken &&
+        router.pathname.startsWith('/authenticated')
+      ) {
         handleSessionExpired();
       }
-      
+
       setIsAuthenticated(hasValidToken);
     };
-    
+
     checkAuth();
-    
+
     // Check auth on route changes
     router.events?.on('routeChangeComplete', checkAuth);
-    
+
     // Check auth periodically (every 30 seconds)
     const interval = setInterval(checkAuth, 30000);
-    
+
     return () => {
       router.events?.off('routeChangeComplete', checkAuth);
       clearInterval(interval);
     };
   }, [router.events, router.pathname]);
-  
+
   // Listen for session expiration events from API calls
   useEffect(() => {
     const handleSessionExpiredEvent = () => {
@@ -73,18 +78,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         handleSessionExpired();
       }
     };
-    
+
     window.addEventListener('session-expired', handleSessionExpiredEvent);
-    return () => window.removeEventListener('session-expired', handleSessionExpiredEvent);
+    return () =>
+      window.removeEventListener('session-expired', handleSessionExpiredEvent);
   }, [router.pathname]);
-  
+
   const handleSessionExpired = () => {
     setSessionExpiredDialogOpen(true);
     clearToken();
     clearQueryCache();
     setIsAuthenticated(false);
   };
-  
+
   const handleSessionExpiredConfirm = () => {
     setSessionExpiredDialogOpen(false);
     router.push('/auths/signin?session_expired=true');
@@ -608,7 +614,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Footer */}
       {!isHomePage && <Footer />}
-      
+
       {/* Session Expired Dialog */}
       <Dialog
         open={sessionExpiredDialogOpen}
@@ -627,12 +633,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600 }}>
-          Session Expired
-        </DialogTitle>
+        <DialogTitle sx={{ fontWeight: 600 }}>Session Expired</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: isDark ? '#b3b3b3' : '#666666' }}>
-            Your session has expired. Please sign in again to continue using the application.
+            Your session has expired. Please sign in again to continue using the
+            application.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

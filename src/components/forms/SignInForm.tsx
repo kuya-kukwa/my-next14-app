@@ -42,7 +42,7 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
     resolver: zodResolver(signInSchema),
     defaultValues: { email: '', password: '' },
   });
-  
+
   // Check for session_expired query parameter
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -120,7 +120,7 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
               Your session has expired. Please sign in again to continue.
             </Alert>
           )}
-          
+
           {signInMutation.error && (
             <Alert
               severity="error"

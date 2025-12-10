@@ -103,7 +103,9 @@ export const ThemeContextProvider = ({
   }
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme, isDark: mode === 'dark' }}>
+    <ThemeContext.Provider
+      value={{ mode, toggleTheme, isDark: mode === 'dark' }}
+    >
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
         {children}

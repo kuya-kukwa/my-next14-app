@@ -15,14 +15,14 @@ interface State {
 /**
  * Error Boundary component to catch and handle React errors gracefully
  * Prevents the entire app from crashing when a component throws an error
- * 
+ *
  * @example
  * ```tsx
  * <ErrorBoundary>
  *   <YourComponent />
  * </ErrorBoundary>
  * ```
- * 
+ *
  * @example With custom fallback
  * ```tsx
  * <ErrorBoundary fallback={<CustomErrorUI />}>
@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error details for debugging
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
   }

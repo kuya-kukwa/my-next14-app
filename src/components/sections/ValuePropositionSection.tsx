@@ -20,8 +20,7 @@ interface StatCardProps {
 
 // Slightly slower default duration so the counting animation is more visible
 function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -132,8 +131,7 @@ function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
 }
 
 export default function ValuePropositionSection({ visible = false }: Props) {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
   const isIdle = useIdle(600);
 
   const stats = [

@@ -6,8 +6,7 @@ import Container from '@mui/material/Container';
 import { useThemeContext } from '@/contexts/ThemeContext';
 
 const Hero: React.FC = () => {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
 
   return (
     <Box 

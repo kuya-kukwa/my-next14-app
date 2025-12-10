@@ -7,8 +7,7 @@ import Container from "@mui/material/Container";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 function CTASection() {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
 
   return (
     <Box 

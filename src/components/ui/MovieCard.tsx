@@ -16,8 +16,7 @@ interface MovieCardProps {
 
 const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(
   ({ movie, className, priority = false, ...props }, ref) => {
-    const { mode } = useThemeContext();
-    const isDark = mode === 'dark';
+    const { isDark } = useThemeContext();
     const [imageError, setImageError] = useState(false);
     const [imgSrc, setImgSrc] = useState(movie.thumbnail);
 

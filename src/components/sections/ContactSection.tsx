@@ -4,8 +4,7 @@ import { Box, Typography, Container, Paper } from "@mui/material";
 import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function ContactSection() {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
 
   return (
     <Box 

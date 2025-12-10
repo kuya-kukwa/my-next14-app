@@ -7,6 +7,7 @@ import {
   useRemoveFromWatchlist,
 } from '@/services/queries/watchlist';
 import { useWatchlistConfirm } from '@/hooks/useWatchlistConfirm';
+import { useScrollLock } from '@/hooks/useScrollLock';
 import MovieCard from '@/components/ui/MovieCard';
 import { WatchlistConfirmDialog } from '@/components/ui/WatchlistConfirmDialog';
 import {
@@ -36,8 +37,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
 
   const {
     data: moviesData,
@@ -69,50 +69,7 @@ export default function HomePage() {
   }, []);
 
   // Prevent body scrolling when modal is open
-  useEffect(() => {
-    if (confirmState.isOpen) {
-      // Calculate scrollbar width
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-
-      // Store current scroll position
-      const scrollY = window.scrollY;
-
-      // Apply styles to prevent scroll
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      // Get the scroll position from the fixed body
-      const scrollY = document.body.style.top;
-
-      // Remove styles
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-      document.documentElement.style.overflow = '';
-
-      // Restore scroll position
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-      }
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, [confirmState.isOpen]);
+  useScrollLock(confirmState.isOpen);
 
   // toggle watchlist
   const handleToggleWatchlist = (movieId: string, movieTitle: string) => {

@@ -5,34 +5,76 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = ['/authenticated/home', '/authenticated/watchlist'];
 
 // Define auth routes that should redirect to home if already authenticated
-const authRoutes = ['/auths/signin', '/auths/signup', '/signin', '/signup'];
+const authRoutes = ['/auths/signin', '/auths/signup'];
+
+// Check if JWT token is expired
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    
+    const payload = JSON.parse(atob(parts[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    
+    // Token is expired if exp is past current time
+    return payload.exp && payload.exp < currentTime;
+  } catch {
+    return true;
+  }
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Get the token from cookies
   const token = request.cookies.get('appwrite_jwt')?.value;
-  const hasToken = !!token;
+  const hasValidToken = !!token && !isTokenExpired(token);
+  
+  // If token exists but is expired, clear it
+  const shouldClearToken = !!token && !hasValidToken;
 
   // Check if the current route is protected
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  
+
   // Check if the current route is an auth route
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
 
-  // Redirect to signin if accessing protected route without token
-  if (isProtectedRoute && !hasToken) {
+  // Redirect to signin if accessing protected route without valid token
+  if (isProtectedRoute && !hasValidToken) {
     const signinUrl = new URL('/auths/signin', request.url);
     signinUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(signinUrl);
+    if (shouldClearToken) {
+      signinUrl.searchParams.set('session_expired', 'true');
+    }
+    const response = NextResponse.redirect(signinUrl);
+    // Clear expired token
+    if (shouldClearToken) {
+      response.cookies.delete('appwrite_jwt');
+    }
+    return response;
   }
 
-  // Redirect to home if accessing auth routes while authenticated
-  if (isAuthRoute && hasToken) {
+  // Redirect to home if accessing auth routes while authenticated with valid token
+  if (isAuthRoute && hasValidToken) {
     return NextResponse.redirect(new URL('/authenticated/home', request.url));
   }
 
-  return NextResponse.next();
+  // Add cache control headers for better UX
+  const response = NextResponse.next();
+
+  // Don't cache authenticated pages
+  if (isProtectedRoute) {
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+  }
+
+  // Cache static assets aggressively
+  if (pathname.startsWith('/_next/static') || pathname.includes('.')) {
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+
+  return response;
 }
 
 // Configure which routes the middleware should run on

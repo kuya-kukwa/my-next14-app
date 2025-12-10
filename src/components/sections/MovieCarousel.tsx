@@ -15,8 +15,7 @@ export default function MovieCarousel({
   movies: Movie[];
   title: string;
 }) {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [centerIndex, setCenterIndex] = useState(0);
   const centerIndexRef = useRef<number>(0);

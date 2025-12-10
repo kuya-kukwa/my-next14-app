@@ -6,11 +6,10 @@ import Container from '@mui/material/Container';
 import { useThemeContext } from '@/contexts/ThemeContext';
 
 const Hero: React.FC = () => {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
 
   return (
-    <Box 
+    <Box
       component="section"
       sx={{
         position: 'relative',
@@ -21,7 +20,7 @@ const Hero: React.FC = () => {
         px: { xs: 3, md: 6 },
         py: { xs: 12, md: 16 },
         backgroundColor: isDark ? '#0a0a0a' : '#ffffff',
-        transition: 'background-color 0.5s'
+        transition: 'background-color 0.5s',
       }}
     >
       <Container maxWidth="xl">
@@ -31,36 +30,46 @@ const Hero: React.FC = () => {
             flexDirection: 'row',
             alignItems: 'center',
             gap: { xs: 2, sm: 3, md: 4, lg: 8 },
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
           }}
         >
           {/* Left Content - Text */}
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               flex: { xs: '1 1 55%', sm: '1 1 60%', lg: '1 1 50%' },
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}
           >
-            <Typography 
+            <Typography
               variant="h1"
               sx={{
-                fontSize: { xs: '1.5rem', sm: '2rem', md: '3rem', lg: '3.75rem' },
+                fontSize: {
+                  xs: '1.5rem',
+                  sm: '2rem',
+                  md: '3rem',
+                  lg: '3.75rem',
+                },
                 fontWeight: 800,
                 lineHeight: { xs: 1.15, md: 1.2 },
                 color: isDark ? '#ffffff' : '#0a0a0a',
                 mb: { xs: 1.5, sm: 2, md: 3 },
                 transition: 'color 0.5s',
-                letterSpacing: '-0.02em'
+                letterSpacing: '-0.02em',
               }}
             >
               Unlimited Movies at Your Fingertips
             </Typography>
 
-            <Typography 
+            <Typography
               sx={{
-                fontSize: { xs: '0.8rem', sm: '0.95rem', md: '1.125rem', lg: '1.25rem' },
+                fontSize: {
+                  xs: '0.8rem',
+                  sm: '0.95rem',
+                  md: '1.125rem',
+                  lg: '1.25rem',
+                },
                 lineHeight: { xs: 1.5, md: 1.6 },
                 maxWidth: '36rem',
                 color: isDark ? '#d1d5db' : '#495057',
@@ -69,16 +78,17 @@ const Hero: React.FC = () => {
                 display: { xs: '-webkit-box', md: 'block' },
                 WebkitLineClamp: { xs: 3, md: 'unset' },
                 WebkitBoxOrient: { xs: 'vertical', md: 'unset' },
-                overflow: { xs: 'hidden', md: 'visible' }
+                overflow: { xs: 'hidden', md: 'visible' },
               }}
             >
-              Stream the latest blockbusters, timeless classics, and exclusive originals. 
-              Dive into thousands of movies across all genres, available anytime, anywhere. 
-              Your next great film is just a click away.
+              Stream the latest blockbusters, timeless classics, and exclusive
+              originals. Dive into thousands of movies across all genres,
+              available anytime, anywhere. Your next great film is just a click
+              away.
             </Typography>
 
             <Box sx={{ pt: { xs: 0, md: 2 } }}>
-              <Button 
+              <Button
                 variant="contained"
                 size="large"
                 sx={{
@@ -93,8 +103,8 @@ const Hero: React.FC = () => {
                   transition: 'all 0.3s',
                   '&:hover': {
                     backgroundColor: '#b2070f',
-                    transform: 'scale(1.05)'
-                  }
+                    transform: 'scale(1.05)',
+                  },
                 }}
               >
                 Start Watching →
@@ -108,7 +118,7 @@ const Hero: React.FC = () => {
               flex: { xs: '0 0 40%', sm: '0 0 35%', lg: '1 1 50%' },
               display: 'flex',
               justifyContent: 'flex-end',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
             <Box
@@ -116,15 +126,19 @@ const Hero: React.FC = () => {
               src="/images/bg/hero.png"
               alt="Person eating popcorn"
               sx={{
-                maxWidth: { xs: '180px', sm: '280px', md: '450px', lg: '520px' },
+                maxWidth: {
+                  xs: '180px',
+                  sm: '280px',
+                  md: '450px',
+                  lg: '520px',
+                },
                 width: '100%',
                 height: 'auto',
-                objectFit: 'contain'
+                objectFit: 'contain',
               }}
             />
           </Box>
         </Box>
-
       </Container>
     </Box>
   );

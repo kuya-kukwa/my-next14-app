@@ -5,8 +5,7 @@ import { useThemeContext } from '@/contexts/ThemeContext';
 import Container from '@mui/material/Container';
 
 export default function WatchlistSkeleton() {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
 
   return (
     <Box className="watchlist-page">

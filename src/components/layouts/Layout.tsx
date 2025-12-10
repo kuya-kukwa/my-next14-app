@@ -12,45 +12,101 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Footer from '../ui/Footer';
 import { useThemeContext } from '@/contexts/ThemeContext';
-import { getToken, clearToken } from '@/lib/session';
+import { getToken, clearToken, isTokenExpired } from '@/lib/session';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
+import { clearQueryCache } from '@/lib/queryClient';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sessionExpiredDialogOpen, setSessionExpiredDialogOpen] =
+    useState(false);
 
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
   const isHomePage = router.pathname === '/home';
 
+  // Check auth state and token expiration
   useEffect(() => {
     const checkAuth = () => {
       const token = getToken();
-      setIsAuthenticated(!!token);
+      const hasValidToken = !!token && !isTokenExpired();
+
+      // If on protected route and token expired, show dialog
+      if (
+        token &&
+        !hasValidToken &&
+        router.pathname.startsWith('/authenticated')
+      ) {
+        handleSessionExpired();
+      }
+
+      setIsAuthenticated(hasValidToken);
     };
+
     checkAuth();
+
+    // Check auth on route changes
     router.events?.on('routeChangeComplete', checkAuth);
-    return () => router.events?.off('routeChangeComplete', checkAuth);
-  }, [router.events]);
+
+    // Check auth periodically (every 30 seconds)
+    const interval = setInterval(checkAuth, 30000);
+
+    return () => {
+      router.events?.off('routeChangeComplete', checkAuth);
+      clearInterval(interval);
+    };
+  }, [router.events, router.pathname]);
+
+  // Listen for session expiration events from API calls
+  useEffect(() => {
+    const handleSessionExpiredEvent = () => {
+      if (router.pathname.startsWith('/authenticated')) {
+        handleSessionExpired();
+      }
+    };
+
+    window.addEventListener('session-expired', handleSessionExpiredEvent);
+    return () =>
+      window.removeEventListener('session-expired', handleSessionExpiredEvent);
+  }, [router.pathname]);
+
+  const handleSessionExpired = () => {
+    setSessionExpiredDialogOpen(true);
+    clearToken();
+    clearQueryCache();
+    setIsAuthenticated(false);
+  };
+
+  const handleSessionExpiredConfirm = () => {
+    setSessionExpiredDialogOpen(false);
+    router.push('/auths/signin?session_expired=true');
+  };
 
   const handleLogout = async () => {
     try {
       const { account } = getAppwriteBrowser();
       await account.deleteSession('current');
       clearToken();
+      clearQueryCache();
       setIsAuthenticated(false);
       router.push('/');
     } catch {
       clearToken();
+      clearQueryCache();
       setIsAuthenticated(false);
       router.push('/');
     }
@@ -558,6 +614,50 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Footer */}
       {!isHomePage && <Footer />}
+
+      {/* Session Expired Dialog */}
+      <Dialog
+        open={sessionExpiredDialogOpen}
+        onClose={(_, reason) => {
+          // Prevent closing by clicking outside or pressing escape
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            return;
+          }
+        }}
+        maxWidth="sm"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+            color: isDark ? '#e5e5e5' : '#0a0a0a',
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>Session Expired</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: isDark ? '#b3b3b3' : '#666666' }}>
+            Your session has expired. Please sign in again to continue using the
+            application.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={handleSessionExpiredConfirm}
+            variant="contained"
+            fullWidth
+            sx={{
+              backgroundColor: '#e50914',
+              color: '#ffffff',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: '#b20710',
+              },
+            }}
+          >
+            Sign In Again
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

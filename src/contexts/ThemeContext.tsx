@@ -15,6 +15,7 @@ type ThemeMode = 'light' | 'dark';
 interface ThemeContextType {
   mode: ThemeMode;
   toggleTheme: () => void;
+  isDark: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -102,7 +103,9 @@ export const ThemeContextProvider = ({
   }
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{ mode, toggleTheme, isDark: mode === 'dark' }}
+    >
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
         {children}

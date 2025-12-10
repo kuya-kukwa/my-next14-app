@@ -31,6 +31,7 @@ export type SignInFormProps = {
 export default function SignInForm({ className = '' }: SignInFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const {
     control,
@@ -42,58 +43,45 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
     defaultValues: { email: '', password: '' },
   });
 
+  // Check for session_expired query parameter
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session_expired') === 'true') {
+      setSessionExpired(true);
+    }
+  }, []);
+
   const signInMutation = useMutation({
     mutationFn: async (data: SignInInput) => {
-      console.log('[SignInForm] Starting signin process', {
-        email: data.email,
-      });
-
       try {
-        console.log('[SignInForm] Preparing to create Appwrite session');
         const { account } = getAppwriteBrowser();
 
         // Delete any existing session first to avoid "session is active" error
         try {
           await account.deleteSession('current');
-          console.log('[SignInForm] Existing session deleted');
         } catch {
           // No active session or deletion failed - that's OK, continue
-          console.log(
-            '[SignInForm] No active session to delete or deletion failed (expected)'
-          );
         }
 
-        console.log('[SignInForm] Creating new Appwrite session');
         await account.createEmailPasswordSession(data.email, data.password);
-        console.log('[SignInForm] Session created successfully');
 
-        console.log('[SignInForm] Generating JWT token');
         const jwtRes = (await account.createJWT()) as unknown;
         if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
           const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
           setToken(jwt);
-          console.log('[SignInForm] JWT token stored successfully');
-        } else {
-          console.warn('[SignInForm] JWT response invalid:', jwtRes);
         }
 
         // Check for redirect parameter
         const params = new URLSearchParams(window.location.search);
         const redirectTo = params.get('redirect') || '/authenticated/home';
 
-        console.log('[SignInForm] Redirecting to', redirectTo);
         await router.push(redirectTo);
-        console.log('[SignInForm] Signin completed successfully');
       } catch (err: unknown) {
         const message =
           err instanceof Error
             ? err.message
             : String(err ?? 'Invalid email or password');
-        console.error('[SignInForm] Signin error:', {
-          error: message,
-          rawError: err,
-        });
-        throw err;
+        throw new Error(message);
       }
     },
   });
@@ -117,6 +105,22 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
 
         {/* Form */}
         <Paper elevation={0} className="auth-paper">
+          {sessionExpired && (
+            <Alert
+              severity="warning"
+              sx={{
+                mb: 2.5,
+                borderRadius: 2,
+                '& .MuiAlert-icon': {
+                  fontSize: '1.5rem',
+                },
+              }}
+              onClose={() => setSessionExpired(false)}
+            >
+              Your session has expired. Please sign in again to continue.
+            </Alert>
+          )}
+
           {signInMutation.error && (
             <Alert
               severity="error"

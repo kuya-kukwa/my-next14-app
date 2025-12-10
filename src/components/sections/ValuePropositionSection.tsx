@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import { useThemeContext } from "@/contexts/ThemeContext";
+import React, { useState, useEffect, useRef } from 'react';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import { useThemeContext } from '@/contexts/ThemeContext';
 import useIdle from '@/lib/useIdle';
 
 type Props = {
@@ -20,8 +20,7 @@ interface StatCardProps {
 
 // Slightly slower default duration so the counting animation is more visible
 function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -87,7 +86,7 @@ function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
         borderRadius: 2,
         background: 'transparent',
         transition: 'color 0.3s ease',
-        position: 'relative'
+        position: 'relative',
       }}
     >
       <Typography
@@ -101,20 +100,26 @@ function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
           WebkitTextFillColor: 'transparent',
           mb: { xs: 0.25, sm: 0.5 },
           letterSpacing: '-0.02em',
-          lineHeight: 1.1
+          lineHeight: 1.1,
         }}
       >
-        {count.toLocaleString()}{suffix}
+        {count.toLocaleString()}
+        {suffix}
       </Typography>
       <Typography
         variant="h6"
         sx={{
-          fontSize: { xs: '0.75rem', sm: '0.95rem', md: '1.125rem', lg: '1.25rem' },
+          fontSize: {
+            xs: '0.75rem',
+            sm: '0.95rem',
+            md: '1.125rem',
+            lg: '1.25rem',
+          },
           fontWeight: 700,
           // Tone down label color in dark mode for better color hierarchy
           color: isDark ? '#d1d1d1' : '#212121',
           mb: 0.75,
-          lineHeight: 1.2
+          lineHeight: 1.2,
         }}
       >
         {label}
@@ -125,15 +130,13 @@ function StatCard({ endValue, suffix, label, duration = 3500 }: StatCardProps) {
           color: isDark ? '#b3b3b3' : '#616161',
           lineHeight: 1.6,
         }}
-      >
-      </Typography>
+      ></Typography>
     </Box>
   );
 }
 
 export default function ValuePropositionSection({ visible = false }: Props) {
-  const { mode } = useThemeContext();
-  const isDark = mode === 'dark';
+  const { isDark } = useThemeContext();
   const isIdle = useIdle(600);
 
   const stats = [
@@ -155,14 +158,14 @@ export default function ValuePropositionSection({ visible = false }: Props) {
   ];
 
   return (
-    <Box 
+    <Box
       component="section"
       id="value-proposition"
       sx={{
         py: { xs: 6, sm: 8, md: 10, lg: 12 },
         minHeight: 'auto',
         alignItems: 'flex-start',
-        background: isDark 
+        background: isDark
           ? 'linear-gradient(180deg, transparent 0%, rgba(20, 20, 20, 0.5) 50%, transparent 100%)'
           : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(245, 245, 245, 0.8) 50%, rgba(255, 255, 255, 0.5) 100%)',
         transition: 'background 0.5s',
@@ -182,7 +185,8 @@ export default function ValuePropositionSection({ visible = false }: Props) {
               width: '500px',
               height: '500px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, transparent 70%)',
+              background:
+                'radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, transparent 70%)',
               filter: 'blur(80px)',
               pointerEvents: 'none',
             }}
@@ -195,7 +199,8 @@ export default function ValuePropositionSection({ visible = false }: Props) {
               width: '400px',
               height: '400px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255, 26, 31, 0.1) 0%, transparent 70%)',
+              background:
+                'radial-gradient(circle, rgba(255, 26, 31, 0.1) 0%, transparent 70%)',
               filter: 'blur(80px)',
               pointerEvents: 'none',
             }}
@@ -204,28 +209,41 @@ export default function ValuePropositionSection({ visible = false }: Props) {
       )}
 
       <Container maxWidth="xl">
-        <Box sx={{ position: 'relative', zIndex: 10, textAlign: 'center', mb: { xs: 5, sm: 6, md: 8 } }}>
-          <Typography 
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 10,
+            textAlign: 'center',
+            mb: { xs: 5, sm: 6, md: 8 },
+          }}
+        >
+          <Typography
             variant="h2"
             sx={{
-              fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem', lg: '3.5rem' },
+              fontSize: {
+                xs: '1.75rem',
+                sm: '2.25rem',
+                md: '2.75rem',
+                lg: '3.5rem',
+              },
               fontWeight: 800,
               mb: { xs: 2, sm: 2.5 },
               // White text on dark mode for better readability; keep gradient on light
               ...(isDark
                 ? { color: '#ffffff' }
                 : {
-                    background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
+                    background:
+                      'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
+                    WebkitTextFillColor: 'transparent',
                   }),
               letterSpacing: '-0.02em',
             }}
           >
             Trusted by Millions Worldwide
           </Typography>
-          <Typography 
+          <Typography
             sx={{
               fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
               maxWidth: '48rem',
@@ -235,7 +253,8 @@ export default function ValuePropositionSection({ visible = false }: Props) {
               lineHeight: 1.6,
             }}
           >
-            Join millions of entertainment lovers who choose NextFlix for unparalleled streaming quality and endless content
+            Join millions of entertainment lovers who choose NextFlix for
+            unparalleled streaming quality and endless content
           </Typography>
         </Box>
         <Box sx={{ position: 'relative', zIndex: 10 }}>
@@ -247,7 +266,7 @@ export default function ValuePropositionSection({ visible = false }: Props) {
               alignItems: 'flex-start',
               justifyContent: 'center',
               flexWrap: 'nowrap',
-              px: { xs: 1, sm: 0 }
+              px: { xs: 1, sm: 0 },
             }}
           >
             {stats.map((stat, index) => (

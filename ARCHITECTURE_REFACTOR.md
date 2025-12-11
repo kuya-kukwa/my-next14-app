@@ -3,10 +3,12 @@
 ## ✅ Completed Work
 
 ### 1. Profile Page - Full CSS Modules Refactor
+
 **File:** `src/pages/authenticated/profile.tsx`  
 **Module:** `src/pages/authenticated/profile.module.css`
 
 #### What Was Done:
+
 - ✅ Removed all inline `sx={{}}` styling (100+ instances)
 - ✅ Created comprehensive CSS module with 80+ class definitions
 - ✅ Organized styles by component sections (sidebar, tabs, forms, dialogs)
@@ -16,6 +18,7 @@
 - ✅ Build verified successful (1.65 kB CSS chunk generated)
 
 #### Style Architecture:
+
 ```
 profile.module.css
 ├── Layout Styles (pageContainer, contentWrapper, loadingContainer)
@@ -30,12 +33,14 @@ profile.module.css
 ```
 
 ### 2. Global Utility Classes Enhancement
+
 **File:** `src/styles/globals.css`
 
 #### Added Comprehensive Utilities:
+
 - ✅ **Typography:** text-primary, text-secondary, font-bold, text-xl, etc.
-- ✅ **Layout:** flex, flex-col, items-center, justify-between, grid, gap-*
-- ✅ **Spacing:** m-*, p-*, mt-*, mb-*, px-*, py-* (using design tokens)
+- ✅ **Layout:** flex, flex-col, items-center, justify-between, grid, gap-\*
+- ✅ **Spacing:** m-_, p-_, mt-_, mb-_, px-_, py-_ (using design tokens)
 - ✅ **Borders:** rounded-sm through rounded-3xl, border utilities
 - ✅ **Sizing:** w-full, h-full, min-h-screen
 - ✅ **Position:** relative, absolute, fixed
@@ -43,7 +48,9 @@ profile.module.css
 - ✅ **Cursor:** cursor-pointer
 
 #### Design Token Integration:
+
 All utilities use CSS variables from design system:
+
 - `var(--space-*)` for spacing
 - `var(--color-*)` for colors
 - `var(--radius-*)` for border radius
@@ -51,6 +58,7 @@ All utilities use CSS variables from design system:
 - `var(--transition-*)` for animations
 
 ### 3. Theme Configuration Fix
+
 **File:** `src/theme/mui.ts`
 
 - ✅ Fixed missing `theme.tokens` import error
@@ -62,12 +70,15 @@ All utilities use CSS variables from design system:
 ## 📋 Recommended Next Steps
 
 ### Priority 1: Core Pages
+
 1. **Home Page** (`src/pages/authenticated/home.tsx`)
+
    - Create `home.module.css`
    - Refactor hero section, filters, movie rows
    - ~150+ inline styles to convert
 
 2. **Watchlist Page** (`src/pages/authenticated/watchlist.tsx`)
+
    - Create `watchlist.module.css`
    - Refactor search, filters, grid layout, modals
    - ~120+ inline styles to convert
@@ -78,12 +89,15 @@ All utilities use CSS variables from design system:
    - ~80+ inline styles each
 
 ### Priority 2: Reusable Components
+
 4. **MovieCard** (`src/components/ui/MovieCard.tsx`)
+
    - Create `MovieCard.module.css`
    - Most reused component - high impact
    - ~40+ inline styles
 
 5. **WatchlistConfirmDialog** (`src/components/ui/WatchlistConfirmDialog.tsx`)
+
    - Create `WatchlistConfirmDialog.module.css`
    - ~20+ inline styles
 
@@ -92,17 +106,20 @@ All utilities use CSS variables from design system:
    - ~30+ inline styles
 
 ### Priority 3: Form Components
+
 7. **SignInForm, SignUpForm, ContactForm**
    - Create CSS modules for each
    - Standardize form styling patterns
    - ~60+ inline styles each
 
 ### Priority 4: Section Components
+
 8. **Hero, MovieCarousel, CTASection, etc.**
    - Create CSS modules for landing page sections
    - ~100+ inline styles across all sections
 
 ### Priority 5: Skeleton Components
+
 9. **HeroSkeleton, MovieRowSkeleton, WatchlistSkeleton**
    - Create CSS modules for loading states
    - ~80+ inline styles total
@@ -112,21 +129,28 @@ All utilities use CSS variables from design system:
 ## 🏗️ Architecture Patterns Established
 
 ### CSS Module Naming Convention
+
 ```css
 /* Component root */
-.componentName { }
+.componentName {
+}
 
 /* Sub-elements */
-.componentName__element { }
+.componentName__element {
+}
 
 /* Modifiers */
-.componentName--variant { }
+.componentName--variant {
+}
 
 /* State classes */
-.isActive, .isDisabled, .isOpen
+.isActive,
+.isDisabled,
+.isOpen;
 ```
 
 ### Example Usage Pattern
+
 ```tsx
 import styles from './Component.module.css';
 
@@ -136,15 +160,14 @@ export default function Component() {
       <div className={styles.header}>
         <h1 className={styles.title}>Title</h1>
       </div>
-      <div className={`${styles.card} ${styles.cardHighlighted}`}>
-        Content
-      </div>
+      <div className={`${styles.card} ${styles.cardHighlighted}`}>Content</div>
     </div>
   );
 }
 ```
 
 ### Mixing CSS Modules with Utility Classes
+
 ```tsx
 // Use utility classes for simple, one-off styling
 <div className={`${styles.mainContent} flex items-center gap-4`}>
@@ -158,6 +181,7 @@ export default function Component() {
 ## 📊 Impact Analysis
 
 ### Before Refactor
+
 - ❌ Inline styles scattered throughout JSX
 - ❌ Hard to maintain and update
 - ❌ Difficult to find and change specific styles
@@ -166,6 +190,7 @@ export default function Component() {
 - ❌ Difficult to debug style issues
 
 ### After Refactor (Profile Page)
+
 - ✅ Clean separation of concerns (markup vs. styles)
 - ✅ Easy to maintain with dedicated CSS files
 - ✅ Clear style organization by component section
@@ -176,9 +201,10 @@ export default function Component() {
 - ✅ Easier debugging with named classes
 
 ### Build Output Improvement
+
 ```
 Before: All styles inline in JS bundle
-After: 
+After:
 ├ ○ /authenticated/profile (767 ms)    97.8 kB         375 kB
 ├   └ chunks/49e7d0ddefaf5754.css      1.65 kB  ← CSS extracted!
 ```
@@ -188,26 +214,31 @@ After:
 ## 🎯 Best Practices Going Forward
 
 ### 1. Component-Specific Styles
+
 - Create `.module.css` file alongside component
 - Keep styles scoped to component
 - Use semantic class names
 
 ### 2. Global Utilities
+
 - Use for common patterns (flex, padding, colors)
 - Don't create utilities for unique styles
 - Extend utilities in globals.css as needed
 
 ### 3. Design Tokens
+
 - Always use CSS variables from design system
 - Never hardcode colors, spacing, etc.
 - Maintain consistency across codebase
 
 ### 4. Progressive Refactoring
+
 - Refactor one component at a time
 - Test after each refactor
 - Don't mix refactored and non-refactored patterns in same file
 
 ### 5. Documentation
+
 - Comment complex CSS patterns
 - Document utility class usage
 - Maintain this guide as reference
@@ -217,31 +248,36 @@ After:
 ## 🚀 Refactoring Workflow
 
 1. **Choose Component**
+
    ```bash
    # Example: MovieCard
    ```
 
 2. **Create CSS Module**
+
    ```bash
    touch src/components/ui/MovieCard.module.css
    ```
 
 3. **Extract Inline Styles**
+
    - Copy all `sx={{}}` objects
    - Convert to CSS class syntax
    - Use design tokens
 
 4. **Update Component**
+
    ```tsx
    // Add import
    import styles from './MovieCard.module.css';
-   
+
    // Replace sx={{}} with className
    <Box sx={{ padding: '16px' }}> // Before
    <Box className={styles.card}>  // After
    ```
 
 5. **Test**
+
    ```bash
    npm run build
    # Verify no errors
@@ -269,6 +305,7 @@ After:
 ## 🔄 Continuous Improvement
 
 As you refactor more components:
+
 1. Look for repeated patterns → add to utilities
 2. Find common color/spacing → add to design tokens
 3. Discover better naming conventions → document here

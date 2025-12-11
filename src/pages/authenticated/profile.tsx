@@ -47,7 +47,7 @@ import {
   dismissToast,
 } from '@/lib/toast';
 import { useWatchlist } from '@/services/queries/watchlist';
-import * as styles from '@/styles/pages/profile.styles';
+import styles from './profile.module.css';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -215,8 +215,8 @@ export default function ProfilePage() {
 
   if (!isMounted || userLoading) {
     return (
-      <Box sx={styles.loadingContainer}>
-        <CircularProgress sx={styles.loadingSpinner} />
+      <Box className={styles.loadingContainer}>
+        <CircularProgress className={styles.loadingSpinner} />
       </Box>
     );
   }
@@ -233,97 +233,80 @@ export default function ProfilePage() {
   const watchlistCount = watchlistData?.total || 0;
 
   return (
-    <Box sx={styles.profileContainer}>
-      <Container maxWidth="lg" sx={styles.profileContent}>
+    <Box className={styles.pageContainer}>
+      <Container maxWidth="lg" className={styles.contentWrapper}>
         {/* Main Profile Card */}
-        <Card sx={styles.profileCard}>
+        <Card className={styles.profileCard}>
           {/* Left Sidebar & Content */}
-          <Box sx={styles.profileCardInner}>
+          <Box className={styles.cardLayout}>
             {/* Left Sidebar */}
-            <Box sx={styles.sidebar}>
+            <Box className={styles.sidebar}>
               {/* Avatar */}
-              <Avatar sx={styles.avatarLarge}>{initials}</Avatar>
+              <Avatar className={styles.avatar}>{initials}</Avatar>
 
               {/* User Info */}
-              <Typography sx={styles.userName}>
-                {user?.name || 'User'}
-              </Typography>
-              <Typography sx={styles.userEmail}>{user?.email}</Typography>
-
-              {/* Stats Grid */}
-              <Box sx={{ width: '100%', mb: 4 }}>
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: 2,
-                    mb: 3,
-                  }}
-                ></Box>
-
-                {/* Member Since */}
-                <Box sx={styles.memberSinceCard}>
-                  <Box sx={styles.memberSinceHeader}>
-                    <CalendarTodayIcon sx={styles.memberSinceIcon} />
-                    <Typography sx={styles.memberSinceLabel}>
-                      Member Since
-                    </Typography>
-                  </Box>
-                  <Typography sx={styles.memberSinceValue}>
-                    {memberSince}
-                  </Typography>
-                </Box>
+              <Box className={styles.userInfo}>
+                <Typography className={styles.userName}>
+                  {user?.name || 'User'}
+                </Typography>
+                <Typography className={styles.userEmail}>
+                  {user?.email}
+                </Typography>
               </Box>
 
               {/* Navigation Tabs - Vertical */}
-              <Box sx={styles.tabsContainer}>
+              <Box className={styles.tabsContainer}>
                 <Tabs
                   orientation="vertical"
                   value={activeTab}
                   onChange={(e, newValue) => setActiveTab(newValue)}
-                  sx={styles.tabs}
+                  sx={{
+                    '& .MuiTabs-indicator': {
+                      left: 0,
+                      width: '3px',
+                      borderRadius: '0 4px 4px 0',
+                      backgroundColor: '#e50914',
+                    },
+                  }}
                 >
                   <Tab
                     icon={<SettingsIcon />}
                     iconPosition="start"
                     label="Settings"
-                    sx={styles.tab}
+                    className={styles.tab}
+                    classes={{ selected: styles.tabSelected }}
                   />
                   <Tab
                     icon={<BookmarkIcon />}
                     iconPosition="start"
                     label="Watchlist"
-                    sx={styles.tab}
+                    className={styles.tab}
+                    classes={{ selected: styles.tabSelected }}
                   />
                   <Tab
                     icon={<TuneIcon />}
                     iconPosition="start"
                     label="Preferences"
-                    sx={styles.tab}
+                    className={styles.tab}
+                    classes={{ selected: styles.tabSelected }}
                   />
                   <Tab
                     icon={<LogoutIcon />}
                     iconPosition="start"
                     label="Logout"
-                    sx={styles.tab}
+                    className={styles.tab}
+                    classes={{ selected: styles.tabSelected }}
                   />
                 </Tabs>
               </Box>
             </Box>
 
             {/* Right Content Area */}
-            <Box sx={{ flex: 1, p: { xs: 3, md: 4 } }}>
+            <Box className={styles.contentArea}>
               {/* Settings Tab */}
               {activeTab === 0 && (
                 <Box>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontWeight: 700,
-                      mb: 3,
-                      color: '#ffffff',
-                    }}
-                  >
+                  <Typography variant="h5" className={styles.contentTitle}>
                     Account Settings
                   </Typography>
 
@@ -331,30 +314,11 @@ export default function ProfilePage() {
                   <Box
                     component="form"
                     onSubmit={handlePasswordChange}
-                    sx={{
-                      p: 3,
-                      mb: 3,
-                      backgroundColor: 'rgba(255,255,255,0.02)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
+                    className={styles.settingsSection}
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        mb: 3,
-                      }}
-                    >
-                      <LockIcon sx={{ fontSize: '1.5rem', color: '#e5e5e5' }} />
-                      <Typography
-                        sx={{
-                          fontSize: '1.25rem',
-                          fontWeight: 700,
-                          color: '#ffffff',
-                        }}
-                      >
+                    <Box className={styles.sectionHeader}>
+                      <LockIcon className={styles.sectionIcon} />
+                      <Typography className={styles.sectionTitle}>
                         Change Password
                       </Typography>
                     </Box>
@@ -373,7 +337,7 @@ export default function ProfilePage() {
                       }
                       error={!!passwordErrors.currentPassword}
                       helperText={passwordErrors.currentPassword}
-                      sx={{ mb: 2 }}
+                      className={styles.formField}
                       InputProps={{
                         endAdornment: (
                           <IconButton
@@ -381,7 +345,6 @@ export default function ProfilePage() {
                               setShowCurrentPassword(!showCurrentPassword)
                             }
                             edge="end"
-                            sx={{ color: '#e5e5e5' }}
                           >
                             {showCurrentPassword ? (
                               <VisibilityOffIcon />
@@ -407,13 +370,12 @@ export default function ProfilePage() {
                       }
                       error={!!passwordErrors.newPassword}
                       helperText={passwordErrors.newPassword}
-                      sx={{ mb: 2 }}
+                      className={styles.formField}
                       InputProps={{
                         endAdornment: (
                           <IconButton
                             onClick={() => setShowNewPassword(!showNewPassword)}
                             edge="end"
-                            sx={{ color: '#e5e5e5' }}
                           >
                             {showNewPassword ? (
                               <VisibilityOffIcon />
@@ -444,7 +406,8 @@ export default function ProfilePage() {
                       }
                       error={!!passwordErrors.confirmPassword}
                       helperText={passwordErrors.confirmPassword}
-                      sx={{ mb: 3, mt: 2 }}
+                      className={styles.formField}
+                      sx={{ mt: 2 }}
                       InputProps={{
                         endAdornment: (
                           <IconButton
@@ -452,7 +415,6 @@ export default function ProfilePage() {
                               setShowConfirmPassword(!showConfirmPassword)
                             }
                             edge="end"
-                            sx={{ color: '#e5e5e5' }}
                           >
                             {showConfirmPassword ? (
                               <VisibilityOffIcon />
@@ -469,22 +431,7 @@ export default function ProfilePage() {
                       variant="contained"
                       fullWidth
                       disabled={updatePassword.isPending}
-                      sx={{
-                        py: 1.5,
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        backgroundColor: '#e50914',
-                        color: '#ffffff',
-                        borderRadius: '8px',
-                        textTransform: 'none',
-                        minHeight: '48px',
-                        '&:hover': {
-                          backgroundColor: '#b2070f',
-                        },
-                        '&:disabled': {
-                          backgroundColor: '#333333',
-                        },
-                      }}
+                      className={styles.submitButton}
                     >
                       {updatePassword.isPending ? (
                         <CircularProgress size={24} sx={{ color: '#ffffff' }} />
@@ -495,42 +442,14 @@ export default function ProfilePage() {
                   </Box>
 
                   {/* Danger Zone Section */}
-                  <Box
-                    sx={{
-                      p: 3,
-                      backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(239, 68, 68, 0.2)',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        mb: 2,
-                      }}
-                    >
-                      <DeleteForeverIcon
-                        sx={{ fontSize: '1.5rem', color: '#ef4444' }}
-                      />
-                      <Typography
-                        sx={{
-                          fontSize: '1.25rem',
-                          fontWeight: 700,
-                          color: '#ef4444',
-                        }}
-                      >
+                  <Box className={styles.dangerZone}>
+                    <Box className={styles.sectionHeader}>
+                      <DeleteForeverIcon className={styles.dangerIcon} />
+                      <Typography className={styles.dangerTitle}>
                         Danger Zone
                       </Typography>
                     </Box>
-                    <Typography
-                      sx={{
-                        fontSize: '0.875rem',
-                        color: '#b3b3b3',
-                        mb: 3,
-                      }}
-                    >
+                    <Typography className={styles.dangerText}>
                       Once you delete your account, there is no going back.
                       Please be certain.
                     </Typography>
@@ -539,19 +458,7 @@ export default function ProfilePage() {
                       fullWidth
                       startIcon={<DeleteForeverIcon />}
                       onClick={handleDeleteWarning}
-                      sx={{
-                        py: 1.5,
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        borderRadius: '8px',
-                        textTransform: 'none',
-                        minHeight: '48px',
-                        backgroundColor: '#ef4444',
-                        color: '#ffffff',
-                        '&:hover': {
-                          backgroundColor: '#dc2626',
-                        },
-                      }}
+                      className={styles.dangerButton}
                     >
                       Delete Account
                     </Button>
@@ -562,87 +469,32 @@ export default function ProfilePage() {
               {/* Watchlist Tab */}
               {activeTab === 1 && (
                 <Box>
-                  <Typography
-                    variant="h5"
-                    sx={{ fontWeight: 700, mb: 3, color: '#ffffff' }}
-                  >
+                  <Typography variant="h5" className={styles.contentTitle}>
                     My Watchlist
                   </Typography>
-                  <Box
-                    sx={{
-                      p: 4,
-                      textAlign: 'center',
-                      backgroundColor: 'rgba(255,255,255,0.02)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
-                  >
-                    <BookmarkIcon
-                      sx={{
-                        fontSize: '4rem',
-                        color: '#e50914',
-                        mb: 2,
-                        opacity: 0.5,
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: '1.25rem',
-                        fontWeight: 600,
-                        color: '#ffffff',
-                        mb: 1,
-                      }}
-                    >
+                  <Box className={styles.emptyState}>
+                    <BookmarkIcon className={styles.emptyIcon} />
+                    <Typography className={styles.emptyTitle}>
                       You have {watchlistCount}{' '}
                       {watchlistCount === 1 ? 'movie' : 'movies'} in your
                       watchlist
                     </Typography>
-                    <Typography
-                      sx={{ fontSize: '0.875rem', color: '#b3b3b3', mb: 3 }}
-                    >
+                    <Typography className={styles.emptyText}>
                       Visit the home page or watchlist page to browse and manage
                       your movies
                     </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: 2,
-                        justifyContent: 'center',
-                        flexWrap: 'wrap',
-                      }}
-                    >
+                    <Box className={styles.actionButtons}>
                       <Button
                         variant="contained"
                         onClick={() => router.push('/authenticated/home')}
-                        sx={{
-                          backgroundColor: '#e50914',
-                          color: '#ffffff',
-                          textTransform: 'none',
-                          px: 4,
-                          py: 1.5,
-                          borderRadius: '8px',
-                          fontWeight: 600,
-                          '&:hover': { backgroundColor: '#b20710' },
-                        }}
+                        className={styles.primaryButton}
                       >
                         Browse Movies
                       </Button>
                       <Button
                         variant="outlined"
                         onClick={() => router.push('/authenticated/watchlist')}
-                        sx={{
-                          borderColor: '#e50914',
-                          color: '#e50914',
-                          textTransform: 'none',
-                          px: 4,
-                          py: 1.5,
-                          borderRadius: '8px',
-                          fontWeight: 600,
-                          '&:hover': {
-                            borderColor: '#b20710',
-                            backgroundColor: 'rgba(229, 9, 20, 0.08)',
-                          },
-                        }}
+                        className={styles.secondaryButton}
                       >
                         View Watchlist
                       </Button>
@@ -654,87 +506,38 @@ export default function ProfilePage() {
               {/* Preferences Tab */}
               {activeTab === 2 && (
                 <Box>
-                  <Typography
-                    variant="h5"
-                    sx={{ fontWeight: 700, mb: 3, color: '#ffffff' }}
-                  >
+                  <Typography variant="h5" className={styles.contentTitle}>
                     Preferences
                   </Typography>
-                  <Box
-                    sx={{
-                      p: 3,
-                      backgroundColor: 'rgba(255,255,255,0.02)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: '#ffffff',
-                        mb: 2,
-                      }}
-                    >
-                      Display & Theme
-                    </Typography>
-                    <Box sx={{ mb: 3 }}>
-                      <Typography
-                        sx={{ fontSize: '0.875rem', color: '#b3b3b3', mb: 1 }}
-                      >
+                  <Box className={styles.preferencesSection}>
+                    <Box className={styles.preferenceGroup}>
+                      <Typography className={styles.preferenceTitle}>
+                        Display & Theme
+                      </Typography>
+                      <Typography className={styles.preferenceLabel}>
                         Theme Mode
                       </Typography>
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: '8px',
-                          backgroundColor: 'rgba(255,255,255,0.03)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                        }}
-                      >
-                        <Typography
-                          sx={{ fontSize: '0.875rem', color: '#ffffff' }}
-                        >
+                      <Box className={styles.preferenceBox}>
+                        <Typography className={styles.preferenceText}>
                           🌙 Dark Mode (Active)
                         </Typography>
                       </Box>
                     </Box>
 
-                    <Typography
-                      sx={{
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: '#ffffff',
-                        mb: 2,
-                        mt: 4,
-                      }}
-                    >
-                      Content Preferences
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: '0.875rem', color: '#b3b3b3', mb: 2 }}
-                    >
-                      Your movie preferences are automatically saved based on
-                      your watchlist and viewing history.
-                    </Typography>
-                    <Box
-                      sx={{
-                        p: 2,
-                        borderRadius: '8px',
-                        backgroundColor: 'rgba(229, 9, 20, 0.05)',
-                        border: '1px solid rgba(229, 9, 20, 0.2)',
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: '0.875rem',
-                          color: '#e50914',
-                          fontWeight: 600,
-                        }}
-                      >
-                        💡 Tip: Add more movies to your watchlist to get better
-                        recommendations!
+                    <Box className={styles.preferenceGroup}>
+                      <Typography className={styles.preferenceTitle}>
+                        Content Preferences
                       </Typography>
+                      <Typography className={styles.preferenceLabel}>
+                        Your movie preferences are automatically saved based on
+                        your watchlist and viewing history.
+                      </Typography>
+                      <Box className={styles.tipBox}>
+                        <Typography className={styles.tipText}>
+                          💡 Tip: Add more movies to your watchlist to get
+                          better recommendations!
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
@@ -743,58 +546,22 @@ export default function ProfilePage() {
               {/* Logout Tab */}
               {activeTab === 3 && (
                 <Box>
-                  <Typography
-                    variant="h5"
-                    sx={{ fontWeight: 700, mb: 3, color: '#ffffff' }}
-                  >
+                  <Typography variant="h5" className={styles.contentTitle}>
                     Session Management
                   </Typography>
-                  <Box
-                    sx={{
-                      p: 4,
-                      textAlign: 'center',
-                      backgroundColor: 'rgba(255,255,255,0.02)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
-                  >
-                    <LogoutIcon
-                      sx={{
-                        fontSize: '4rem',
-                        color: '#e50914',
-                        mb: 2,
-                        opacity: 0.5,
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: '1.25rem',
-                        fontWeight: 600,
-                        color: '#ffffff',
-                        mb: 1,
-                      }}
-                    >
+                  <Box className={styles.emptyState}>
+                    <LogoutIcon className={styles.emptyIcon} />
+                    <Typography className={styles.emptyTitle}>
                       Sign out of your account
                     </Typography>
-                    <Typography
-                      sx={{ fontSize: '0.875rem', color: '#b3b3b3', mb: 4 }}
-                    >
+                    <Typography className={styles.emptyText}>
                       You will be redirected to the sign in page
                     </Typography>
                     <Button
                       variant="contained"
                       startIcon={<LogoutIcon />}
                       onClick={handleLogout}
-                      sx={{
-                        backgroundColor: '#e50914',
-                        color: '#ffffff',
-                        textTransform: 'none',
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: '8px',
-                        fontWeight: 600,
-                        '&:hover': { backgroundColor: '#b20710' },
-                      }}
+                      className={styles.primaryButton}
                     >
                       Logout
                     </Button>
@@ -811,63 +578,33 @@ export default function ProfilePage() {
           onClose={() => setDeleteWarningOpen(false)}
           maxWidth="sm"
           fullWidth
-          sx={{
-            '& .MuiDialog-paper': {
-              backgroundColor: '#1a1a1a',
-              borderRadius: '12px',
-            },
+          PaperProps={{
+            className: styles.dialogPaper,
           }}
         >
-          <DialogTitle
-            sx={{
-              fontWeight: 700,
-              color: '#ef4444',
-              fontSize: '1.5rem',
-            }}
-          >
+          <DialogTitle className={styles.dialogTitle}>
             ⚠️ Delete Account?
           </DialogTitle>
           <DialogContent>
-            <DialogContentText
-              sx={{
-                color: '#e5e5e5',
-                fontSize: '1rem',
-                mb: 2,
-              }}
-            >
+            <DialogContentText className={styles.dialogContent}>
               This action cannot be undone. This will permanently delete your
               account and remove all your data from our servers.
             </DialogContentText>
-            <DialogContentText
-              sx={{
-                color: '#b3b3b3',
-                fontSize: '0.875rem',
-              }}
-            >
+            <DialogContentText className={styles.dialogContentMuted}>
               You will lose access to:
             </DialogContentText>
-            <Box component="ul" sx={{ mt: 1, color: '#b3b3b3' }}>
+            <Box component="ul" className={styles.dialogList}>
               <li>Your watchlist and preferences</li>
               <li>Your account history</li>
               <li>All personal data associated with this account</li>
             </Box>
           </DialogContent>
-          <DialogActions sx={{ p: 3, gap: 2 }}>
+          <DialogActions className={styles.dialogActions}>
             <Button
               onClick={() => setDeleteWarningOpen(false)}
               variant="outlined"
               fullWidth
-              sx={{
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                color: '#e5e5e5',
-                borderColor: '#e5e5e5',
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#ffffff',
-                },
-              }}
+              className={`${styles.dialogButton} ${styles.cancelButton}`}
             >
               Cancel
             </Button>
@@ -875,17 +612,7 @@ export default function ProfilePage() {
               onClick={handleDeleteConfirm}
               variant="contained"
               fullWidth
-              sx={{
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: '#dc2626',
-                },
-              }}
+              className={`${styles.dialogButton} ${styles.confirmButton}`}
             >
               Continue
             </Button>
@@ -902,30 +629,15 @@ export default function ProfilePage() {
           }}
           maxWidth="sm"
           fullWidth
-          sx={{
-            '& .MuiDialog-paper': {
-              backgroundColor: '#1a1a1a',
-              borderRadius: '12px',
-            },
+          PaperProps={{
+            className: styles.dialogPaper,
           }}
         >
-          <DialogTitle
-            sx={{
-              fontWeight: 700,
-              color: '#ef4444',
-              fontSize: '1.5rem',
-            }}
-          >
+          <DialogTitle className={styles.dialogTitle}>
             Confirm Account Deletion
           </DialogTitle>
           <DialogContent>
-            <DialogContentText
-              sx={{
-                color: '#e5e5e5',
-                fontSize: '1rem',
-                mb: 3,
-              }}
-            >
+            <DialogContentText className={styles.dialogContent}>
               Please enter your password to confirm account deletion.
             </DialogContentText>
             <TextField
@@ -940,7 +652,7 @@ export default function ProfilePage() {
               sx={{ mb: 2 }}
             />
           </DialogContent>
-          <DialogActions sx={{ p: 3, gap: 2 }}>
+          <DialogActions className={styles.dialogActions}>
             <Button
               onClick={() => {
                 setDeleteConfirmOpen(false);
@@ -950,17 +662,7 @@ export default function ProfilePage() {
               variant="outlined"
               fullWidth
               disabled={deleteAccount.isPending}
-              sx={{
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                color: '#e5e5e5',
-                borderColor: '#e5e5e5',
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: '#ffffff',
-                },
-              }}
+              className={`${styles.dialogButton} ${styles.cancelButton}`}
             >
               Cancel
             </Button>
@@ -969,20 +671,7 @@ export default function ProfilePage() {
               variant="contained"
               fullWidth
               disabled={deleteAccount.isPending}
-              sx={{
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: '#dc2626',
-                },
-                '&:disabled': {
-                  backgroundColor: '#999999',
-                },
-              }}
+              className={`${styles.dialogButton} ${styles.confirmButton}`}
             >
               {deleteAccount.isPending ? (
                 <CircularProgress size={24} sx={{ color: '#ffffff' }} />

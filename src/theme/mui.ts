@@ -1,5 +1,14 @@
 import { createTheme, ThemeOptions } from '@mui/material/styles';
-import { typography } from '@/styles/shared/theme.tokens';
+
+const typography = {
+  fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  fontWeight: {
+    normal: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+  },
+};
 
 const commonTheme: ThemeOptions = {
   typography: {

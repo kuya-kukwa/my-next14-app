@@ -207,24 +207,6 @@ export default function WatchlistPage() {
             </Typography>
 
             <Box className="watchlist-filters">
-              {/* Year Filter */}
-              <FormControl size="small" className="watchlist-filter-control">
-                <InputLabel>Year</InputLabel>
-                <Select
-                  value={selectedYear}
-                  label="Year"
-                  onChange={handleYearChange}
-                  className="filter-input-root"
-                >
-                  <MenuItem value="">All Years</MenuItem>
-                  {availableYears.map((year) => (
-                    <MenuItem key={year} value={year.toString()}>
-                      {year}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
               {/* Genre Filter */}
               <FormControl
                 size="small"

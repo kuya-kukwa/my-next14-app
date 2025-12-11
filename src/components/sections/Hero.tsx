@@ -27,19 +27,21 @@ const Hero: React.FC = () => {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: { xs: 'column', md: 'row' }, // Mobile-first: stack vertically on mobile
             alignItems: 'center',
-            gap: { xs: 2, sm: 3, md: 4, lg: 8 },
+            gap: { xs: 4, sm: 6, md: 4, lg: 8 },
             justifyContent: 'space-between',
+            textAlign: { xs: 'center', md: 'left' }, // Center text on mobile
           }}
         >
           {/* Left Content - Text */}
           <Box
             sx={{
-              flex: { xs: '1 1 55%', sm: '1 1 60%', lg: '1 1 50%' },
+              flex: { xs: '1 1 100%', md: '1 1 55%', lg: '1 1 50%' }, // Mobile-first: full width on mobile
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
+              order: { xs: 2, md: 1 }, // Image first on mobile for visual hierarchy
             }}
           >
             <Typography
@@ -115,10 +117,11 @@ const Hero: React.FC = () => {
           {/* Right Content - Image */}
           <Box
             sx={{
-              flex: { xs: '0 0 40%', sm: '0 0 35%', lg: '1 1 50%' },
+              flex: { xs: '0 0 auto', md: '0 0 40%', lg: '1 1 50%' }, // Mobile-first: auto width on mobile
               display: 'flex',
-              justifyContent: 'flex-end',
+              justifyContent: 'center',
               alignItems: 'center',
+              order: { xs: 1, md: 2 }, // Image first on mobile
             }}
           >
             <Box

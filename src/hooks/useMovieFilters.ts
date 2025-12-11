@@ -32,7 +32,6 @@ export function useMovieFilters(
 ) {
   const [searchTerm, setSearchTerm] = useState(initialFilters?.searchTerm || '');
   const [selectedGenre, setSelectedGenre] = useState(initialFilters?.selectedGenre || '');
-  const [selectedYear, setSelectedYear] = useState(initialFilters?.selectedYear || '');
 
   // Memoize filtered movies
   const filteredMovies = useMemo(() => {
@@ -46,11 +45,6 @@ export function useMovieFilters(
       );
     }
 
-    // Apply year filter
-    if (selectedYear) {
-      const yearNum = parseInt(selectedYear);
-      filtered = filtered.filter((movie) => movie.year === yearNum);
-    }
 
     // Apply genre filter
     if (selectedGenre) {
@@ -58,7 +52,7 @@ export function useMovieFilters(
     }
 
     return filtered;
-  }, [movies, searchTerm, selectedYear, selectedGenre]);
+  }, [movies, searchTerm, selectedGenre]);
 
   // Memoize available genres
   const availableGenres = useMemo(
@@ -76,7 +70,6 @@ export function useMovieFilters(
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedGenre('');
-    setSelectedYear('');
   };
 
   return {
@@ -86,7 +79,6 @@ export function useMovieFilters(
     // Filter state
     searchTerm,
     selectedGenre,
-    selectedYear,
     
     // Available options
     availableGenres,
@@ -95,10 +87,9 @@ export function useMovieFilters(
     // State setters
     setSearchTerm,
     setSelectedGenre,
-    setSelectedYear,
     
     // Utilities
     resetFilters,
-    hasActiveFilters: !!(searchTerm || selectedGenre || selectedYear),
+    hasActiveFilters: !!(searchTerm || selectedGenre ),
   };
 }

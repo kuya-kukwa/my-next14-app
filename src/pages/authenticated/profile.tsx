@@ -47,6 +47,7 @@ import {
   dismissToast,
 } from '@/lib/toast';
 import { useWatchlist } from '@/services/queries/watchlist';
+import * as styles from '@/styles/pages/profile.styles';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -214,16 +215,8 @@ export default function ProfilePage() {
 
   if (!isMounted || userLoading) {
     return (
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#0a0a0a',
-        }}
-      >
-        <CircularProgress sx={{ color: '#e50914' }} />
+      <Box sx={styles.loadingContainer}>
+        <CircularProgress sx={styles.loadingSpinner} />
       </Box>
     );
   }
@@ -240,75 +233,24 @@ export default function ProfilePage() {
   const watchlistCount = watchlistData?.total || 0;
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: '#0a0a0a',
-      }}
-    >
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
+    <Box sx={styles.profileContainer}>
+      <Container maxWidth="lg" sx={styles.profileContent}>
         {/* Main Profile Card */}
-        <Card
-          sx={{
-            backgroundColor: 'rgba(26, 26, 26, 0.8)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            border: '1px solid rgba(255,255,255,0.08)',
-            overflow: 'hidden',
-          }}
-        >
+        <Card sx={styles.profileCard}>
           {/* Left Sidebar & Content */}
-          <Box
-            sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}
-          >
+          <Box sx={styles.profileCardInner}>
             {/* Left Sidebar */}
-            <Box
-              sx={{
-                width: { xs: '100%', md: '320px' },
-                borderRight: { md: '1px solid rgba(255,255,255,0.08)' },
-                p: { xs: 3, md: 4 },
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
+            <Box sx={styles.sidebar}>
               {/* Avatar */}
-              <Avatar
-                sx={{
-                  width: 120,
-                  height: 120,
-                  fontSize: '2.5rem',
-                  fontWeight: 700,
-                  background:
-                    'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
-                  color: '#ffffff',
-                  mb: 3,
-                  boxShadow: '0 8px 32px rgba(229, 9, 20, 0.3)',
-                }}
-              >
+              <Avatar sx={styles.avatarLarge}>
                 {initials}
               </Avatar>
 
               {/* User Info */}
-              <Typography
-                sx={{
-                  fontSize: '1.5rem',
-                  fontWeight: 700,
-                  color: '#ffffff',
-                  mb: 0.5,
-                  textAlign: 'center',
-                }}
-              >
+              <Typography sx={styles.userName}>
                 {user?.name || 'User'}
               </Typography>
-              <Typography
-                sx={{
-                  fontSize: '0.875rem',
-                  color: '#b3b3b3',
-                  mb: 3,
-                  textAlign: 'center',
-                }}
-              >
+              <Typography sx={styles.userEmail}>
                 {user?.email}
               </Typography>
 
@@ -324,139 +266,50 @@ export default function ProfilePage() {
                 ></Box>
 
                 {/* Member Since */}
-                <Box
-                  sx={{
-                    p: 2.5,
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 1,
-                      mb: 0.5,
-                    }}
-                  >
-                    <CalendarTodayIcon
-                      sx={{ fontSize: '1rem', color: '#808080' }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: '0.75rem',
-                        color: '#808080',
-                        textTransform: 'uppercase',
-                      }}
-                    >
+                <Box sx={styles.memberSinceCard}>
+                  <Box sx={styles.memberSinceHeader}>
+                    <CalendarTodayIcon sx={styles.memberSinceIcon} />
+                    <Typography sx={styles.memberSinceLabel}>
                       Member Since
                     </Typography>
                   </Box>
-                  <Typography
-                    sx={{ fontSize: '1rem', fontWeight: 600, color: '#ffffff' }}
-                  >
+                  <Typography sx={styles.memberSinceValue}>
                     {memberSince}
                   </Typography>
                 </Box>
               </Box>
 
               {/* Navigation Tabs - Vertical */}
-              <Box sx={{ width: '100%' }}>
+              <Box sx={styles.tabsContainer}>
                 <Tabs
                   orientation="vertical"
                   value={activeTab}
                   onChange={(e, newValue) => setActiveTab(newValue)}
-                  sx={{
-                    '& .MuiTabs-indicator': {
-                      left: 0,
-                      width: '3px',
-                      borderRadius: '0 4px 4px 0',
-                      backgroundColor: '#e50914',
-                    },
-                  }}
+                  sx={styles.tabs}
                 >
                   <Tab
                     icon={<SettingsIcon />}
                     iconPosition="start"
                     label="Settings"
-                    sx={{
-                      justifyContent: 'flex-start',
-                      textTransform: 'none',
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                      color: '#b3b3b3',
-                      minHeight: '56px',
-                      '&.Mui-selected': {
-                        color: '#ffffff',
-                        backgroundColor: 'rgba(229, 9, 20, 0.08)',
-                      },
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.03)',
-                      },
-                    }}
+                    sx={styles.tab}
                   />
                   <Tab
                     icon={<BookmarkIcon />}
                     iconPosition="start"
                     label="Watchlist"
-                    sx={{
-                      justifyContent: 'flex-start',
-                      textTransform: 'none',
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                      color: '#b3b3b3',
-                      minHeight: '56px',
-                      '&.Mui-selected': {
-                        color: '#ffffff',
-                        backgroundColor: 'rgba(229, 9, 20, 0.08)',
-                      },
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.03)',
-                      },
-                    }}
+                    sx={styles.tab}
                   />
                   <Tab
                     icon={<TuneIcon />}
                     iconPosition="start"
                     label="Preferences"
-                    sx={{
-                      justifyContent: 'flex-start',
-                      textTransform: 'none',
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                      color: '#b3b3b3',
-                      minHeight: '56px',
-                      '&.Mui-selected': {
-                        color: '#ffffff',
-                        backgroundColor: 'rgba(229, 9, 20, 0.08)',
-                      },
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.03)',
-                      },
-                    }}
+                    sx={styles.tab}
                   />
                   <Tab
                     icon={<LogoutIcon />}
                     iconPosition="start"
                     label="Logout"
-                    sx={{
-                      justifyContent: 'flex-start',
-                      textTransform: 'none',
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                      color: '#b3b3b3',
-                      minHeight: '56px',
-                      '&.Mui-selected': {
-                        color: '#ffffff',
-                        backgroundColor: 'rgba(229, 9, 20, 0.08)',
-                      },
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.03)',
-                      },
-                    }}
+                    sx={styles.tab}
                   />
                 </Tabs>
               </Box>

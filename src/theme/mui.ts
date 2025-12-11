@@ -1,19 +1,20 @@
 import { createTheme, ThemeOptions } from '@mui/material/styles';
+import { typography } from '@/styles/shared/theme.tokens';
 
 const commonTheme: ThemeOptions = {
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: typography.fontFamily,
     h1: {
       fontSize: '2.5rem',
-      fontWeight: 700,
+      fontWeight: typography.fontWeight.bold,
     },
     h2: {
       fontSize: '2rem',
-      fontWeight: 600,
+      fontWeight: typography.fontWeight.semibold,
     },
     button: {
       textTransform: 'none',
-      fontWeight: 600,
+      fontWeight: typography.fontWeight.semibold,
     },
   },
   components: {

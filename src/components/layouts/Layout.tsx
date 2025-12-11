@@ -310,7 +310,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             {isAuthenticated ? (
               <>
-                <Link href="/profile" className="no-underline">
+                <Link href="/authenticated/profile" className="no-underline">
                   <IconButton
                     aria-label="profile"
                     size="small"
@@ -329,31 +329,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <AccountCircleIcon fontSize="small" />
                   </IconButton>
                 </Link>
-                <Button
-                  onClick={handleLogout}
-                  variant="outlined"
-                  startIcon={<LogoutIcon />}
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
-                    px: { xs: 1.5, sm: 2, md: 2.5 },
-                    py: { xs: 0.5, sm: 0.75, md: 1 },
-                    borderRadius: '9999px',
-                    backgroundColor: 'transparent',
-                    color: isDark ? '#e5e5e5' : '#0a0a0a',
-                    border: { xs: '1.5px solid', md: '2px solid' },
-                    borderColor: isDark ? '#e5e5e5' : '#0a0a0a',
-                    transition: 'all 0.3s',
-                    minWidth: 'auto',
-                    '&:hover': {
-                      backgroundColor: '#e50914',
-                      color: '#ffffff',
-                      borderColor: '#e50914',
-                    },
-                  }}
-                >
-                  Logout
-                </Button>
               </>
             ) : (
               <>
@@ -568,7 +543,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Box sx={{ px: 2, pb: 2 }}>
               <Button
                 fullWidth
-                onClick={() => handleMobileNavClick('/profile')}
+                onClick={() => handleMobileNavClick('/authenticated/profile')}
                 variant="outlined"
                 startIcon={<AccountCircleIcon />}
                 sx={{

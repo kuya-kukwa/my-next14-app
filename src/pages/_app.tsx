@@ -6,6 +6,7 @@ import { getQueryClient } from '@/lib/queryClient';
 import { AppCacheProvider } from '@mui/material-nextjs/v15-pagesRouter';
 import { ThemeContextProvider } from '@/contexts/ThemeContext';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { Toaster } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
@@ -30,6 +31,19 @@ export default function App(props: AppProps) {
             <Layout>
               <Component {...pageProps} />
             </Layout>
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+              gutter={8}
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  fontSize: '14px',
+                },
+              }}
+            />
             {process.env.NODE_ENV !== 'production' && (
               <ReactQueryDevtools initialIsOpen={false} />
             )}

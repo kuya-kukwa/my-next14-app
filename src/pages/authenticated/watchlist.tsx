@@ -25,7 +25,6 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { useThemeContext } from '@/contexts/ThemeContext';
 import { useMovies } from '@/services/queries/movies';
 import {
   useWatchlist,
@@ -41,11 +40,8 @@ import MovieCard from '@/components/ui/MovieCard';
 import type { Movie } from '@/types';
 
 export default function WatchlistPage() {
-  const { isDark } = useThemeContext();
-
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   // =============================
@@ -94,15 +90,7 @@ export default function WatchlistPage() {
     [allMovies, watchlistMovieIds]
   );
 
-  // Memoize available years and genres
-  const availableYears = useMemo(
-    () =>
-      Array.from(new Set(watchlistMovies.map((movie) => movie.year))).sort(
-        (a, b) => b - a
-      ),
-    [watchlistMovies]
-  );
-
+  // Memoize available genres
   const availableGenres = useMemo(
     () =>
       Array.from(new Set(watchlistMovies.map((movie) => movie.genre))).sort(),
@@ -121,19 +109,13 @@ export default function WatchlistPage() {
       );
     }
 
-    // Apply year filter
-    if (selectedYear) {
-      const yearNum = parseInt(selectedYear);
-      filtered = filtered.filter((movie) => movie.year === yearNum);
-    }
-
     // Apply genre filter
     if (selectedGenre) {
       filtered = filtered.filter((movie) => movie.genre === selectedGenre);
     }
 
     return filtered;
-  }, [watchlistMovies, searchTerm, selectedYear, selectedGenre]);
+  }, [watchlistMovies, searchTerm, selectedGenre]);
 
   const handleRemoveFromWatchlist = useCallback(
     (movieId: string, movieTitle: string) => {
@@ -156,10 +138,6 @@ export default function WatchlistPage() {
     },
     []
   );
-
-  const handleYearChange = useCallback((e: SelectChangeEvent<string>) => {
-    setSelectedYear(e.target.value);
-  }, []);
 
   const handleGenreChange = useCallback((e: SelectChangeEvent<string>) => {
     setSelectedGenre(e.target.value);
@@ -254,7 +232,7 @@ export default function WatchlistPage() {
             <BookmarkIcon
               className="watchlist-empty-icon"
               sx={{
-                color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                color: 'rgba(255,255,255,0.1)',
               }}
             />
 

@@ -3,14 +3,18 @@
 ## ✅ Completed
 
 ### 1. **Integrated with Existing globals.css**
+
 Instead of creating duplicate design tokens, we now reference your existing CSS variables from `globals.css`:
+
 - `src/styles/shared/theme.tokens.ts` - Maps to CSS variables (e.g., `var(--color-primary)`)
 - `src/styles/shared/common.styles.ts` - Reusable MUI sx style objects
 - `src/styles/pages/profile.styles.ts` - Profile page-specific styles
 - All styles now use your existing design system! ✨
 
 ### 2. **Architecture Follows Your Existing System**
+
 Your `globals.css` already has:
+
 - ✅ Color palette with CSS variables
 - ✅ Spacing scale (--space-1 to --space-32)
 - ✅ Typography scale with fluid sizing
@@ -22,13 +26,14 @@ Your `globals.css` already has:
 **Our new files simply provide TypeScript constants that reference these variables!**
 
 ### 3. **Build Status**
+
 ✅ **Build passes successfully**
 ✅ **No linting errors**
 ✅ **All pages compile correctly**
 
 ## 📁 File Structure
 
-```
+````
 src/
 ├── styles/
 │   ├── globals.css          # ← Your existing design system (CSS variables)
@@ -108,18 +113,20 @@ Update `src/theme/mui.ts` to:
 ```bash
 # Edit src/pages/authenticated/profile.tsx
 # Replace remaining inline sx={{}} with styles.* references
-```
+````
 
 Key pattern:
+
 ```tsx
 // Before
 <Box sx={{ p: 3, mb: 3, backgroundColor: 'rgba(255,255,255,0.02)' }}>
 
-// After  
+// After
 <Box sx={styles.formSection}>
 ```
 
 ### Step 2: Watchlist Page
+
 ```bash
 # 1. Create style file
 touch src/styles/pages/watchlist.styles.ts
@@ -135,9 +142,11 @@ import * as styles from '@/styles/pages/watchlist.styles';
 ```
 
 ### Step 3: Repeat for All Pages
+
 Follow same pattern for home, signin, signup pages.
 
 ### Step 4: Component Styles
+
 ```bash
 # For each component, create corresponding style file
 # Example for MovieCard:
@@ -147,6 +156,7 @@ touch src/styles/components/movieCard.styles.ts
 ```
 
 ### Step 5: Update Theme
+
 ```typescript
 // src/theme/mui.ts
 import { colors, typography, spacing } from '@/styles/shared/theme.tokens';
@@ -164,6 +174,7 @@ export const darkTheme = createTheme({
 ```
 
 ### Step 6: Verify
+
 ```bash
 # Run build to ensure no errors
 npm run build
@@ -178,26 +189,31 @@ npm run dev
 ## 🎯 Benefits of This Architecture
 
 ### Maintainability
+
 - All styles in one place per component/page
 - Easy to find and update styles
 - No scattered inline style objects
 
 ### Consistency
+
 - Centralized design tokens ensure consistency
 - Reusable style patterns reduce duplication
 - Single source of truth for colors, spacing, etc.
 
 ### Performance
+
 - Style objects created once, reused multiple times
 - No recreating style objects on every render
 - Better memoization opportunities
 
 ### Developer Experience
+
 - Autocomplete for style names
 - Easy to understand component structure
 - Clear separation of concerns (logic vs. styles)
 
 ### Scalability
+
 - Easy to add new pages/components
 - Simple to update design system globally
 - Theme changes propagate automatically
@@ -205,6 +221,7 @@ npm run dev
 ## 📝 Code Patterns
 
 ### Import Pattern
+
 ```typescript
 // At top of component file
 import * as styles from '@/styles/pages/yourPage.styles';
@@ -212,6 +229,7 @@ import { colors } from '@/styles/shared/theme.tokens';
 ```
 
 ### Usage Pattern
+
 ```tsx
 // In component JSX
 <Box sx={styles.container}>
@@ -221,6 +239,7 @@ import { colors } from '@/styles/shared/theme.tokens';
 ```
 
 ### Dynamic Styles Pattern
+
 ```typescript
 // In style file, use functions for dynamic styles
 export const statCard = (color: string) => ({
@@ -233,6 +252,7 @@ export const statCard = (color: string) => ({
 ```
 
 ### Conditional Styles Pattern
+
 ```typescript
 // Combine style objects
 <Box sx={[
@@ -245,6 +265,7 @@ export const statCard = (color: string) => ({
 ## 🚀 Quick Wins
 
 Priority order for maximum impact:
+
 1. ✅ Complete profile.tsx (50% done)
 2. Refactor Layout.tsx (used on every page)
 3. Refactor MovieCard.tsx (used in multiple places)
@@ -269,28 +290,35 @@ Priority order for maximum impact:
 ## 🎨 Example: Complete Component Refactor
 
 ### Before (with inline styles):
+
 ```tsx
 export function MyComponent() {
   return (
-    <Box sx={{
-      p: 3,
-      backgroundColor: '#1a1a1a',
-      borderRadius: '12px',
-    }}>
-      <Typography sx={{
-        fontSize: '1.5rem',
-        fontWeight: 700,
-        color: '#ffffff',
-      }}>
+    <Box
+      sx={{
+        p: 3,
+        backgroundColor: '#1a1a1a',
+        borderRadius: '12px',
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: '1.5rem',
+          fontWeight: 700,
+          color: '#ffffff',
+        }}
+      >
         Title
       </Typography>
-      <Button sx={{
-        backgroundColor: '#e50914',
-        color: '#ffffff',
-        '&:hover': {
-          backgroundColor: '#b20710',
-        },
-      }}>
+      <Button
+        sx={{
+          backgroundColor: '#e50914',
+          color: '#ffffff',
+          '&:hover': {
+            backgroundColor: '#b20710',
+          },
+        }}
+      >
         Click Me
       </Button>
     </Box>
@@ -299,10 +327,16 @@ export function MyComponent() {
 ```
 
 ### After (with extracted styles):
+
 ```tsx
 // src/styles/components/myComponent.styles.ts
 import { SxProps, Theme } from '@mui/material';
-import { colors, spacing, borderRadius, typography } from '../shared/theme.tokens';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  typography,
+} from '../shared/theme.tokens';
 
 export const container = {
   p: spacing.lg,
@@ -340,6 +374,7 @@ export function MyComponent() {
 ## 🏁 Success Criteria
 
 When refactoring is complete:
+
 - ✅ Zero inline `sx={{}}` objects with more than 1 property
 - ✅ All colors reference design tokens
 - ✅ All spacing uses spacing system

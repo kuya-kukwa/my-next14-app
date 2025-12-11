@@ -242,17 +242,13 @@ export default function ProfilePage() {
             {/* Left Sidebar */}
             <Box sx={styles.sidebar}>
               {/* Avatar */}
-              <Avatar sx={styles.avatarLarge}>
-                {initials}
-              </Avatar>
+              <Avatar sx={styles.avatarLarge}>{initials}</Avatar>
 
               {/* User Info */}
               <Typography sx={styles.userName}>
                 {user?.name || 'User'}
               </Typography>
-              <Typography sx={styles.userEmail}>
-                {user?.email}
-              </Typography>
+              <Typography sx={styles.userEmail}>{user?.email}</Typography>
 
               {/* Stats Grid */}
               <Box sx={{ width: '100%', mb: 4 }}>

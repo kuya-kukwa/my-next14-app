@@ -111,7 +111,9 @@ export default function HomePage() {
 
   // hero movie (The Quiet Place)
   const heroMovie = movies.length
-    ? movies.find(movie => movie.title.toLowerCase().includes('quiet place')) || movies[0]
+    ? movies.find((movie) =>
+        movie.title.toLowerCase().includes('quiet place')
+      ) || movies[0]
     : null;
 
   const heroImageUrl =

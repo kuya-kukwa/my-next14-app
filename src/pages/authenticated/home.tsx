@@ -109,9 +109,11 @@ export default function HomePage() {
     return acc;
   }, {} as Record<string, Movie[]>);
 
-  // hero movie (highest rating)
+  // hero movie (The Quiet Place)
   const heroMovie = movies.length
-    ? [...movies].sort((a, b) => b.rating - a.rating)[0]
+    ? movies.find((movie) =>
+        movie.title.toLowerCase().includes('quiet place')
+      ) || movies[0]
     : null;
 
   const heroImageUrl =

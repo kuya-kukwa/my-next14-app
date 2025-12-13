@@ -229,12 +229,7 @@ export default function WatchlistPage() {
         {/* Empty State */}
         {filteredMovies.length === 0 ? (
           <Box className="watchlist-empty">
-            <BookmarkIcon
-              className="watchlist-empty-icon"
-              sx={{
-                color: 'rgba(255,255,255,0.1)',
-              }}
-            />
+            <BookmarkIcon className="watchlist-empty-icon watchlist-empty-icon-style" />
 
             <Typography variant="h5" className="watchlist-empty-title">
               {searchTerm ? 'No movies found' : 'Your watchlist is empty'}
@@ -248,20 +243,7 @@ export default function WatchlistPage() {
 
             {!searchTerm && (
               <Link href="/authenticated/home" className="no-text-decoration">
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: '#e50914',
-                    color: '#ffffff',
-                    fontWeight: 600,
-                    px: 4,
-                    py: 1.2,
-                    borderRadius: 2,
-                    '&:hover': {
-                      backgroundColor: '#b2070f',
-                    },
-                  }}
-                >
+                <Button variant="contained" className="watchlist-browse-button">
                   Browse Movies
                 </Button>
               </Link>
@@ -273,8 +255,7 @@ export default function WatchlistPage() {
               <Box
                 key={movie.id}
                 onClick={() => handleMovieClick(movie)}
-                className="watchlist-card"
-                sx={{ position: 'relative' }}
+                className="watchlist-card watchlist-card-wrapper"
               >
                 {/* Remove from Watchlist Icon */}
                 <IconButton
@@ -282,28 +263,10 @@ export default function WatchlistPage() {
                     e.stopPropagation();
                     handleRemoveFromWatchlist(movie.id, movie.title);
                   }}
-                  className="watchlist-card-remove"
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    zIndex: 10,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    backdropFilter: 'blur(8px)',
-                    border: '2px solid rgba(255, 255, 255, 0.3)',
-                    color: '#ef4444',
-                    width: 36,
-                    height: 36,
-                    '&:hover': {
-                      backgroundColor: '#e50914',
-                      borderColor: '#e50914',
-                      transform: 'scale(1.1)',
-                    },
-                    transition: 'all 0.3s ease',
-                  }}
+                  className="watchlist-card-remove watchlist-remove-button"
                   aria-label="Remove from watchlist"
                 >
-                  <BookmarkIcon sx={{ fontSize: 18 }} />
+                  <BookmarkIcon className="watchlist-remove-icon" />
                 </IconButton>
 
                 {/* Movie Poster */}
@@ -325,9 +288,7 @@ export default function WatchlistPage() {
         aria-describedby="movie-details-description"
         slotProps={{
           backdrop: {
-            sx: {
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            },
+            className: 'watchlist-modal-backdrop-style',
           },
         }}
       >

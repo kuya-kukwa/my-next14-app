@@ -8,7 +8,7 @@ export interface MovieFilterOptions {
 }
 
 /**
- * Custom hook for filtering movies by search term, genre, and year
+ * Custom hook for filtering movies by search term and genre
  * Provides memoized filtered results and available filter options
  * 
  * @param movies - Array of movies to filter

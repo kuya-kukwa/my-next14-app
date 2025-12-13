@@ -22,9 +22,9 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
+import PersonIcon from '@mui/icons-material/Person';
 import { getToken, clearToken, isTokenExpired } from '@/lib/session';
 import { clearQueryCache } from '@/lib/queryClient';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
@@ -32,12 +32,15 @@ import {
   useUserAccount,
   useUpdatePassword,
   useDeleteAccount,
+  useUpdateProfile,
 } from '@/services/queries/profile';
 import {
   passwordChangeSchema,
   accountDeletionSchema,
+  profileSchema,
   calculatePasswordStrength,
   type PasswordChangeFormData,
+  type ProfileInput,
 } from '@/lib/validation/profileSchemas';
 import PasswordStrengthMeter from '@/components/ui/PasswordStrengthMeter';
 import {
@@ -47,7 +50,6 @@ import {
   dismissToast,
 } from '@/lib/toast';
 import { useWatchlist } from '@/services/queries/watchlist';
-import styles from './profile.module.css';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -69,6 +71,18 @@ export default function ProfilePage() {
   const { data: watchlistData } = useWatchlist();
   const updatePassword = useUpdatePassword();
   const deleteAccount = useDeleteAccount();
+  const updateProfile = useUpdateProfile();
+
+  // Initialize profile data when user data loads
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        displayName: user.name || null,
+        avatarUrl: null, // We'll add this later if available
+        bio: null, // We'll add this later if available
+      });
+    }
+  }, [user]);
 
   // Password change state
   const [passwordData, setPasswordData] = useState<PasswordChangeFormData>({
@@ -88,6 +102,16 @@ export default function ProfilePage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletionPassword, setDeletionPassword] = useState('');
   const [deletionError, setDeletionError] = useState('');
+
+  // Profile editing state
+  const [profileData, setProfileData] = useState<ProfileInput>({
+    displayName: '',
+    avatarUrl: '',
+    bio: '',
+  });
+  const [profileErrors, setProfileErrors] = useState<
+    Partial<Record<keyof ProfileInput, string>>
+  >({});
 
   // Get initials for avatar
   const getInitials = (name?: string, email?: string) => {
@@ -213,112 +237,248 @@ export default function ProfilePage() {
     }
   };
 
+  // Handle profile update
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate
+    const result = profileSchema.safeParse(profileData);
+    if (!result.success) {
+      const errors: Partial<Record<keyof ProfileInput, string>> = {};
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as keyof ProfileInput] = err.message;
+        }
+      });
+      setProfileErrors(errors);
+      return;
+    }
+
+    setProfileErrors({});
+    const toastId = showLoadingToast('Updating profile...');
+
+    try {
+      await updateProfile.mutateAsync(profileData);
+      dismissToast(toastId);
+      showSuccessToast('Profile updated successfully!');
+    } catch (error: unknown) {
+      dismissToast(toastId);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to update profile';
+      showErrorToast(errorMessage);
+    }
+  };
+
   if (!isMounted || userLoading) {
     return (
-      <Box className={styles.loadingContainer}>
-        <CircularProgress className={styles.loadingSpinner} />
+      <Box className="loadingContainer">
+        <CircularProgress className="loadingSpinner" />
       </Box>
     );
   }
 
   const initials = getInitials(user?.name, user?.email);
 
-  const memberSince = user?.$createdAt
-    ? new Date(user.$createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-      })
-    : 'Unknown';
-
   const watchlistCount = watchlistData?.total || 0;
 
   return (
-    <Box className={styles.pageContainer}>
-      <Container maxWidth="lg" className={styles.contentWrapper}>
+    <Box className="pageContainer">
+      <Container maxWidth="lg" className="contentWrapper">
         {/* Main Profile Card */}
-        <Card className={styles.profileCard}>
+        <Card className="profileCard">
           {/* Left Sidebar & Content */}
-          <Box className={styles.cardLayout}>
+          <Box className="cardLayout">
             {/* Left Sidebar */}
-            <Box className={styles.sidebar}>
+            <Box className="sidebar">
               {/* Avatar */}
-              <Avatar className={styles.avatar}>{initials}</Avatar>
+              <Avatar className="avatar">{initials}</Avatar>
 
               {/* User Info */}
-              <Box className={styles.userInfo}>
-                <Typography className={styles.userName}>
+              <Box className="userInfo">
+                <Typography className="userName">
                   {user?.name || 'User'}
                 </Typography>
-                <Typography className={styles.userEmail}>
-                  {user?.email}
-                </Typography>
+                <Typography className="userEmail">{user?.email}</Typography>
               </Box>
 
               {/* Navigation Tabs - Vertical */}
-              <Box className={styles.tabsContainer}>
+              <Box className="tabsContainer">
                 <Tabs
                   orientation="vertical"
                   value={activeTab}
                   onChange={(e, newValue) => setActiveTab(newValue)}
-                  sx={{
-                    '& .MuiTabs-indicator': {
-                      left: 0,
-                      width: '3px',
-                      borderRadius: '0 4px 4px 0',
-                      backgroundColor: '#e50914',
-                    },
-                  }}
+                  className="profile-tabs"
                 >
+                  <Tab
+                    icon={<PersonIcon />}
+                    iconPosition="start"
+                    label="Profile"
+                    className="tab"
+                    classes={{ selected: 'tabSelected' }}
+                  />
                   <Tab
                     icon={<SettingsIcon />}
                     iconPosition="start"
-                    label="Settings"
-                    className={styles.tab}
-                    classes={{ selected: styles.tabSelected }}
+                    label="Security"
+                    className="tab"
+                    classes={{ selected: 'tabSelected' }}
                   />
                   <Tab
                     icon={<BookmarkIcon />}
                     iconPosition="start"
                     label="Watchlist"
-                    className={styles.tab}
-                    classes={{ selected: styles.tabSelected }}
+                    className="tab"
+                    classes={{ selected: 'tabSelected' }}
                   />
                   <Tab
                     icon={<TuneIcon />}
                     iconPosition="start"
                     label="Preferences"
-                    className={styles.tab}
-                    classes={{ selected: styles.tabSelected }}
+                    className="tab"
+                    classes={{ selected: 'tabSelected' }}
                   />
                   <Tab
                     icon={<LogoutIcon />}
                     iconPosition="start"
                     label="Logout"
-                    className={styles.tab}
-                    classes={{ selected: styles.tabSelected }}
+                    className="tab"
+                    classes={{ selected: 'tabSelected' }}
                   />
                 </Tabs>
               </Box>
             </Box>
 
             {/* Right Content Area */}
-            <Box className={styles.contentArea}>
-              {/* Settings Tab */}
+            <Box className="contentArea">
+              {/* Profile Tab */}
               {activeTab === 0 && (
                 <Box>
-                  <Typography variant="h5" className={styles.contentTitle}>
-                    Account Settings
+                  <Typography variant="h5" className="contentTitle">
+                    Edit Profile
+                  </Typography>
+
+                  {/* Profile Form */}
+                  <Box
+                    component="form"
+                    onSubmit={handleProfileUpdate}
+                    className="settingsSection"
+                  >
+                    <Box className="sectionHeader">
+                      <PersonIcon className="sectionIcon" />
+                      <Typography className="sectionTitle">
+                        Profile Information
+                      </Typography>
+                    </Box>
+
+                    {/* Avatar Preview */}
+                    <Box className="profile-avatar-preview">
+                      {profileData.avatarUrl ? (
+                        <img
+                          src={profileData.avatarUrl}
+                          alt="Avatar preview"
+                          className="avatarPreview"
+                          onError={(e) => {
+                            // Hide broken image
+                            (e.target as HTMLImageElement).style.display =
+                              'none';
+                          }}
+                        />
+                      ) : (
+                        <Box className="avatarPlaceholder">
+                          {getInitials(user?.name, user?.email)}
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Display Name */}
+                    <TextField
+                      fullWidth
+                      label="Display Name"
+                      value={profileData.displayName || ''}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          displayName: e.target.value || null,
+                        })
+                      }
+                      error={!!profileErrors.displayName}
+                      helperText={profileErrors.displayName}
+                      className="formField"
+                      placeholder="Enter your display name"
+                    />
+
+                    {/* Avatar URL */}
+                    <TextField
+                      fullWidth
+                      label="Avatar URL"
+                      value={profileData.avatarUrl || ''}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          avatarUrl: e.target.value || null,
+                        })
+                      }
+                      error={!!profileErrors.avatarUrl}
+                      helperText={profileErrors.avatarUrl}
+                      className="formField"
+                      placeholder="https://example.com/avatar.jpg"
+                    />
+
+                    {/* Bio */}
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      label="Bio"
+                      value={profileData.bio || ''}
+                      onChange={(e) =>
+                        setProfileData({
+                          ...profileData,
+                          bio: e.target.value || null,
+                        })
+                      }
+                      error={!!profileErrors.bio}
+                      helperText={profileErrors.bio}
+                      className="formField"
+                      placeholder="Tell us about yourself..."
+                    />
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      fullWidth
+                      disabled={updateProfile.isPending}
+                      className="submitButton"
+                    >
+                      {updateProfile.isPending ? (
+                        <CircularProgress
+                          size={24}
+                          className="profile-spinner-white"
+                        />
+                      ) : (
+                        'Update Profile'
+                      )}
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+
+              {/* Security Tab */}
+              {activeTab === 1 && (
+                <Box>
+                  <Typography variant="h5" className="contentTitle">
+                    Account Security
                   </Typography>
 
                   {/* Password Change Section */}
                   <Box
                     component="form"
                     onSubmit={handlePasswordChange}
-                    className={styles.settingsSection}
+                    className="settingsSection"
                   >
-                    <Box className={styles.sectionHeader}>
-                      <LockIcon className={styles.sectionIcon} />
-                      <Typography className={styles.sectionTitle}>
+                    <Box className="sectionHeader">
+                      <LockIcon className="sectionIcon" />
+                      <Typography className="sectionTitle">
                         Change Password
                       </Typography>
                     </Box>
@@ -337,7 +497,7 @@ export default function ProfilePage() {
                       }
                       error={!!passwordErrors.currentPassword}
                       helperText={passwordErrors.currentPassword}
-                      className={styles.formField}
+                      className="formField"
                       InputProps={{
                         endAdornment: (
                           <IconButton
@@ -370,7 +530,7 @@ export default function ProfilePage() {
                       }
                       error={!!passwordErrors.newPassword}
                       helperText={passwordErrors.newPassword}
-                      className={styles.formField}
+                      className="formField"
                       InputProps={{
                         endAdornment: (
                           <IconButton
@@ -406,8 +566,7 @@ export default function ProfilePage() {
                       }
                       error={!!passwordErrors.confirmPassword}
                       helperText={passwordErrors.confirmPassword}
-                      className={styles.formField}
-                      sx={{ mt: 2 }}
+                      className="formField profile-mt-2"
                       InputProps={{
                         endAdornment: (
                           <IconButton
@@ -431,10 +590,13 @@ export default function ProfilePage() {
                       variant="contained"
                       fullWidth
                       disabled={updatePassword.isPending}
-                      className={styles.submitButton}
+                      className="submitButton"
                     >
                       {updatePassword.isPending ? (
-                        <CircularProgress size={24} sx={{ color: '#ffffff' }} />
+                        <CircularProgress
+                          size={24}
+                          className="profile-spinner-white"
+                        />
                       ) : (
                         'Update Password'
                       )}
@@ -442,14 +604,14 @@ export default function ProfilePage() {
                   </Box>
 
                   {/* Danger Zone Section */}
-                  <Box className={styles.dangerZone}>
-                    <Box className={styles.sectionHeader}>
-                      <DeleteForeverIcon className={styles.dangerIcon} />
-                      <Typography className={styles.dangerTitle}>
+                  <Box className="dangerZone">
+                    <Box className="sectionHeader">
+                      <DeleteForeverIcon className="dangerIcon" />
+                      <Typography className="dangerTitle">
                         Danger Zone
                       </Typography>
                     </Box>
-                    <Typography className={styles.dangerText}>
+                    <Typography className="dangerText">
                       Once you delete your account, there is no going back.
                       Please be certain.
                     </Typography>
@@ -458,7 +620,7 @@ export default function ProfilePage() {
                       fullWidth
                       startIcon={<DeleteForeverIcon />}
                       onClick={handleDeleteWarning}
-                      className={styles.dangerButton}
+                      className="dangerButton"
                     >
                       Delete Account
                     </Button>
@@ -467,34 +629,34 @@ export default function ProfilePage() {
               )}
 
               {/* Watchlist Tab */}
-              {activeTab === 1 && (
+              {activeTab === 2 && (
                 <Box>
-                  <Typography variant="h5" className={styles.contentTitle}>
+                  <Typography variant="h5" className="contentTitle">
                     My Watchlist
                   </Typography>
-                  <Box className={styles.emptyState}>
-                    <BookmarkIcon className={styles.emptyIcon} />
-                    <Typography className={styles.emptyTitle}>
+                  <Box className="emptyState">
+                    <BookmarkIcon className="emptyIcon" />
+                    <Typography className="emptyTitle">
                       You have {watchlistCount}{' '}
                       {watchlistCount === 1 ? 'movie' : 'movies'} in your
                       watchlist
                     </Typography>
-                    <Typography className={styles.emptyText}>
+                    <Typography className="emptyText">
                       Visit the home page or watchlist page to browse and manage
                       your movies
                     </Typography>
-                    <Box className={styles.actionButtons}>
+                    <Box className="actionButtons">
                       <Button
                         variant="contained"
                         onClick={() => router.push('/authenticated/home')}
-                        className={styles.primaryButton}
+                        className="primaryButton"
                       >
                         Browse Movies
                       </Button>
                       <Button
                         variant="outlined"
                         onClick={() => router.push('/authenticated/watchlist')}
-                        className={styles.secondaryButton}
+                        className="secondaryButton"
                       >
                         View Watchlist
                       </Button>
@@ -504,36 +666,36 @@ export default function ProfilePage() {
               )}
 
               {/* Preferences Tab */}
-              {activeTab === 2 && (
+              {activeTab === 3 && (
                 <Box>
-                  <Typography variant="h5" className={styles.contentTitle}>
+                  <Typography variant="h5" className="contentTitle">
                     Preferences
                   </Typography>
-                  <Box className={styles.preferencesSection}>
-                    <Box className={styles.preferenceGroup}>
-                      <Typography className={styles.preferenceTitle}>
+                  <Box className="preferencesSection">
+                    <Box className="preferenceGroup">
+                      <Typography className="preferenceTitle">
                         Display & Theme
                       </Typography>
-                      <Typography className={styles.preferenceLabel}>
+                      <Typography className="preferenceLabel">
                         Theme Mode
                       </Typography>
-                      <Box className={styles.preferenceBox}>
-                        <Typography className={styles.preferenceText}>
+                      <Box className="preferenceBox">
+                        <Typography className="preferenceText">
                           🌙 Dark Mode (Active)
                         </Typography>
                       </Box>
                     </Box>
 
-                    <Box className={styles.preferenceGroup}>
-                      <Typography className={styles.preferenceTitle}>
+                    <Box className="preferenceGroup">
+                      <Typography className="preferenceTitle">
                         Content Preferences
                       </Typography>
-                      <Typography className={styles.preferenceLabel}>
+                      <Typography className="preferenceLabel">
                         Your movie preferences are automatically saved based on
                         your watchlist and viewing history.
                       </Typography>
-                      <Box className={styles.tipBox}>
-                        <Typography className={styles.tipText}>
+                      <Box className="tipBox">
+                        <Typography className="tipText">
                           💡 Tip: Add more movies to your watchlist to get
                           better recommendations!
                         </Typography>
@@ -544,24 +706,24 @@ export default function ProfilePage() {
               )}
 
               {/* Logout Tab */}
-              {activeTab === 3 && (
+              {activeTab === 4 && (
                 <Box>
-                  <Typography variant="h5" className={styles.contentTitle}>
+                  <Typography variant="h5" className="contentTitle">
                     Session Management
                   </Typography>
-                  <Box className={styles.emptyState}>
-                    <LogoutIcon className={styles.emptyIcon} />
-                    <Typography className={styles.emptyTitle}>
+                  <Box className="emptyState">
+                    <LogoutIcon className="emptyIcon" />
+                    <Typography className="emptyTitle">
                       Sign out of your account
                     </Typography>
-                    <Typography className={styles.emptyText}>
+                    <Typography className="emptyText">
                       You will be redirected to the sign in page
                     </Typography>
                     <Button
                       variant="contained"
                       startIcon={<LogoutIcon />}
                       onClick={handleLogout}
-                      className={styles.primaryButton}
+                      className="primaryButton"
                     >
                       Logout
                     </Button>
@@ -579,32 +741,30 @@ export default function ProfilePage() {
           maxWidth="sm"
           fullWidth
           PaperProps={{
-            className: styles.dialogPaper,
+            className: 'dialogPaper',
           }}
         >
-          <DialogTitle className={styles.dialogTitle}>
-            ⚠️ Delete Account?
-          </DialogTitle>
+          <DialogTitle className="dialogTitle">⚠️ Delete Account?</DialogTitle>
           <DialogContent>
-            <DialogContentText className={styles.dialogContent}>
+            <DialogContentText className="dialogContent">
               This action cannot be undone. This will permanently delete your
               account and remove all your data from our servers.
             </DialogContentText>
-            <DialogContentText className={styles.dialogContentMuted}>
+            <DialogContentText className="dialogContentMuted">
               You will lose access to:
             </DialogContentText>
-            <Box component="ul" className={styles.dialogList}>
+            <Box component="ul" className="dialogList">
               <li>Your watchlist and preferences</li>
               <li>Your account history</li>
               <li>All personal data associated with this account</li>
             </Box>
           </DialogContent>
-          <DialogActions className={styles.dialogActions}>
+          <DialogActions className="dialogActions">
             <Button
               onClick={() => setDeleteWarningOpen(false)}
               variant="outlined"
               fullWidth
-              className={`${styles.dialogButton} ${styles.cancelButton}`}
+              className="dialogButton cancelButton"
             >
               Cancel
             </Button>
@@ -612,7 +772,7 @@ export default function ProfilePage() {
               onClick={handleDeleteConfirm}
               variant="contained"
               fullWidth
-              className={`${styles.dialogButton} ${styles.confirmButton}`}
+              className="dialogButton confirmButton"
             >
               Continue
             </Button>
@@ -630,14 +790,14 @@ export default function ProfilePage() {
           maxWidth="sm"
           fullWidth
           PaperProps={{
-            className: styles.dialogPaper,
+            className: 'dialogPaper',
           }}
         >
-          <DialogTitle className={styles.dialogTitle}>
+          <DialogTitle className="dialogTitle">
             Confirm Account Deletion
           </DialogTitle>
           <DialogContent>
-            <DialogContentText className={styles.dialogContent}>
+            <DialogContentText className="dialogContent">
               Please enter your password to confirm account deletion.
             </DialogContentText>
             <TextField
@@ -649,10 +809,10 @@ export default function ProfilePage() {
               error={!!deletionError}
               helperText={deletionError}
               autoFocus
-              sx={{ mb: 2 }}
+              className="profile-mb-2"
             />
           </DialogContent>
-          <DialogActions className={styles.dialogActions}>
+          <DialogActions className="dialogActions">
             <Button
               onClick={() => {
                 setDeleteConfirmOpen(false);
@@ -662,7 +822,7 @@ export default function ProfilePage() {
               variant="outlined"
               fullWidth
               disabled={deleteAccount.isPending}
-              className={`${styles.dialogButton} ${styles.cancelButton}`}
+              className="dialogButton cancelButton"
             >
               Cancel
             </Button>
@@ -671,10 +831,10 @@ export default function ProfilePage() {
               variant="contained"
               fullWidth
               disabled={deleteAccount.isPending}
-              className={`${styles.dialogButton} ${styles.confirmButton}`}
+              className="dialogButton confirmButton"
             >
               {deleteAccount.isPending ? (
-                <CircularProgress size={24} sx={{ color: '#ffffff' }} />
+                <CircularProgress size={24} className="profile-spinner-white" />
               ) : (
                 'Delete My Account'
               )}

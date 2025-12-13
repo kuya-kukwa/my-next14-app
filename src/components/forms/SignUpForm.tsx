@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signUpSchema, type SignUpInput } from '@/lib/validation';
+import { signUpFormSchema, type SignUpFormInput } from '@/lib/validation';
 import { authHeader } from '@/lib/session';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { setToken } from '@/lib/session';
@@ -33,26 +33,14 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const schema = signUpSchema
-    .extend({ confirmPassword: signUpSchema.shape.password })
-    .refine(
-      (data) =>
-        data.password ===
-        (data as unknown as { confirmPassword?: string }).confirmPassword,
-      {
-        message: 'Passwords do not match',
-        path: ['confirmPassword'],
-      }
-    );
-
   const {
     control,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<SignUpInput & { confirmPassword: string }>({
+  } = useForm<SignUpFormInput>({
     mode: 'onChange',
-    resolver: zodResolver(schema),
+    resolver: zodResolver(signUpFormSchema),
     defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
   });
 
@@ -72,7 +60,7 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
   const passwordStrength = getPasswordStrength(password || '');
 
   const signUpMutation = useMutation({
-    mutationFn: async (data: SignUpInput & { confirmPassword: string }) => {
+    mutationFn: async (data: SignUpFormInput) => {
       console.log('[SignUpForm] Starting signup process', {
         email: data.email,
         name: data.name,
@@ -141,9 +129,7 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
     },
   });
 
-  const handleFormSubmit = (
-    data: SignUpInput & { confirmPassword: string }
-  ) => {
+  const handleFormSubmit = (data: SignUpFormInput) => {
     signUpMutation.mutate(data);
   };
 
@@ -165,13 +151,7 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
           {signUpMutation.isSuccess && (
             <Alert
               severity="success"
-              sx={{
-                mb: 2.5,
-                borderRadius: 2,
-                '& .MuiAlert-icon': {
-                  fontSize: '1.5rem',
-                },
-              }}
+              className="auth-alert"
               onClose={() => signUpMutation.reset()}
             >
               Account created successfully!
@@ -181,13 +161,7 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
           {signUpMutation.error && (
             <Alert
               severity="error"
-              sx={{
-                mb: 2.5,
-                borderRadius: 2,
-                '& .MuiAlert-icon': {
-                  fontSize: '1.5rem',
-                },
-              }}
+              className="auth-alert"
               onClose={() => signUpMutation.reset()}
             >
               {signUpMutation.error.message}
@@ -291,19 +265,13 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
                       <LinearProgress
                         variant="determinate"
                         value={passwordStrength}
-                        className="auth-strength-bar"
-                        sx={{
-                          '& .MuiLinearProgress-bar': {
-                            borderRadius: 'var(--radius-md)',
-                            transition: 'all 0.3s ease',
-                            backgroundColor:
-                              passwordStrength < 50
-                                ? '#f44336'
-                                : passwordStrength < 75
-                                ? '#ff9800'
-                                : '#4caf50',
-                          },
-                        }}
+                        className={`auth-strength-bar ${
+                          passwordStrength < 50
+                            ? 'auth-strength-bar-weak'
+                            : passwordStrength < 75
+                            ? 'auth-strength-bar-medium'
+                            : 'auth-strength-bar-strong'
+                        }`}
                       />
                     </Box>
                   )}

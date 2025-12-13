@@ -43,13 +43,7 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
       {sendContactMutation.error && (
         <Alert
           severity="error"
-          sx={{
-            mb: 2.5,
-            borderRadius: 2,
-            '& .MuiAlert-icon': {
-              fontSize: '1.5rem',
-            },
-          }}
+          className="contact-alert"
           onClose={() => sendContactMutation.reset()}
         >
           {sendContactMutation.error instanceof Error
@@ -58,30 +52,15 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
         </Alert>
       )}
       {sendContactMutation.isSuccess && (
-        <Alert
-          severity="success"
-          sx={{
-            mb: 2.5,
-            borderRadius: 2,
-            '& .MuiAlert-icon': {
-              fontSize: '1.5rem',
-            },
-          }}
-        >
+        <Alert severity="success" className="contact-alert">
           ✓ Thank you! Your message has been sent successfully. We&apos;ll get
           back to you soon.
         </Alert>
       )}
 
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-              gap: 2.5,
-            }}
-          >
+        <Box className="contact-form-container">
+          <Box className="contact-form-grid">
             <Controller
               name="name"
               control={control}
@@ -95,20 +74,7 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
                   helperText={errors.name?.message}
                   placeholder="Enter your full name"
                   required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      },
-                      '&.Mui-focused': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                      },
-                    },
-                  }}
+                  className="contact-input"
                 />
               )}
             />
@@ -127,20 +93,7 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
                   helperText={errors.email?.message}
                   placeholder="your.email@example.com"
                   required
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      },
-                      '&.Mui-focused': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                      },
-                    },
-                  }}
+                  className="contact-input"
                 />
               )}
             />
@@ -159,20 +112,7 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
                 helperText={errors.subject?.message}
                 placeholder="Enter message subject"
                 required
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    },
-                    '&.Mui-focused': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                    },
-                  },
-                }}
+                className="contact-input"
               />
             )}
           />
@@ -191,20 +131,7 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
                 helperText={errors.message?.message}
                 placeholder="Tell us how we can help you..."
                 required
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    },
-                    '&.Mui-focused': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(229, 9, 20, 0.2)',
-                    },
-                  },
-                }}
+                className="contact-input"
               />
             )}
           />
@@ -214,26 +141,7 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
             variant="contained"
             size="large"
             disabled={sendContactMutation.isPending}
-            sx={{
-              mt: 1.5,
-              py: 1.5,
-              borderRadius: 2,
-              fontSize: '1rem',
-              fontWeight: 600,
-              textTransform: 'none',
-              boxShadow: '0 4px 14px rgba(229, 9, 20, 0.4)',
-              background: 'linear-gradient(135deg, #e50914 0%, #ff1a1f 100%)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(229, 9, 20, 0.5)',
-                background: 'linear-gradient(135deg, #ff1a1f 0%, #e50914 100%)',
-              },
-              '&:disabled': {
-                background: 'rgba(229, 9, 20, 0.5)',
-                boxShadow: 'none',
-              },
-            }}
+            className="contact-submit-button"
           >
             {sendContactMutation.isPending ? 'Sending...' : 'Send Message'}
           </Button>

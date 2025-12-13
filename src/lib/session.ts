@@ -11,7 +11,7 @@ export function getToken(): string | null {
   return typeof value === 'string' ? value : null;
 }
 
-export function setToken(jwt: string, maxAgeSeconds = 60 * 15) {
+export function setToken(jwt: string, maxAgeSeconds = 60 * 60 * 24 * 7) {
   setCookie(TOKEN_KEY, jwt, {
     maxAge: maxAgeSeconds,
     sameSite: 'lax',

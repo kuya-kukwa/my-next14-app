@@ -108,13 +108,7 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
           {sessionExpired && (
             <Alert
               severity="warning"
-              sx={{
-                mb: 2.5,
-                borderRadius: 2,
-                '& .MuiAlert-icon': {
-                  fontSize: '1.5rem',
-                },
-              }}
+              className="auth-alert"
               onClose={() => setSessionExpired(false)}
             >
               Your session has expired. Please sign in again to continue.
@@ -124,13 +118,7 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
           {signInMutation.error && (
             <Alert
               severity="error"
-              sx={{
-                mb: 2.5,
-                borderRadius: 2,
-                '& .MuiAlert-icon': {
-                  fontSize: '1.5rem',
-                },
-              }}
+              className="auth-alert"
               onClose={() => signInMutation.reset()}
             >
               {signInMutation.error instanceof Error
@@ -230,7 +218,7 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
             size="large"
             fullWidth
             startIcon={<Google />}
-            sx={{ mb: 3 }}
+            className="auth-google-btn"
           >
             Sign in with Google
           </Button>

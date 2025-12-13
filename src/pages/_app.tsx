@@ -37,11 +37,7 @@ export default function App(props: AppProps) {
               gutter={8}
               toastOptions={{
                 duration: 3000,
-                style: {
-                  borderRadius: '8px',
-                  fontWeight: '500',
-                  fontSize: '14px',
-                },
+                className: 'toast-notification',
               }}
             />
             {process.env.NODE_ENV !== 'production' && (

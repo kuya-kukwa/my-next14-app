@@ -23,7 +23,8 @@ export default function MovieTrailer({
     return null;
   }
 
-  const embedUrl = trailerEmbedUrl || `https://www.youtube.com/embed/${trailerKey}`;
+  const embedUrl =
+    trailerEmbedUrl || `https://www.youtube.com/embed/${trailerKey}`;
 
   return (
     <>

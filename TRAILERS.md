@@ -9,17 +9,20 @@ All movies in the database now have YouTube trailer links fetched from The Movie
 ## Components
 
 ### MovieTrailer Component
+
 Located at: `src/components/ui/MovieTrailer.tsx`
 
 A reusable component that displays a play button overlay on movie cards and opens a YouTube trailer in a fullscreen modal dialog.
 
 **Props:**
+
 - `trailerKey` (string): YouTube video ID
 - `trailerEmbedUrl` (string): Full YouTube embed URL
 - `trailerName` (string): Name/title of the trailer
 - `movieTitle` (string): Movie title for accessibility
 
 **Usage:**
+
 ```tsx
 <MovieTrailer
   trailerKey="dQw4w9WgXcQ"
@@ -30,6 +33,7 @@ A reusable component that displays a play button overlay on movie cards and open
 ```
 
 ### Updated MovieCard
+
 Located at: `src/components/ui/MovieCard.tsx`
 
 The MovieCard component now automatically displays the trailer play button when a movie has trailer data.
@@ -40,42 +44,48 @@ The MovieCard component now automatically displays the trailer play button when 
 
 The Movie collection in Appwrite now includes these trailer-related fields:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `trailerKey` | string | No | YouTube video ID (e.g., "dQw4w9WgXcQ") |
-| `trailerUrl` | string | No | Full YouTube watch URL |
-| `trailerEmbedUrl` | string | No | YouTube embed URL for iframe |
-| `trailerName` | string | No | Trailer title/name |
+| Field             | Type   | Required | Description                            |
+| ----------------- | ------ | -------- | -------------------------------------- |
+| `trailerKey`      | string | No       | YouTube video ID (e.g., "dQw4w9WgXcQ") |
+| `trailerUrl`      | string | No       | Full YouTube watch URL                 |
+| `trailerEmbedUrl` | string | No       | YouTube embed URL for iframe           |
+| `trailerName`     | string | No       | Trailer title/name                     |
 
 ## Scripts
 
 ### 1. Add Trailer Attributes
+
 **File:** `scripts/add-trailer-attributes.js`
 
 Adds the necessary trailer fields to the Movie collection in Appwrite.
 
 **Run:**
+
 ```bash
 node scripts/add-trailer-attributes.js
 ```
 
 ### 2. Fetch and Add Trailers
+
 **File:** `scripts/add-trailers.js`
 
 Fetches trailer data from TMDb API and updates all movies in the database.
 
 **Features:**
+
 - Searches TMDb for each movie by title and year
 - Fetches official trailers (prefers YouTube)
 - Updates Appwrite database with trailer information
 - Rate-limited to avoid API throttling (250ms between requests)
 
 **Run:**
+
 ```bash
 node scripts/add-trailers.js
 ```
 
 **Output:**
+
 ```
 🎬 Starting trailer addition process...
 
@@ -95,6 +105,7 @@ Processing: The Matrix (1999)... ✅ Added trailer: 25th Anniversary | Official 
 ## TMDb API
 
 ### API Key
+
 The TMDb API key is hardcoded in `scripts/add-trailers.js`. For production, consider moving it to environment variables.
 
 Current API key: `11b3e5d8e2f4ebfc79b9a9f5a795e045`
@@ -102,6 +113,7 @@ Current API key: `11b3e5d8e2f4ebfc79b9a9f5a795e045`
 ### Endpoints Used
 
 1. **Search Movie:**
+
    ```
    GET https://api.themoviedb.org/3/search/movie?api_key={key}&query={title}&year={year}
    ```
@@ -112,6 +124,7 @@ Current API key: `11b3e5d8e2f4ebfc79b9a9f5a795e045`
    ```
 
 ### API Documentation
+
 - TMDb API Docs: https://developers.themoviedb.org/3
 - Get API Key: https://www.themoviedb.org/settings/api
 
@@ -132,10 +145,10 @@ export interface Movie {
   description?: string;
   duration?: number;
   contentRating?: string;
-  trailerKey?: string;        // NEW
-  trailerUrl?: string;        // NEW
-  trailerEmbedUrl?: string;   // NEW
-  trailerName?: string;       // NEW
+  trailerKey?: string; // NEW
+  trailerUrl?: string; // NEW
+  trailerEmbedUrl?: string; // NEW
+  trailerName?: string; // NEW
 }
 ```
 
@@ -159,6 +172,7 @@ export interface Movie {
 ## Maintenance
 
 To add trailers to newly seeded movies:
+
 ```bash
 node scripts/add-trailers.js
 ```

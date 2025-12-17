@@ -2,29 +2,19 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import Chip from '@mui/material/Chip';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StarIcon from '@mui/icons-material/Star';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
-import Modal from '@mui/material/Modal';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import SearchIcon from '@mui/icons-material/Search';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import CloseIcon from '@mui/icons-material/Close';
-
 import { useMovies } from '@/services/queries/movies';
 import {
   useWatchlist,
@@ -32,7 +22,6 @@ import {
 } from '@/services/queries/watchlist';
 import { useWatchlistConfirm } from '@/hooks/useWatchlistConfirm';
 import { useScrollLock } from '@/hooks/useScrollLock';
-
 import ErrorState from '@/components/ui/ErrorState';
 import { WatchlistConfirmDialog } from '@/components/ui/WatchlistConfirmDialog';
 import { WatchlistSkeleton } from '@/components/skeletons';

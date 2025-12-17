@@ -23,9 +23,16 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Footer from '../ui/Footer';
 import { useThemeContext } from '@/contexts/ThemeContext';
-import { getToken, clearToken, isTokenExpired } from '@/lib/session';
+import {
+  getToken,
+  clearToken,
+  isTokenExpired,
+  shouldRefreshSession,
+  updateLastActivity,
+} from '@/lib/session';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { clearQueryCache } from '@/lib/queryClient';
+import { useRefreshSession } from '@/services/queries/session';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isDark } = useThemeContext();
@@ -34,6 +41,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sessionExpiredDialogOpen, setSessionExpiredDialogOpen] =
     useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState(0);
+
+  const refreshSession = useRefreshSession();
 
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
@@ -41,9 +51,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Check auth state and token expiration
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = getToken();
       const hasValidToken = !!token && !isTokenExpired();
+
+      // Try to refresh if token is expiring soon and user is active
+      // Only refresh if we haven't refreshed in the last 5 minutes and not already refreshing
+      const now = Date.now();
+      const timeSinceLastRefresh = now - lastRefreshTime;
+      const shouldThrottleRefresh = timeSinceLastRefresh < 5 * 60 * 1000; // 5 minutes
+
+      if (
+        token &&
+        !isTokenExpired() &&
+        shouldRefreshSession() &&
+        !shouldThrottleRefresh &&
+        !refreshSession.isPending
+      ) {
+        try {
+          await refreshSession.mutateAsync();
+          setLastRefreshTime(now);
+        } catch {
+          // Refresh failed, will be handled by expiry check
+        }
+      }
 
       // If on protected route and token expired, show dialog
       if (
@@ -62,14 +93,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Check auth on route changes
     router.events?.on('routeChangeComplete', checkAuth);
 
-    // Check auth periodically (every 30 seconds)
-    const interval = setInterval(checkAuth, 30000);
+    // Check auth periodically (every 15 minutes instead of 5 minutes)
+    const interval = setInterval(checkAuth, 15 * 60 * 1000);
 
     return () => {
       router.events?.off('routeChangeComplete', checkAuth);
       clearInterval(interval);
     };
-  }, [router.events, router.pathname]);
+  }, [router.events, router.pathname, refreshSession, lastRefreshTime]);
 
   // Listen for session expiration events from API calls
   useEffect(() => {
@@ -83,6 +114,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () =>
       window.removeEventListener('session-expired', handleSessionExpiredEvent);
   }, [router.pathname]);
+
+  // Track user activity for sliding window session refresh
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const handleActivity = () => {
+      updateLastActivity();
+    };
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((event) => {
+      window.addEventListener(event, handleActivity, { passive: true });
+    });
+
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, handleActivity);
+      });
+    };
+  }, [isAuthenticated]);
 
   const handleSessionExpired = () => {
     setSessionExpiredDialogOpen(true);

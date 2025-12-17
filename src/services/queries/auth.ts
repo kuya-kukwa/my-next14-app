@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
-import { setToken } from '@/lib/session';
+import { setToken, updateLastActivity } from '@/lib/session';
 import type { SignInInput, SignUpFormInput } from '@/lib/validation';
 
 const REDIRECT_DELAY_MS = 1500;
@@ -53,6 +53,7 @@ export function useSignUp() {
         if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
           const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
           setToken(jwt);
+          updateLastActivity();
         }
 
         // Delayed redirect for UX
@@ -91,6 +92,7 @@ export function useSignIn() {
         if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
           const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
           setToken(jwt);
+          updateLastActivity();
         }
 
         // Check for redirect parameter

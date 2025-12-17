@@ -24,6 +24,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
 import PersonIcon from '@mui/icons-material/Person';
+import DevicesIcon from '@mui/icons-material/Devices';
 import { getToken, clearToken, isTokenExpired } from '@/lib/session';
 import { clearQueryCache } from '@/lib/queryClient';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
@@ -33,6 +34,10 @@ import {
   useDeleteAccount,
   useUpdateProfile,
 } from '@/services/queries/profile';
+import {
+  useListSessions,
+  useLogoutAllDevices,
+} from '@/services/queries/sessions';
 import {
   passwordChangeSchema,
   accountDeletionSchema,
@@ -68,10 +73,11 @@ export default function ProfilePage() {
 
   // Fetch user data
   const { data: user, isLoading: userLoading } = useUserAccount();
-  const { data: watchlistData } = useWatchlist();
+  const { data: sessions, refetch: refetchSessions } = useListSessions();
   const updatePassword = useUpdatePassword();
   const deleteAccount = useDeleteAccount();
   const updateProfile = useUpdateProfile();
+  const logoutAllDevices = useLogoutAllDevices();
 
   // Initialize profile data when user data loads
   useEffect(() => {
@@ -183,6 +189,21 @@ export default function ProfilePage() {
     } catch {
       dismissToast(toastId);
       showErrorToast('Failed to logout');
+    }
+  };
+
+  // Handle logout on all devices
+  const handleLogoutAllDevices = async () => {
+    const toastId = showLoadingToast('Logging out from all devices...');
+
+    try {
+      await logoutAllDevices.mutateAsync();
+      dismissToast(toastId);
+      showSuccessToast('Logged out from all devices successfully!');
+      router.replace('/auths/signin');
+    } catch {
+      dismissToast(toastId);
+      showErrorToast('Failed to logout from all devices');
     }
   };
 
@@ -603,6 +624,133 @@ export default function ProfilePage() {
                     </Button>
                   </Box>
 
+                  {/* Active Sessions Section */}
+                  <Box className="settingsSection">
+                    <Box className="sectionHeader">
+                      <DevicesIcon className="sectionIcon" />
+                      <Typography className="sectionTitle">
+                        Active Sessions
+                      </Typography>
+                    </Box>
+
+                    <Typography className="sectionDescription" sx={{ mb: 2 }}>
+                      Manage your active sessions across different devices. You
+                      have {sessions?.sessions?.length || 0} active session(s).
+                    </Typography>
+
+                    {sessions?.sessions && sessions.sessions.length > 0 ? (
+                      <Box sx={{ mb: 3 }}>
+                        {sessions.sessions.map((session) => (
+                          <Card
+                            key={session.$id}
+                            sx={{
+                              p: 2,
+                              mb: 1.5,
+                              bgcolor: session.current
+                                ? 'action.selected'
+                                : 'action.hover',
+                              border: session.current
+                                ? '2px solid'
+                                : '1px solid',
+                              borderColor: session.current
+                                ? 'primary.main'
+                                : 'divider',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 1.5,
+                              }}
+                            >
+                              <DevicesIcon
+                                sx={{ color: 'text.secondary', mt: 0.5 }}
+                              />
+                              <Box sx={{ flex: 1 }}>
+                                <Typography
+                                  variant="body1"
+                                  sx={{ fontWeight: 600 }}
+                                >
+                                  {session.deviceName || 'Unknown Device'}
+                                  {session.current && (
+                                    <Typography
+                                      component="span"
+                                      sx={{
+                                        ml: 1,
+                                        px: 1,
+                                        py: 0.5,
+                                        bgcolor: 'primary.main',
+                                        color: 'primary.contrastText',
+                                        borderRadius: 1,
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                      }}
+                                    >
+                                      CURRENT
+                                    </Typography>
+                                  )}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ mt: 0.5 }}
+                                >
+                                  {session.osName || 'Unknown OS'} •{' '}
+                                  {session.clientName || 'Unknown Browser'}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ display: 'block', mt: 0.5 }}
+                                >
+                                  IP: {session.ip || 'Unknown'} • Country:{' '}
+                                  {session.countryName || 'Unknown'}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ display: 'block', mt: 0.5 }}
+                                >
+                                  Last active:{' '}
+                                  {new Date(
+                                    session.$createdAt
+                                  ).toLocaleString()}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Card>
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography
+                        color="text.secondary"
+                        sx={{ mb: 2, fontStyle: 'italic' }}
+                      >
+                        No active sessions found.
+                      </Typography>
+                    )}
+
+                    <Button
+                      variant="outlined"
+                      color="warning"
+                      fullWidth
+                      startIcon={<LogoutIcon />}
+                      onClick={handleLogoutAllDevices}
+                      disabled={
+                        logoutAllDevices.isPending ||
+                        !sessions?.sessions?.length
+                      }
+                      className="submitButton"
+                    >
+                      {logoutAllDevices.isPending ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        'Logout on All Devices'
+                      )}
+                    </Button>
+                  </Box>
+
                   {/* Danger Zone Section */}
                   <Box className="dangerZone">
                     <Box className="sectionHeader">
@@ -627,8 +775,7 @@ export default function ProfilePage() {
                   </Box>
                 </Box>
               )}
-
-              {/* History Tab 
+              {/* History Tab */}
               {activeTab === 2 && (
                 <Box>
                   <Typography variant="h5" className="contentTitle">
@@ -655,8 +802,6 @@ export default function ProfilePage() {
                   </Box>
                 </Box>
               )}
-
-              */}
 
               {/* Preferences Tab */}
               {activeTab === 3 && (

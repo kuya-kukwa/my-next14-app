@@ -37,6 +37,7 @@ import ErrorState from '@/components/ui/ErrorState';
 import { WatchlistConfirmDialog } from '@/components/ui/WatchlistConfirmDialog';
 import { WatchlistSkeleton } from '@/components/skeletons';
 import MovieCard from '@/components/ui/MovieCard';
+import { MovieDetailsModal } from '@/components/ui/MovieDetailsModal';
 import type { Movie } from '@/types';
 
 export default function WatchlistPage() {
@@ -279,150 +280,13 @@ export default function WatchlistPage() {
         )}
       </Container>
 
-      {/* Right-Side Slide Modal */}
-      <Modal
+      {/* Movie Details Modal */}
+      <MovieDetailsModal
+        movie={selectedMovie}
         open={!!selectedMovie}
         onClose={handleCloseModal}
-        className="watchlist-modal"
-        aria-labelledby="movie-details-title"
-        aria-describedby="movie-details-description"
-        slotProps={{
-          backdrop: {
-            className: 'watchlist-modal-backdrop-style',
-          },
-        }}
-      >
-        <Box onClick={handleCloseModal} className="watchlist-modal-backdrop">
-          <Box
-            onClick={(e) => e.stopPropagation()}
-            className="watchlist-modal-panel"
-          >
-            {selectedMovie && (
-              <>
-                {/* Close Button */}
-                <IconButton
-                  onClick={handleCloseModal}
-                  className="watchlist-modal-close modal-icon-close"
-                >
-                  <CloseIcon />
-                </IconButton>
-
-                {/* Movie Poster */}
-                <Box className="watchlist-card-poster">
-                  <Image
-                    src={selectedMovie.image || selectedMovie.thumbnail}
-                    alt={selectedMovie.title}
-                    fill
-                    sizes="550px"
-                    priority
-                  />
-                  <Box />
-                </Box>
-
-                {/* Content */}
-                <Box className="watchlist-modal-content">
-                  <Typography
-                    variant="h4"
-                    className="watchlist-modal-title"
-                    id="movie-details-title"
-                  >
-                    {selectedMovie.title}
-                  </Typography>
-
-                  {/* Meta Info */}
-                  <Box className="watchlist-modal-meta">
-                    {/* Year */}
-                    <Box className="watchlist-modal-meta-item">
-                      <CalendarTodayIcon className="modal-icon-meta" />
-                      <Typography className="watchlist-modal-meta-text">
-                        {selectedMovie.year}
-                      </Typography>
-                    </Box>
-
-                    {/* Duration */}
-                    {selectedMovie.duration && (
-                      <Box className="watchlist-modal-meta-item">
-                        <AccessTimeIcon className="modal-icon-meta" />
-                        <Typography className="watchlist-modal-meta-text">
-                          {Math.floor(selectedMovie.duration / 60)}h{' '}
-                          {selectedMovie.duration % 60}m
-                        </Typography>
-                      </Box>
-                    )}
-
-                    {/* Rating */}
-                    <Box className="watchlist-modal-meta-item">
-                      <StarIcon className="modal-icon-star" />
-                      <Typography className="watchlist-modal-rating-value">
-                        {selectedMovie.rating}
-                        <Typography
-                          component="span"
-                          className="watchlist-modal-rating-max"
-                        >
-                          / 5
-                        </Typography>
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Genre */}
-                  <Box className="watchlist-modal-genre">
-                    <Chip
-                      label={selectedMovie.genre}
-                      className="modal-chip-genre"
-                    />
-                  </Box>
-
-                  {/* Description */}
-                  {selectedMovie.description && (
-                    <Box className="watchlist-modal-synopsis">
-                      <Typography
-                        variant="h6"
-                        className="watchlist-modal-synopsis-title"
-                      >
-                        Synopsis
-                      </Typography>
-                      <Typography
-                        className="watchlist-modal-synopsis-text"
-                        id="movie-details-description"
-                      >
-                        {selectedMovie.description}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* Action Buttons */}
-                  <Box className="watchlist-modal-actions">
-                    <Button
-                      variant="contained"
-                      startIcon={<PlayArrowIcon />}
-                      fullWidth
-                      className="modal-btn-primary"
-                    >
-                      Watch Now
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      startIcon={<BookmarkIcon />}
-                      fullWidth
-                      onClick={() => {
-                        handleRemoveFromWatchlist(
-                          selectedMovie.id,
-                          selectedMovie.title
-                        );
-                        setSelectedMovie(null);
-                      }}
-                      className="modal-btn-outlined"
-                    >
-                      Remove from Watchlist
-                    </Button>
-                  </Box>
-                </Box>
-              </>
-            )}
-          </Box>
-        </Box>
-      </Modal>
+        onRemove={handleRemoveFromWatchlist}
+      />
 
       {/* Watchlist Confirmation Dialog */}
       <WatchlistConfirmDialog

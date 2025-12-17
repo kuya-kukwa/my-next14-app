@@ -31,6 +31,61 @@ const client = new Client();
 client.setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
 const databases = new Databases(client);
 
+const TMDB_API_KEY = '11b3e5d8e2f4ebfc79b9a9f5a795e045';
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+
+/**
+ * Search TMDb for a movie and return its ID
+ */
+async function searchTMDbMovie(title, year) {
+  try {
+    const url = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&year=${year}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      return data.results[0].id;
+    }
+    return null;
+  } catch (error) {
+    console.warn(`  ⚠ Error searching TMDb for "${title}":`, error.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch trailer from TMDb for a movie ID
+ */
+async function fetchTMDbTrailer(tmdbId) {
+  try {
+    const url = `${TMDB_BASE_URL}/movie/${tmdbId}/videos?api_key=${TMDB_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      // Find official trailer (prefer YouTube)
+      const trailer = data.results.find(
+        v => v.type === 'Trailer' && v.site === 'YouTube' && v.official
+      ) || data.results.find(
+        v => v.type === 'Trailer' && v.site === 'YouTube'
+      ) || data.results[0];
+      
+      if (trailer && trailer.site === 'YouTube') {
+        return {
+          trailerKey: trailer.key,
+          trailerUrl: `https://www.youtube.com/watch?v=${trailer.key}`,
+          trailerEmbedUrl: `https://www.youtube.com/embed/${trailer.key}`,
+          trailerName: trailer.name || 'Official Trailer',
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.warn(`  ⚠ Error fetching trailer for TMDb ID ${tmdbId}:`, error.message);
+    return null;
+  }
+}
+
 // Import movies data with comprehensive information - 10 movies per category
 const moviesData = [
   // Sci-Fi Movies (10)
@@ -698,21 +753,19 @@ async function upsertMovie(movieId, movieData) {
   try {
     // Try to create document with specified ID
     const res = await databases.createDocument(databaseId, 'Movie', movieId, movieData);
-    console.log(`  ✓ Created movie: ${movieData.title} (${movieData.year})`);
     return res;
   } catch (e) {
     // If doc exists (409 conflict), update it
     if (e.code && e.code === 409) {
       try {
         const res2 = await databases.updateDocument(databaseId, 'Movie', movieId, movieData);
-        console.log(`  ✓ Updated movie: ${movieData.title} (${movieData.year})`);
         return res2;
       } catch (u) {
-        console.warn(`  ⚠ Update warning for movie ${movieId}:`, u.message || u);
+        console.warn(`\n  ⚠ Update warning for movie ${movieId}:`, u.message || u);
         throw u;
       }
     }
-    console.error(`  ✗ Error creating movie ${movieId}:`, e.message || e);
+    console.error(`\n  ✗ Error creating movie ${movieId}:`, e.message || e);
     throw e;
   }
 }
@@ -728,6 +781,15 @@ async function upsertMovie(movieId, movieData) {
 
     for (const movie of moviesData) {
       try {
+        process.stdout.write(`  Processing: ${movie.title} (${movie.year})... `);
+        
+        // Fetch trailer from TMDb
+        let trailerData = null;
+        const tmdbId = await searchTMDbMovie(movie.title, movie.year);
+        if (tmdbId) {
+          trailerData = await fetchTMDbTrailer(tmdbId);
+        }
+        
         const moviePayload = {
           title: movie.title,
           category: movie.category,
@@ -743,10 +805,28 @@ async function upsertMovie(movieId, movieData) {
           updatedAt: now
         };
         
+        // Add trailer data if found
+        if (trailerData) {
+          moviePayload.trailerKey = trailerData.trailerKey;
+          moviePayload.trailerUrl = trailerData.trailerUrl;
+          moviePayload.trailerEmbedUrl = trailerData.trailerEmbedUrl;
+          moviePayload.trailerName = trailerData.trailerName;
+        }
+        
         await upsertMovie(movie.id, moviePayload);
+        
+        if (trailerData) {
+          console.log(`✅ with trailer: ${trailerData.trailerName}`);
+        } else {
+          console.log(`✓ (no trailer found)`);
+        }
+        
         successCount++;
+        
+        // Rate limiting - wait 250ms between requests to avoid TMDb throttling
+        await new Promise(resolve => setTimeout(resolve, 250));
       } catch (error) {
-        console.error(`Failed to seed movie ${movie.title}:`, error.message);
+        console.error(`\n  ❌ Failed: ${error.message}`);
         errorCount++;
       }
     }

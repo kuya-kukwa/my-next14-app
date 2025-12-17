@@ -14,6 +14,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import LockIcon from '@mui/icons-material/Lock';
@@ -28,6 +29,7 @@ import DevicesIcon from '@mui/icons-material/Devices';
 import { getToken, clearToken, isTokenExpired } from '@/lib/session';
 import { clearQueryCache } from '@/lib/queryClient';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
+import Image from 'next/image';
 import {
   useUserAccount,
   useUpdatePassword,
@@ -53,7 +55,6 @@ import {
   showLoadingToast,
   dismissToast,
 } from '@/lib/toast';
-import { useWatchlist } from '@/services/queries/watchlist';
 import { HistoryIcon } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -300,8 +301,6 @@ export default function ProfilePage() {
 
   const initials = getInitials(user?.name, user?.email);
 
-  const watchlistCount = watchlistData?.total || 0;
-
   return (
     <Box className="pageContainer">
       <Container maxWidth="lg" className="contentWrapper">
@@ -394,7 +393,7 @@ export default function ProfilePage() {
                     {/* Avatar Preview */}
                     <Box className="profile-avatar-preview">
                       {profileData.avatarUrl ? (
-                        <img
+                        <Image
                           src={profileData.avatarUrl}
                           alt="Avatar preview"
                           className="avatarPreview"

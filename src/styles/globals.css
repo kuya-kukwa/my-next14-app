@@ -2285,6 +2285,10 @@ p {
   margin-bottom: var(--space-4);
 }
 
+.watchlist-modal-trailer {
+  margin-bottom: var(--space-4);
+}
+
 .watchlist-modal-synopsis-title {
   font-weight: 700;
   color: var(--color-text-primary);
@@ -2312,6 +2316,17 @@ p {
   object-fit: fill;
   object-position: center;
   z-index: 1;
+}
+.hero-trailer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  transform: translate(-50%, -50%);
+  border: none;
+  pointer-events: none;
+  object-fit: cover;
 }
 
 .hero-info-badge {

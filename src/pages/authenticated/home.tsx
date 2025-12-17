@@ -166,16 +166,27 @@ export default function HomePage() {
               overflow: 'hidden',
             }}
           >
-            {/* Background Image */}
-            <Image
-              src={heroImageUrl || heroMovie.image}
-              alt={heroMovie.title}
-              fill
-              priority
-              sizes="100vw"
-              quality={95}
-              className="hero-image"
-            />
+            {/* Background Video/Image */}
+            {heroMovie.trailerKey ? (
+              <Box className="hero-trailer">
+                <iframe
+                  src={`https://www.youtube.com/embed/${heroMovie.trailerKey}?autoplay=1&mute=1&loop=1&playlist=${heroMovie.trailerKey}&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1`}
+                  title={`${heroMovie.title} Trailer`}
+                  allow="autoplay; encrypted-media"
+                  className="hero-trailer"
+                />
+              </Box>
+            ) : (
+              <Image
+                src={heroImageUrl || heroMovie.image}
+                alt={heroMovie.title}
+                fill
+                priority
+                sizes="100vw"
+                quality={95}
+                className="hero-image"
+              />
+            )}
 
             {/* Gradient Overlay for Better Text Readability */}
             <Box

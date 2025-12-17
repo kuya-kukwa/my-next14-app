@@ -11,6 +11,10 @@ export interface Movie {
   description?: string;
   duration?: number; // duration in minutes
   contentRating?: string; // e.g., 'PG-13', '18+', 'R', etc.
+  trailerKey?: string; // YouTube video ID
+  trailerUrl?: string; // Full YouTube watch URL
+  trailerEmbedUrl?: string; // YouTube embed URL
+  trailerName?: string; // Trailer title
 }
 
 // Value Proposition Types

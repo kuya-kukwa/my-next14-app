@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import { Movie } from '@/types';
 import { useThemeContext } from '@/contexts/ThemeContext';
+import MovieTrailer from './MovieTrailer';
 
 interface MovieCardProps {
   movie: Movie;
@@ -68,6 +69,14 @@ const MovieCardComponent = React.forwardRef<HTMLDivElement, MovieCardProps>(
             onError={handleImageError}
             unoptimized={imgSrc === fallbackSrc}
           />
+          {movie.trailerKey && (
+            <MovieTrailer
+              trailerKey={movie.trailerKey}
+              trailerEmbedUrl={movie.trailerEmbedUrl}
+              trailerName={movie.trailerName}
+              movieTitle={movie.title}
+            />
+          )}
         </Box>
         <Box
           sx={{

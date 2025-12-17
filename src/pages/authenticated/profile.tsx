@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
   // Fetch user data
   const { data: user, isLoading: userLoading } = useUserAccount();
-  const { data: sessions, refetch: refetchSessions } = useListSessions();
+  const { data: sessions } = useListSessions();
   const updatePassword = useUpdatePassword();
   const deleteAccount = useDeleteAccount();
   const updateProfile = useUpdateProfile();

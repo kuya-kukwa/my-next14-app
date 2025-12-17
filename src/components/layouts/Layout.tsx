@@ -41,6 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sessionExpiredDialogOpen, setSessionExpiredDialogOpen] =
     useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState(0);
 
   const refreshSession = useRefreshSession();
 
@@ -55,9 +56,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       const hasValidToken = !!token && !isTokenExpired();
 
       // Try to refresh if token is expiring soon and user is active
-      if (token && !isTokenExpired() && shouldRefreshSession()) {
+      // Only refresh if we haven't refreshed in the last 5 minutes and not already refreshing
+      const now = Date.now();
+      const timeSinceLastRefresh = now - lastRefreshTime;
+      const shouldThrottleRefresh = timeSinceLastRefresh < 5 * 60 * 1000; // 5 minutes
+
+      if (
+        token &&
+        !isTokenExpired() &&
+        shouldRefreshSession() &&
+        !shouldThrottleRefresh &&
+        !refreshSession.isPending
+      ) {
         try {
           await refreshSession.mutateAsync();
+          setLastRefreshTime(now);
         } catch {
           // Refresh failed, will be handled by expiry check
         }
@@ -80,14 +93,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Check auth on route changes
     router.events?.on('routeChangeComplete', checkAuth);
 
-    // Check auth periodically (every 5 minutes instead of 30 seconds)
-    const interval = setInterval(checkAuth, 5 * 60 * 1000);
+    // Check auth periodically (every 15 minutes instead of 5 minutes)
+    const interval = setInterval(checkAuth, 15 * 60 * 1000);
 
     return () => {
       router.events?.off('routeChangeComplete', checkAuth);
       clearInterval(interval);
     };
-  }, [router.events, router.pathname, refreshSession]);
+  }, [router.events, router.pathname, refreshSession, lastRefreshTime]);
 
   // Listen for session expiration events from API calls
   useEffect(() => {

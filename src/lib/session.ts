@@ -106,7 +106,7 @@ export function updateLastActivity(): void {
 }
 
 /**
- * Check if session should be refreshed (token expires within 1 hour and not yet expired)
+ * Check if session should be refreshed (token expires within 2 hours and not yet expired)
  */
 export function shouldRefreshSession(): boolean {
   if (isTokenExpired()) return false;
@@ -122,8 +122,8 @@ export function shouldRefreshSession(): boolean {
     const currentTime = Math.floor(Date.now() / 1000);
     const timeUntilExpiry = payload.exp - currentTime;
     
-    // Refresh if less than 1 hour remaining
-    return timeUntilExpiry > 0 && timeUntilExpiry < 3600;
+    // Refresh if less than 2 hours remaining (more conservative than 1 hour)
+    return timeUntilExpiry > 0 && timeUntilExpiry < 7200;
   } catch {
     return false;
   }

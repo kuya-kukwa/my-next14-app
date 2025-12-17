@@ -5,11 +5,7 @@ import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signUpFormSchema, type SignUpFormInput } from '@/lib/validation';
-import { authHeader } from '@/lib/session';
-import { getAppwriteBrowser } from '@/lib/appwriteClient';
-import { setToken } from '@/lib/session';
-import { useRouter } from 'next/router';
-import { useMutation } from '@tanstack/react-query';
+import { useSignUp } from '@/services/queries/auth';
 import {
   Box,
   Button,
@@ -29,7 +25,6 @@ export type SignUpFormProps = {
 };
 
 export default function SignUpForm({ className = '' }: SignUpFormProps) {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -59,75 +54,7 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
 
   const passwordStrength = getPasswordStrength(password || '');
 
-  const signUpMutation = useMutation({
-    mutationFn: async (data: SignUpFormInput) => {
-      console.log('[SignUpForm] Starting signup process', {
-        email: data.email,
-        name: data.name,
-      });
-
-      // Default: create Appwrite account
-      try {
-        console.log('[SignUpForm] Creating Appwrite account');
-        const { account } = getAppwriteBrowser();
-        await account.create('unique()', data.email, data.password, data.name);
-        console.log('[SignUpForm] Account created successfully');
-
-        // Delete any existing session first to avoid "session is active" error
-        try {
-          await account.deleteSession('current');
-          console.log('[SignUpForm] Existing session deleted');
-        } catch {
-          // No active session or deletion failed - that's OK, continue
-          console.log(
-            '[SignUpForm] No active session to delete or deletion failed (expected)'
-          );
-        }
-
-        console.log('[SignUpForm] Creating email password session');
-        await account.createEmailPasswordSession(data.email, data.password);
-        console.log('[SignUpForm] Session created successfully');
-
-        console.log('[SignUpForm] Generating JWT token');
-        const jwtRes = (await account.createJWT()) as unknown;
-        if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
-          const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
-          setToken(jwt);
-          console.log('[SignUpForm] JWT token stored successfully');
-        } else {
-          console.warn('[SignUpForm] JWT response invalid:', jwtRes);
-        }
-
-        // Force-create local Prisma user/profile
-        console.log('[SignUpForm] Creating Prisma user/profile');
-        try {
-          await fetch('/api/profile', { headers: { ...authHeader() } });
-          console.log('[SignUpForm] Prisma user/profile created successfully');
-        } catch (profileErr) {
-          console.warn('[SignUpForm] Profile creation warning:', profileErr);
-        }
-
-        console.log('[SignUpForm] Signup completed, redirecting to home');
-        setTimeout(() => router.push('/authenticated/home'), 1500);
-      } catch (err: unknown) {
-        // Extract Appwrite error message
-        let errorMessage = 'Signup failed. Please try again.';
-
-        if (err && typeof err === 'object') {
-          // Check for Appwrite error structure
-          if ('message' in err && typeof err.message === 'string') {
-            errorMessage = err.message;
-          } else if ('error' in err && typeof err.error === 'string') {
-            errorMessage = err.error;
-          }
-        } else if (err instanceof Error) {
-          errorMessage = err.message;
-        }
-
-        throw new Error(errorMessage);
-      }
-    },
-  });
+  const signUpMutation = useSignUp();
 
   const handleFormSubmit = (data: SignUpFormInput) => {
     signUpMutation.mutate(data);
@@ -169,19 +96,19 @@ export default function SignUpForm({ className = '' }: SignUpFormProps) {
           )}
 
           <form onSubmit={handleSubmit(handleFormSubmit)} className="auth-form">
-            {/* Full Name */}
+            {/* Name */}
             <Controller
               name="name"
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Full Name"
+                  label="Name"
                   fullWidth
                   autoComplete="name"
                   error={!!errors.name}
                   helperText={errors.name?.message || 'At least 2 characters'}
-                  placeholder="Enter your full name"
+                  placeholder="Enter your name"
                 />
               )}
             />

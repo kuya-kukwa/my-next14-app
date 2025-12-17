@@ -5,10 +5,7 @@ import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signInSchema, type SignInInput } from '@/lib/validation';
-import { getAppwriteBrowser } from '@/lib/appwriteClient';
-import { setToken } from '@/lib/session';
-import { useRouter } from 'next/router';
-import { useMutation } from '@tanstack/react-query';
+import { useSignIn } from '@/services/queries/auth';
 import {
   Box,
   Button,
@@ -29,7 +26,6 @@ export type SignInFormProps = {
 };
 
 export default function SignInForm({ className = '' }: SignInFormProps) {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
 
@@ -51,40 +47,7 @@ export default function SignInForm({ className = '' }: SignInFormProps) {
     }
   }, []);
 
-  const signInMutation = useMutation({
-    mutationFn: async (data: SignInInput) => {
-      try {
-        const { account } = getAppwriteBrowser();
-
-        // Delete any existing session first to avoid "session is active" error
-        try {
-          await account.deleteSession('current');
-        } catch {
-          // No active session or deletion failed - that's OK, continue
-        }
-
-        await account.createEmailPasswordSession(data.email, data.password);
-
-        const jwtRes = (await account.createJWT()) as unknown;
-        if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
-          const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
-          setToken(jwt);
-        }
-
-        // Check for redirect parameter
-        const params = new URLSearchParams(window.location.search);
-        const redirectTo = params.get('redirect') || '/authenticated/home';
-
-        await router.push(redirectTo);
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : String(err ?? 'Invalid email or password');
-        throw new Error(message);
-      }
-    },
-  });
+  const signInMutation = useSignIn();
 
   const handleFormSubmit = (data: SignInInput) => {
     signInMutation.mutate(data);

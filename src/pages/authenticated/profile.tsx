@@ -14,7 +14,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import LockIcon from '@mui/icons-material/Lock';
@@ -774,7 +773,7 @@ export default function ProfilePage() {
                   </Box>
                 </Box>
               )}
-              {/* History Tab */}
+              {/* History Tab 
               {activeTab === 2 && (
                 <Box>
                   <Typography variant="h5" className="contentTitle">
@@ -801,6 +800,7 @@ export default function ProfilePage() {
                   </Box>
                 </Box>
               )}
+                */}
 
               {/* Preferences Tab */}
               {activeTab === 3 && (

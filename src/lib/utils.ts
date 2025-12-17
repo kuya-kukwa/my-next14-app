@@ -53,9 +53,9 @@ export function formatDuration(minutes: number): string {
 }
 
 /**
- * Extracts initials from a full name.
+ * Extracts initials from a name.
  *
- * @param name - Full name string
+ * @param name - Name string
  * @returns Uppercase initials (max 2 characters)
  *
  * @example

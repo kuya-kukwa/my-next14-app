@@ -13,7 +13,7 @@ const commonPasswords = [
 const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters long')
-  .max(265, 'Password must not exceed 265 characters')
+  .max(15, 'Password must not exceed 15 characters')
   .refine(
     (password) => !commonPasswords.includes(password),
     'Password is too common. Please choose a stronger password.'

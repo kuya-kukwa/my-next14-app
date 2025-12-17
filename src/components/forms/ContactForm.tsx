@@ -67,12 +67,12 @@ export default function ContactForm({ className = '' }: ContactFormProps) {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Full Name"
+                  label="Name"
                   fullWidth
                   autoComplete="name"
                   error={!!errors.name}
                   helperText={errors.name?.message}
-                  placeholder="Enter your full name"
+                  placeholder="Enter your Name"
                   required
                   className="contact-input"
                 />

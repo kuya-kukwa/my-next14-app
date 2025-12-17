@@ -628,22 +628,20 @@ export default function ProfilePage() {
                 </Box>
               )}
 
-              {/* Watchlist Tab */}
+              {/* History Tab */}
               {activeTab === 2 && (
                 <Box>
                   <Typography variant="h5" className="contentTitle">
-                    My Watchlist
+                    History
                   </Typography>
                   <Box className="emptyState">
                     <BookmarkIcon className="emptyIcon" />
                     <Typography className="emptyTitle">
-                      You have {watchlistCount}{' '}
-                      {watchlistCount === 1 ? 'movie' : 'movies'} in your
-                      watchlist
+                      You have {historyCount}{' '}
+                      {historyCount === 1 ? 'movie' : 'movies'} in your history
                     </Typography>
                     <Typography className="emptyText">
-                      Visit the home page or watchlist page to browse and manage
-                      your movies
+                      Visit the home page to explore new exciting movies
                     </Typography>
                     <Box className="actionButtons">
                       <Button
@@ -652,13 +650,6 @@ export default function ProfilePage() {
                         className="primaryButton"
                       >
                         Browse Movies
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        onClick={() => router.push('/authenticated/watchlist')}
-                        className="secondaryButton"
-                      >
-                        View Watchlist
                       </Button>
                     </Box>
                   </Box>

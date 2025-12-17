@@ -29,7 +29,7 @@ export function getQueryClient() {
             return failureCount < 2;
           },
           refetchOnWindowFocus: false, // Don't refetch on window focus by default
-          refetchOnMount: true, // Always refetch on mount to ensure fresh data
+          refetchOnMount: false, // Don't refetch on mount to prevent scroll jumps
           refetchOnReconnect: true, // Refetch when reconnecting
         },
         mutations: {

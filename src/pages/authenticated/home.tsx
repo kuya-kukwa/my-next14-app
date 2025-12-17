@@ -109,11 +109,10 @@ export default function HomePage() {
     return acc;
   }, {} as Record<string, Movie[]>);
 
-  // hero movie (The Quiet Place)
+  // hero movie (The Exorcist)
   const heroMovie = movies.length
-    ? movies.find((movie) =>
-        movie.title.toLowerCase().includes('quiet place')
-      ) || movies[0]
+    ? movies.find((movie) => movie.title.toLowerCase().includes('exorcist')) ||
+      movies[0]
     : null;
 
   const heroImageUrl =

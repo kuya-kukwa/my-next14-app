@@ -12,7 +12,10 @@ import { DeleteAccountDialog } from '@/components/profile/dialogs/DeleteAccountD
 
 // Lazy load SecurityTab for better performance
 const SecurityTab = dynamic(
-  () => import('@/components/profile/tabs/SecurityTab').then(mod => ({ default: mod.SecurityTab })),
+  () =>
+    import('@/components/profile/tabs/SecurityTab').then((mod) => ({
+      default: mod.SecurityTab,
+    })),
   {
     loading: () => (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -41,7 +44,9 @@ export default function ProfilePage() {
 
   // Fetch user data
   const { data: user, isLoading: userLoading } = useUserAccount();
-  const { data: profile, isLoading: profileLoading } = useProfile(jwt || undefined);
+  const { data: profile, isLoading: profileLoading } = useProfile(
+    jwt || undefined
+  );
 
   // Handle tab change
   const handleTabChange = (newValue: number) => {
@@ -56,7 +61,9 @@ export default function ProfilePage() {
   // Handle logout
   const handleLogout = async () => {
     try {
-      const { account } = await import('@/lib/appwriteClient').then(m => m.getAppwriteBrowser());
+      const { account } = await import('@/lib/appwriteClient').then((m) =>
+        m.getAppwriteBrowser()
+      );
       await account.deleteSession('current');
       clearToken();
       router.push('/auths/signin');

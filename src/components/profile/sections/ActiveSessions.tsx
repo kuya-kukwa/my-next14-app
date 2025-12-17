@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Typography, Alert, CircularProgress } from '@mui/material';
 import { useListSessions, useDeleteSession } from '@/services/queries/sessions';
 import { SessionCard } from './SessionCard';
 import { useRouter } from 'next/router';

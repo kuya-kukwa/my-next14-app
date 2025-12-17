@@ -168,8 +168,8 @@ export function SessionCard({
         <DialogTitle>Logout from current session?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will log you out from this device. You&apos;ll be redirected to the
-            sign-in page.
+            This will log you out from this device. You&apos;ll be redirected to
+            the sign-in page.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

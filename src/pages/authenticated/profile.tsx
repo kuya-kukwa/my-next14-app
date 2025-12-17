@@ -21,7 +21,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import BookmarkIcon from '@mui/icons-material/Bookmark';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
 import PersonIcon from '@mui/icons-material/Person';
@@ -50,6 +49,7 @@ import {
   dismissToast,
 } from '@/lib/toast';
 import { useWatchlist } from '@/services/queries/watchlist';
+import { HistoryIcon } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -324,9 +324,9 @@ export default function ProfilePage() {
                     classes={{ selected: 'tabSelected' }}
                   />
                   <Tab
-                    icon={<BookmarkIcon />}
+                    icon={<HistoryIcon />}
                     iconPosition="start"
-                    label="Watchlist"
+                    label="History"
                     className="tab"
                     classes={{ selected: 'tabSelected' }}
                   />
@@ -628,7 +628,7 @@ export default function ProfilePage() {
                 </Box>
               )}
 
-              {/* History Tab */}
+              {/* History Tab 
               {activeTab === 2 && (
                 <Box>
                   <Typography variant="h5" className="contentTitle">
@@ -655,6 +655,8 @@ export default function ProfilePage() {
                   </Box>
                 </Box>
               )}
+
+              */}
 
               {/* Preferences Tab */}
               {activeTab === 3 && (

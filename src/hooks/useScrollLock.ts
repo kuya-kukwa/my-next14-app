@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Custom hook to lock/unlock body scroll
@@ -13,26 +13,25 @@ import { useEffect } from 'react';
  * ```
  */
 export function useScrollLock(isLocked: boolean) {
+  const scrollPositionRef = useRef<number>(0);
+
   useEffect(() => {
     if (isLocked) {
+      // Store current scroll position in ref (more reliable)
+      scrollPositionRef.current = window.scrollY;
+
       // Calculate scrollbar width to prevent layout shift
       const scrollbarWidth =
         window.innerWidth - document.documentElement.clientWidth;
 
-      // Store current scroll position
-      const scrollY = window.scrollY;
-
       // Apply styles to prevent scroll
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
+      document.body.style.top = `-${scrollPositionRef.current}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
       document.body.style.paddingRight = `${scrollbarWidth}px`;
       document.documentElement.style.overflow = 'hidden';
     } else {
-      // Get the scroll position from the fixed body
-      const scrollY = document.body.style.top;
-
       // Remove styles
       document.body.style.position = '';
       document.body.style.top = '';
@@ -41,9 +40,9 @@ export function useScrollLock(isLocked: boolean) {
       document.body.style.paddingRight = '';
       document.documentElement.style.overflow = '';
 
-      // Restore scroll position
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      // Restore scroll position from ref using instant scroll
+      if (scrollPositionRef.current !== 0) {
+        window.scrollTo({ top: scrollPositionRef.current, behavior: 'instant' });
       }
     }
 

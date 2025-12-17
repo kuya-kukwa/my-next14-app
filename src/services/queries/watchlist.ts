@@ -59,15 +59,23 @@ export function useAddToWatchlist() {
 
       return { previousWatchlist };
     },
+    onSuccess: (data, variables) => {
+      // Update cache with server response without causing scroll
+      const currentWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all);
+      if (currentWatchlist && data.watchlistItem) {
+        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all, {
+          ...currentWatchlist,
+          movieIds: currentWatchlist.movieIds.includes(variables.movieId)
+            ? currentWatchlist.movieIds
+            : [...currentWatchlist.movieIds, variables.movieId],
+        });
+      }
+    },
     onError: (_error, _variables, context) => {
       // Rollback on error
       if (context?.previousWatchlist) {
         queryClient.setQueryData(watchlistKeys.all, context.previousWatchlist);
       }
-    },
-    onSettled: () => {
-      // Refetch after mutation
-      queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
     },
   });
 }
@@ -96,15 +104,21 @@ export function useRemoveFromWatchlist() {
 
       return { previousWatchlist };
     },
+    onSuccess: (_data, movieId) => {
+      // Update cache with server confirmation without causing scroll
+      const currentWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all);
+      if (currentWatchlist) {
+        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all, {
+          ...currentWatchlist,
+          movieIds: currentWatchlist.movieIds.filter((id) => id !== movieId),
+        });
+      }
+    },
     onError: (_error, _variables, context) => {
       // Rollback on error
       if (context?.previousWatchlist) {
         queryClient.setQueryData(watchlistKeys.all, context.previousWatchlist);
       }
-    },
-    onSettled: () => {
-      // Refetch after mutation
-      queryClient.invalidateQueries({ queryKey: watchlistKeys.all });
     },
   });
 }

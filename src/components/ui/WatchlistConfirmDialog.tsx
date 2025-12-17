@@ -52,6 +52,7 @@ export const WatchlistConfirmDialog: React.FC<WatchlistConfirmDialogProps> = ({
     <Dialog
       open={open}
       onClose={onCancel}
+      disableScrollLock={true}
       aria-labelledby="watchlist-dialog-title"
       aria-describedby="watchlist-dialog-description"
       PaperProps={{

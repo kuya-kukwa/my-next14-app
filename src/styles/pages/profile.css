@@ -1,0 +1,203 @@
+/* ────────────────────────────────────────────── */
+/* PROFILE PAGE STYLES                            */
+/* ────────────────────────────────────────────── */
+
+/* Profile Page Container - Fixed responsive layout */
+.profile-page {
+  min-height: 100vh;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: var(--color-bg-primary);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Profile Card - Fixed width and height with responsive clamping */
+.profile-card {
+  width: min(1200px, 95vw);
+  height: clamp(600px, 80vh, 900px);
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Profile Sidebar - Sticky positioning with navigation */
+.profile-sidebar {
+  background: var(--color-bg-tertiary);
+  border-right: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  height: 100%;
+}
+
+.profile-sidebar-header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.profile-sidebar-nav {
+  flex: 1;
+  padding: var(--spacing-md) 0;
+}
+
+/* Profile Content - Scrollable tab content area */
+.profile-content {
+  overflow-y: auto;
+  padding: var(--spacing-xl);
+  background: var(--color-bg-secondary);
+}
+
+.profile-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-content::-webkit-scrollbar-track {
+  background: var(--color-bg-tertiary);
+}
+
+.profile-content::-webkit-scrollbar-thumb {
+  background: var(--color-gray-700);
+  border-radius: 4px;
+}
+
+.profile-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-600);
+}
+
+/* Tab Content - Smooth transitions */
+.profile-tab,
+.security-tab {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Profile Tab Sections */
+.profile-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.profile-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Session Cards */
+.session-card {
+  transition: all 0.2s ease;
+}
+
+.session-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .profile-card {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: clamp(600px, 80vh, 900px);
+  }
+
+  .profile-sidebar {
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .profile-sidebar-nav {
+    padding: 0;
+  }
+
+  /* Make tabs horizontal on mobile */
+  .profile-sidebar-nav .MuiTabs-root {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-page {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+
+  .profile-card {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .profile-content {
+    padding: var(--spacing-md);
+  }
+
+  .profile-sidebar-header {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Danger Variant Styling */
+.profile-section-danger {
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  background: rgba(211, 47, 47, 0.05);
+}
+
+/* Avatar Upload Dropzone */
+.avatar-dropzone {
+  border: 2px dashed var(--color-border-medium);
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.avatar-dropzone:hover {
+  border-color: var(--color-primary);
+  background: rgba(229, 9, 20, 0.05);
+}
+
+.avatar-dropzone.dragActive {
+  border-color: var(--color-primary);
+  background: rgba(229, 9, 20, 0.1);
+}
+
+.avatar-dropzone.error {
+  border-color: #d32f2f;
+  background: rgba(211, 47, 47, 0.05);
+}
+
+/* Loading States */
+.profile-skeleton {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

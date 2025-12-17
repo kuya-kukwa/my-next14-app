@@ -1,6 +1,9 @@
 @import 'tailwindcss/preflight';
 @import 'tailwindcss/utilities';
 
+/* Page-specific styles */
+@import './pages/profile.css';
+
 /* ────────────────────────────────────────────── */
 /* DESIGN SYSTEM TOKENS                           */
 /* ────────────────────────────────────────────── */

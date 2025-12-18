@@ -2,9 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import { promisify } from 'util';
-import { getUserFromJWT } from '@/lib/appwriteServer';
 import { getServerDatabases, getUserByEmail, databaseId, COLLECTIONS } from '@/lib/appwriteDatabase';
 import { uploadAvatarFile, deleteAvatarFile } from '@/lib/appwriteStorage.server';
+import { withAuth, sendError, sendSuccess, applyCORS, applyRateLimit, type AuthenticatedUser } from '@/lib/apiMiddleware';
+import { avatarUploadConfig } from '@/lib/validation';
+import { logger } from '@/lib/logger';
 
 const readFile = promisify(fs.readFile);
 
@@ -15,41 +17,26 @@ export const config = {
   },
 };
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-export default async function handler(
+async function avatarUploadHandler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  user: AuthenticatedUser
 ) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return sendError(res, 405, 'Method not allowed', 'Only POST method is allowed');
   }
 
   try {
-    // Get JWT from Authorization header
-    const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
-    if (!jwt) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify user
-    const appwriteUser = await getUserFromJWT(jwt);
-    if (!appwriteUser || typeof appwriteUser !== 'object' || !('email' in appwriteUser)) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    const email = (appwriteUser as { email?: string }).email || '';
     const databases = getServerDatabases();
-    const user = await getUserByEmail(databases, email);
+    const userDoc = await getUserByEmail(databases, user.email);
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!userDoc) {
+      return sendError(res, 404, 'User not found', 'User profile not found');
     }
 
     // Parse multipart form data
     const form = new IncomingForm({
-      maxFileSize: MAX_FILE_SIZE,
+      maxFileSize: avatarUploadConfig.maxFileSize,
       keepExtensions: true,
     });
 
@@ -63,21 +50,22 @@ export default async function handler(
     const file = Array.isArray(files.avatar) ? files.avatar[0] : files.avatar;
     
     if (!file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return sendError(res, 400, 'No file uploaded', 'Please select an image file to upload');
     }
 
     // Validate file type
-    if (!ALLOWED_TYPES.includes(file.mimetype || '')) {
-      return res.status(415).json({
-        message: 'Unsupported file type. Please upload JPG, PNG, WEBP, or GIF',
-      });
+    if (!avatarUploadConfig.allowedMimeTypes.includes(file.mimetype || '')) {
+      return sendError(
+        res, 
+        415, 
+        'Unsupported file type', 
+        'Please upload JPG, PNG, WEBP, or GIF images only'
+      );
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      return res.status(413).json({
-        message: 'File too large. Maximum size is 5MB',
-      });
+    if (file.size > avatarUploadConfig.maxFileSize) {
+      return sendError(res, 413, 'File too large', 'Maximum file size is 5MB');
     }
 
     // Read file buffer
@@ -90,11 +78,11 @@ export default async function handler(
     );
 
     // Delete old avatar if exists
-    if (user.avatarFileId) {
+    if (userDoc.avatarFileId) {
       try {
-        await deleteAvatarFile(user.avatarFileId);
+        await deleteAvatarFile(userDoc.avatarFileId);
       } catch (error) {
-        console.error('Failed to delete old avatar:', error);
+        logger.error('Failed to delete old avatar:', error);
         // Continue anyway
       }
     }
@@ -103,32 +91,45 @@ export default async function handler(
     await databases.updateDocument(
       databaseId,
       COLLECTIONS.USERS,
-      user.$id,
+      userDoc.$id,
       {
-        // do not touch name here; only optional fields + updatedAt
         avatarFileId: fileId,
         avatarUrl: url,
         updatedAt: new Date().toISOString(),
       }
     );
 
-    return res.status(201).json({
-      success: true,
+    return sendSuccess(res, {
       avatarUrl: url,
       fileId,
       message: 'Avatar uploaded successfully',
-    });
+    }, 201);
   } catch (error: unknown) {
-    console.error('Avatar upload error:', error);
+    logger.error('Avatar upload error:', error);
     
     if ((error as { code?: string }).code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({
-        message: 'File too large. Maximum size is 5MB',
-      });
+      return sendError(res, 413, 'File too large', 'Maximum file size is 5MB');
     }
 
-    return res.status(500).json({
-      message: (error as { message?: string }).message || 'Failed to upload avatar',
-    });
+    const message = (error as { message?: string }).message || 'Failed to upload avatar';
+    return sendError(res, 500, 'Upload failed', message);
   }
+}
+
+// Custom wrapper since we can't use standard withMiddleware pattern (body parser disabled)
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Apply CORS
+  const corsAllowed = applyCORS(req, res);
+  if (!corsAllowed || req.method === 'OPTIONS') {
+    return;
+  }
+
+  // Apply rate limiting
+  const rateLimitPassed = applyRateLimit(req, res, false);
+  if (!rateLimitPassed) {
+    return;
+  }
+
+  // Apply auth and call handler
+  return withAuth(avatarUploadHandler)(req, res);
 }

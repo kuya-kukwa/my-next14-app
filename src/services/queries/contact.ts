@@ -3,13 +3,15 @@ import { api } from '@/services/http';
 import type { ContactInput } from '@/lib/validation';
 
 export type ContactResponse = {
-  ok: boolean;
   id: string;
+  message: string;
 };
 
 export function useSendContact() {
   return useMutation({
-    mutationFn: (data: ContactInput) =>
-      api.post<ContactResponse>('/api/contact', data),
+    mutationFn: async (data: ContactInput) => {
+      const response = await api.post<{ success: true; data: ContactResponse }>('/api/contact', data);
+      return response.data;
+    },
   });
 }

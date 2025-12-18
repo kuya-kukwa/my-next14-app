@@ -1,122 +1,114 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getUserFromJWT } from '@/lib/appwriteServer';
-import {
-  getServerDatabases,
-  upsertUser,
-  getUserByEmail,
-  databaseId,
-  COLLECTIONS,
-} from '@/lib/appwriteDatabase';
-import type { User } from '@/types';
+import { getServerDatabases, getUserByEmail, upsertUser, databaseId, COLLECTIONS } from '@/lib/appwriteDatabase';
+import { withCORS, withRateLimit, withAuth, sendError, sendSuccess, type AuthenticatedUser } from '@/lib/apiMiddleware';
+import { profileUpdateSchema } from '@/lib/validation';
+import { toUser } from '@/lib/typeGuards';
+import { logger } from '@/lib/logger';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
-  if (!jwt) return res.status(401).json({ error: 'Missing token', message: 'Missing token' });
+async function profileHandler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  user: AuthenticatedUser
+) {
+  const databases = getServerDatabases();
 
-  try {
-    let appwriteUser: unknown;
-
-    try {
-      appwriteUser = await getUserFromJWT(jwt);
-    } catch {
-      return res.status(401).json({ error: 'Invalid token', message: 'Invalid token' });
+  // GET /api/profile - Get user profile
+  if (req.method === 'GET') {
+    // Try to get existing user first (includes avatarUrl, avatarFileId, etc.)
+    let userDoc = await getUserByEmail(databases, user.email);
+    
+    // If user doesn't exist, create one
+    if (!userDoc) {
+      userDoc = await upsertUser(databases, user.email, user.name);
     }
 
-    if (!appwriteUser || typeof appwriteUser !== 'object' || !('$id' in appwriteUser)) {
-      return res.status(401).json({ error: 'Invalid token', message: 'Invalid token' });
-    }
-
-    const email = (appwriteUser as { email?: string }).email || '';
-    const name = (appwriteUser as { name?: string }).name || email.split('@')[0];
-
-    const databases = getServerDatabases();
-
-    if (req.method === 'GET') {
-      // Try to get existing user first (includes avatarUrl, avatarFileId, etc.)
-      let user = await getUserByEmail(databases, email);
-      // If user doesn't exist, create one
-      if (!user) {
-        user = await upsertUser(databases, email, name);
-      }
-      return res.status(200).json({ profile: user });
-    }
-
-    if (req.method === 'PUT') {
-      const user = await getUserByEmail(databases, email);
-      if (!user) return res.status(404).json({ error: 'User not found', message: 'User not found' });
-
-      const { name: bodyName, avatarUrl, bio } = (req.body ?? {}) as {
-        name?: unknown;
-        avatarUrl?: unknown;
-        bio?: unknown;
-      };
-
-      console.log('[Profile API] Received update request:', { bodyName, avatarUrl, bio });
-      console.log('[Profile API] Current user:', { 
-        id: (user as unknown as User).$id, 
-        name: (user as unknown as User).name, 
-        bio: (user as unknown as User).bio,
-        avatarUrl: (user as unknown as User).avatarUrl 
-      });
-
-      // Determine final values - always include all fields
-      const nextName =
-        typeof bodyName === 'string' && bodyName.trim() !== ''
-          ? bodyName
-          : (user as unknown as User).name;
-
-      const nextAvatarUrl =
-        typeof avatarUrl === 'string'
-          ? avatarUrl.trim() === '' ? null : avatarUrl
-          : (user as unknown as User).avatarUrl ?? null;
-
-      const nextBio =
-        typeof bio === 'string'
-          ? bio.trim() === '' ? null : bio
-          : (user as unknown as User).bio ?? null;
-
-      // ALWAYS include all fields to ensure Appwrite processes the update
-      const updatePayload: Record<string, unknown> = {
-        name: nextName,
-        email: (user as unknown as User).email,
-        createdAt: (user as unknown as User).createdAt,
-        updatedAt: new Date().toISOString(),
-        avatarUrl: nextAvatarUrl,
-        bio: nextBio,
-        avatarFileId: (user as unknown as User).avatarFileId ?? null,
-      };
-
-      console.log('[Profile API] Update payload:', JSON.stringify(updatePayload, null, 2));
-
-      // Perform the update
-      await databases.updateDocument(
-        databaseId,
-        COLLECTIONS.USERS,
-        (user as unknown as User).$id,
-        updatePayload
-      );
-
-      // Re-fetch the document to get fresh data (Appwrite may cache updateDocument response)
-      const freshUser = await databases.getDocument(
-        databaseId,
-        COLLECTIONS.USERS,
-        (user as unknown as User).$id
-      );
-
-      console.log('[Profile API] Update successful, fresh user data:', {
-        id: freshUser.$id,
-        name: (freshUser as unknown as User).name,
-        bio: (freshUser as unknown as User).bio,
-        avatarUrl: (freshUser as unknown as User).avatarUrl
-      });
-
-      return res.status(200).json({ profile: freshUser });
-    }
-
-    return res.status(405).end();
-  } catch (error) {
-    console.error('Profile API error:', error);
-    const msg = (error as { message?: string })?.message || 'Failed to update profile';
-    return res.status(500).json({ error: msg, message: msg });
+    const profile = toUser(userDoc);
+    return sendSuccess(res, { profile });
   }
+
+  // PUT /api/profile - Update user profile
+  if (req.method === 'PUT') {
+    const userDoc = await getUserByEmail(databases, user.email);
+    
+    if (!userDoc) {
+      return sendError(res, 404, 'User not found', 'User profile not found');
+    }
+
+    // Validate request body
+    const validation = profileUpdateSchema.safeParse(req.body);
+    if (!validation.success) {
+      const errorMessage = validation.error.issues[0]?.message || 'Invalid profile data';
+      return sendError(res, 400, 'Validation error', errorMessage);
+    }
+
+    const { name: bodyName, avatarUrl, bio } = validation.data;
+    const currentUser = toUser(userDoc);
+
+    logger.debug('[Profile API] Received update request:', { bodyName, avatarUrl, bio });
+    logger.debug('[Profile API] Current user:', { 
+      id: currentUser.$id, 
+      name: currentUser.name, 
+      bio: currentUser.bio,
+      avatarUrl: currentUser.avatarUrl 
+    });
+
+    // Determine final values - always include all fields
+    const nextName = bodyName !== undefined && bodyName.trim() !== '' 
+      ? bodyName 
+      : currentUser.name;
+
+    const nextAvatarUrl = avatarUrl !== undefined 
+      ? avatarUrl 
+      : currentUser.avatarUrl ?? null;
+
+    const nextBio = bio !== undefined 
+      ? bio 
+      : currentUser.bio ?? null;
+
+    // ALWAYS include all fields to ensure Appwrite processes the update
+    const updatePayload = {
+      name: nextName,
+      email: currentUser.email,
+      createdAt: currentUser.createdAt,
+      updatedAt: new Date().toISOString(),
+      avatarUrl: nextAvatarUrl,
+      bio: nextBio,
+      avatarFileId: currentUser.avatarFileId ?? null,
+    };
+
+    logger.debug('[Profile API] Update payload:', updatePayload);
+
+    // Perform the update
+    await databases.updateDocument(
+      databaseId,
+      COLLECTIONS.USERS,
+      currentUser.$id,
+      updatePayload
+    );
+
+    // Re-fetch the document to get fresh data
+    const freshUser = await databases.getDocument(
+      databaseId,
+      COLLECTIONS.USERS,
+      currentUser.$id
+    );
+
+    const updatedProfile = toUser(freshUser);
+
+    logger.debug('[Profile API] Update successful, fresh user data:', {
+      id: updatedProfile.$id,
+      name: updatedProfile.name,
+      bio: updatedProfile.bio,
+      avatarUrl: updatedProfile.avatarUrl
+    });
+
+    return sendSuccess(res, { profile: updatedProfile });
+  }
+
+  return sendError(res, 405, 'Method not allowed', 'Only GET and PUT methods are allowed');
 }
+
+// Apply middleware manually: CORS → Rate Limit → Auth
+const withCORSHandler = withCORS(withAuth(profileHandler));
+const withRateLimitHandler = withRateLimit(withCORSHandler);
+export default withRateLimitHandler;

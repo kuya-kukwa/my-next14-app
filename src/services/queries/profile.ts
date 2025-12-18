@@ -29,14 +29,15 @@ export function useProfile(jwt?: string) {
 
       const attemptFetch = async (token: string, retried = false): Promise<Profile> => {
         try {
-          const response = await api.get<{ profile: Profile }>('/api/profile', {
+          const response = await api.get<{ success: true; data: { profile: Profile } }>('/api/profile', {
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          if (response.profile.avatarFileId && !response.profile.avatarUrl) {
-            response.profile.avatarUrl = getAvatarUrl(response.profile.avatarFileId);
+          const profile = response.data.profile;
+          if (profile.avatarFileId && !profile.avatarUrl) {
+            profile.avatarUrl = getAvatarUrl(profile.avatarFileId);
           }
-          return response.profile;
+          return profile;
         } catch (error) {
           if (!retried && error instanceof Error && error.message === 'Invalid token') {
             const refreshed = await refreshSession();
@@ -62,10 +63,10 @@ export function useUpdateProfile(jwt?: string) {
 
       const attemptUpdate = async (token: string, retried = false): Promise<Profile> => {
         try {
-          const response = await api.put<{ profile: Profile }>('/api/profile', data, {
+          const response = await api.put<{ success: true; data: { profile: Profile } }>('/api/profile', data, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          return response.profile;
+          return response.data.profile;
         } catch (error) {
           if (!retried && error instanceof Error && error.message === 'Invalid token') {
             const refreshed = await refreshSession();

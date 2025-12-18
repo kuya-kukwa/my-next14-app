@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { logger } from '@/lib/logger';
 
 export interface UploadAvatarResponse {
-  success: boolean;
   message: string;
   avatarUrl: string;
+  fileId: string;
 }
 
 /**
@@ -33,7 +34,7 @@ export function useUploadAvatar() {
           const error = await response.json();
           // If token is invalid, try to refresh and retry once
           if (error.message === 'Invalid token' && !response.headers.get('x-retry')) {
-            console.log('Token invalid, attempting refresh...');
+            logger.debug('Token invalid, attempting refresh...');
             const refreshed = await refreshSession();
             if (refreshed) {
               const newToken = getToken();
@@ -46,7 +47,8 @@ export function useUploadAvatar() {
                   headers: { Authorization: `Bearer ${newToken}`, 'x-retry': 'true' },
                 });
                 if (retryResponse.ok) {
-                  return retryResponse.json();
+                  const result = await retryResponse.json();
+                  return result.data;
                 }
                 const retryError = await retryResponse.json();
                 throw new Error(retryError.message || 'Failed to upload avatar');
@@ -56,7 +58,8 @@ export function useUploadAvatar() {
           throw new Error(error.message || 'Failed to upload avatar');
         }
 
-        return response.json();
+        const result = await response.json();
+        return result.data;
       };
 
       return attemptUpload(jwt || '');

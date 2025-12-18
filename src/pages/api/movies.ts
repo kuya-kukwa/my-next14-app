@@ -1,19 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerDatabases, databaseId, COLLECTIONS, Query } from '@/lib/appwriteDatabase';
+import { withCORS, withRateLimit, sendError, sendSuccess, allowMethods } from '@/lib/apiMiddleware';
+import { moviesQuerySchema } from '@/lib/validation';
+import { logger } from '@/lib/logger';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+async function moviesHandler(req: NextApiRequest, res: NextApiResponse) {
+  if (!allowMethods(req, res, ['GET'])) return;
 
   try {
-    // Optional delay for testing loading states (default 800ms)
-    const delay = parseInt(req.query.delay as string) || 800;
-    await new Promise(resolve => setTimeout(resolve, delay));
+    // Validate query parameters
+    const queryValidation = moviesQuerySchema.safeParse(req.query);
+    if (!queryValidation.success) {
+      const errorMessage = queryValidation.error.issues[0]?.message || 'Invalid query parameters';
+      return sendError(res, 400, 'Invalid query parameters', errorMessage);
+    }
 
-    // Extract query parameters
-    const category = req.query.category as string | undefined;
-    const search = req.query.search as string | undefined;
+    const { category, search, delay = 800 } = queryValidation.data;
+
+    // Optional delay for testing loading states
+    if (delay > 0) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
 
     const databases = getServerDatabases();
     
@@ -25,8 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (search) {
-      // Appwrite doesn't support OR in a single query, so we'll filter client-side
-      // or fetch all and filter. For now, search by title only.
       queries.push(Query.search('title', search));
     }
 
@@ -56,14 +61,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
     const categories = Array.from(categoriesSet).sort();
 
-    return res.status(200).json({
+    return sendSuccess(res, {
       movies,
       total: movies.length,
       categories,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error fetching movies:', error);
-    return res.status(500).json({ error: 'Failed to fetch movies' });
+    logger.error('Error fetching movies:', error);
+    return sendError(res, 500, 'Internal server error', 'Failed to fetch movies');
   }
 }
+
+// Apply middleware: CORS → Rate Limit
+const withCORSHandler = withCORS(moviesHandler);
+const withRateLimitHandler = withRateLimit(withCORSHandler);
+export default withRateLimitHandler;

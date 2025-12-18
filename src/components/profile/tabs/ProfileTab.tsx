@@ -7,6 +7,7 @@ import {
   type ProfileInput,
 } from '@/lib/validation/profileSchemas';
 import { useUpdateProfile } from '@/services/queries/profile';
+import { logger } from '@/lib/logger';
 import { useUploadAvatar } from '@/services/queries/avatar';
 import { AvatarUpload } from '../AvatarUpload';
 import { ProfileSection } from '../ProfileSection';
@@ -44,7 +45,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
 
   const onValid = async (data: ProfileInput) => {
     setSubmitError(null);
-    console.log('Submitting profile update with data:', data);
+    logger.debug('Submitting profile update with data:', data);
     const currentAvatarUrl = watch('avatarUrl');
     const transformedData = {
       ...data,
@@ -52,10 +53,10 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
       avatarUrl: currentAvatarUrl === '' ? undefined : currentAvatarUrl,
       bio: data.bio === '' ? undefined : data.bio,
     };
-    console.log('Transformed data:', transformedData);
+    logger.debug('Transformed data:', transformedData);
     try {
       await updateProfileMutation.mutateAsync(transformedData);
-      console.log('Profile update successful');
+      logger.debug('Profile update successful');
     } catch (error) {
       console.error('Failed to update profile:', error);
       setSubmitError('Failed to update profile. Please try again.');
@@ -63,7 +64,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
   };
 
   const onInvalid = (errors: FieldErrors<ProfileInput>) => {
-    console.log('Form validation errors:', errors);
+    logger.debug('Form validation errors:', errors);
     const errorMessages = Object.values(errors)
       .map((field) => field?.message)
       .filter(Boolean) as string[];

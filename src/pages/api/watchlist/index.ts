@@ -1,42 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getUserFromJWT } from '@/lib/appwriteServer';
 import { getServerDatabases, upsertUser, databaseId, COLLECTIONS, Query, ID } from '@/lib/appwriteDatabase';
+import { withCORS, withRateLimit, withAuth, sendError, sendSuccess, type AuthenticatedUser } from '@/lib/apiMiddleware';
+import { watchlistAddSchema } from '@/lib/validation';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Verify JWT token
-  const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
-  if (!jwt) return res.status(401).json({ error: 'Missing token' });
-
-  let appwriteUser: unknown;
-  try {
-    appwriteUser = await getUserFromJWT(jwt);
-  } catch {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-
-  if (!appwriteUser || typeof appwriteUser !== 'object' || !('$id' in appwriteUser)) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-
-  const email = (appwriteUser as { email?: string }).email || '';
-  const name = (appwriteUser as { name?: string }).name || email.split('@')[0];
-
+async function watchlistHandler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  user: AuthenticatedUser
+) {
   const databases = getServerDatabases();
 
   // Ensure user exists in database
-  const user = await upsertUser(databases, email, name);
+  const userDoc = await upsertUser(databases, user.email, user.name);
 
   // GET /api/watchlist - Get user's watchlist movie IDs
   if (req.method === 'GET') {
     const result = await databases.listDocuments(
       databaseId,
       COLLECTIONS.WATCHLIST,
-      [Query.equal('userId', user.$id), Query.orderDesc('createdAt')]
+      [Query.equal('userId', userDoc.$id), Query.orderDesc('createdAt')]
     );
 
     const watchlist = result.documents as Array<Record<string, unknown>>;
 
-    return res.status(200).json({
+    return sendSuccess(res, {
       movieIds: watchlist.map((w) => String(w.movieId)),
       watchlist,
       total: watchlist.length,
@@ -45,25 +32,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // POST /api/watchlist - Add a movie to watchlist
   if (req.method === 'POST') {
-    const { movieId } = req.body;
-
-    if (!movieId || typeof movieId !== 'string') {
-      return res.status(400).json({ error: 'Invalid movieId' });
+    const validation = watchlistAddSchema.safeParse(req.body);
+    
+    if (!validation.success) {
+      const errorMessage = validation.error.issues[0]?.message || 'Invalid movie ID';
+      return sendError(res, 400, 'Validation error', errorMessage);
     }
+
+    const { movieId } = validation.data;
 
     // Check if already in watchlist
     const existingResult = await databases.listDocuments(
       databaseId,
       COLLECTIONS.WATCHLIST,
       [
-        Query.equal('userId', user.$id),
+        Query.equal('userId', userDoc.$id),
         Query.equal('movieId', movieId)
       ]
     );
 
     if (existingResult.documents.length > 0) {
-      return res.status(200).json({
-        success: true,
+      return sendSuccess(res, {
         watchlistItem: existingResult.documents[0],
         message: 'Already in watchlist',
       });
@@ -75,18 +64,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       COLLECTIONS.WATCHLIST,
       ID.unique(),
       {
-        userId: user.$id,
+        userId: userDoc.$id,
         movieId,
         createdAt: new Date().toISOString()
       }
     );
 
-    return res.status(201).json({
-      success: true,
+    return sendSuccess(res, {
       watchlistItem,
       message: 'Added to watchlist',
-    });
+    }, 201);
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return sendError(res, 405, 'Method not allowed', 'Only GET and POST methods are allowed');
 }
+
+// Apply middleware: CORS → Rate Limit → Auth
+const withCORSHandler = withCORS(withAuth(watchlistHandler));
+const withRateLimitHandler = withRateLimit(withCORSHandler);
+export default withRateLimitHandler;

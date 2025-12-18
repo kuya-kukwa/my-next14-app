@@ -17,7 +17,6 @@ export type AddToWatchlistRequest = {
 };
 
 export type WatchlistItemResponse = {
-  success: boolean;
   watchlistItem?: WatchlistItem;
   message: string;
 };
@@ -29,7 +28,10 @@ export const watchlistKeys = {
 export function useWatchlist() {
   return useQuery({
     queryKey: watchlistKeys.all,
-    queryFn: () => api.get<WatchlistResponse>('/api/watchlist'),
+    queryFn: async () => {
+      const response = await api.get<{ success: true; data: WatchlistResponse }>('/api/watchlist');
+      return response.data;
+    },
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -39,8 +41,10 @@ export function useAddToWatchlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: AddToWatchlistRequest) =>
-      api.post<WatchlistItemResponse>('/api/watchlist', data),
+    mutationFn: async (data: AddToWatchlistRequest) => {
+      const response = await api.post<{ success: true; data: WatchlistItemResponse }>('/api/watchlist', data);
+      return response.data;
+    },
     onMutate: async (newWatchlistItem) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: watchlistKeys.all });
@@ -84,8 +88,10 @@ export function useRemoveFromWatchlist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (movieId: string) =>
-      api.del<WatchlistItemResponse>(`/api/watchlist/${movieId}`),
+    mutationFn: async (movieId: string) => {
+      const response = await api.del<{ success: true; data: WatchlistItemResponse }>(`/api/watchlist/${movieId}`);
+      return response.data;
+    },
     onMutate: async (movieId) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: watchlistKeys.all });

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { shouldRefreshSession, refreshSession, isTokenExpired } from '@/lib/session';
+import { logger } from '@/lib/logger';
 
 /**
  * Hook that automatically refreshes the JWT session when needed
@@ -14,7 +15,7 @@ export function useSessionRefresh() {
       }
 
       if (shouldRefreshSession()) {
-        console.log('Proactively refreshing session...');
+        logger.debug('Proactively refreshing session...');
         await refreshSession();
       }
     };

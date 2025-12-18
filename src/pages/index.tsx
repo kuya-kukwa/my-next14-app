@@ -13,9 +13,11 @@ export default function Home() {
     async function fetchTopMovies() {
       try {
         const response = await fetch('/api/movies?top=true');
-        const data = await response.json();
+        const result = await response.json();
+        // Unwrap the new API response format {success: true, data: {...}}
+        const movies = result.data?.movies || [];
         // Limit to top 10 highest rated movies
-        const top10 = data.movies
+        const top10 = movies
           .sort((a: Movie, b: Movie) => b.rating - a.rating)
           .slice(0, 10);
         setTopMovies(top10);

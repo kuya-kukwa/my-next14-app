@@ -7,6 +7,7 @@ export interface ProfileHeaderProps {
   name?: string;
   email?: string;
   avatarUrl?: string | null;
+  bio?: string | null;
 }
 
 /**
@@ -16,6 +17,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   name,
   email,
   avatarUrl,
+  bio,
 }) => {
   const getInitials = (name?: string, email?: string) => {
     if (name) {
@@ -34,21 +36,26 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const initials = getInitials(name, email);
 
   return (
-    <>
+    <Box className="profile-header">
       {/* Avatar */}
-      {avatarUrl ? (
-        <Avatar className="profile-avatar" src={avatarUrl} alt={name}>
-          {initials}
-        </Avatar>
-      ) : (
-        <Avatar className="profile-avatar">{initials}</Avatar>
-      )}
+      <Box className="profile-header-avatar">
+        {avatarUrl ? (
+          <Avatar src={avatarUrl} alt={name} sx={{ width: 80, height: 80 }}>
+            {initials}
+          </Avatar>
+        ) : (
+          <Avatar sx={{ width: 80, height: 80 }}>{initials}</Avatar>
+        )}
+      </Box>
 
       {/* User Info */}
-      <Box className="profile-user-info">
-        <Typography className="profile-user-name">{name || 'User'}</Typography>
-        <Typography className="profile-user-email">{email}</Typography>
+      <Box className="profile-header-info">
+        <Typography className="profile-header-name">
+          {name || 'User'}
+        </Typography>
+        <Typography className="profile-header-email">{email}</Typography>
+        {bio && <Typography className="profile-header-bio">{bio}</Typography>}
       </Box>
-    </>
+    </Box>
   );
 };

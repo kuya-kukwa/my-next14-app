@@ -1,10 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/services/http';
 
 export interface UploadAvatarResponse {
   success: boolean;
-  avatarUrl?: string;
   message: string;
+  avatarUrl: string;
 }
 
 /**
@@ -33,22 +32,6 @@ export function useUploadAvatar() {
     },
     onSuccess: () => {
       // Invalidate user account query to refresh avatar
-      queryClient.invalidateQueries({ queryKey: ['user', 'account'] });
-    },
-  });
-}
-
-/**
- * Update user avatar URL (for URL-based avatars)
- */
-export function useUpdateAvatarUrl() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (avatarUrl: string): Promise<{ success: boolean }> => {
-      return api.post('/api/profile/avatar', { avatarUrl });
-    },
-    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user', 'account'] });
     },
   });

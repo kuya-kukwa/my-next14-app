@@ -3,7 +3,7 @@ import { api } from '@/services/http';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import type { Models } from 'appwrite';
 
-export type Profile = { id: string; userId: string; displayName?: string | null; avatarUrl?: string | null; bio?: string | null };
+export type Profile = { id: string; name: string; email: string; displayName?: string | null; avatarUrl?: string | null; bio?: string | null; createdAt: string; updatedAt: string };
 
 export const profileKeys = {
   all: ['profile'] as const,

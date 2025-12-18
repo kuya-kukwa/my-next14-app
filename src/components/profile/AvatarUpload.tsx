@@ -4,10 +4,9 @@ import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
+import Alert from '@mui/material/Alert';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import ErrorIcon from '@mui/icons-material/Error';
 
 export interface AvatarUploadProps {
   currentUrl?: string | null;
@@ -90,80 +89,84 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
   const initials = getInitials(userName);
 
   return (
-    <Box className="profile-avatar-upload">
+    <Box className="avatar-upload-container">
       {/* Avatar Preview */}
-      <Box className="profile-avatar-preview">
-        {displayUrl ? (
-          <Avatar
-            src={displayUrl}
-            alt="Avatar preview"
-            className="profile-avatar-preview-image"
-          >
-            {initials}
-          </Avatar>
-        ) : (
-          <Avatar className="profile-avatar-preview-placeholder">
-            {initials}
-          </Avatar>
-        )}
-        {isUploading && (
-          <Box className="profile-avatar-upload-overlay">
-            <CircularProgress size={40} sx={{ color: '#fff' }} />
-          </Box>
-        )}
+      <Box className="avatar-upload-preview">
+        <Box className="avatar-upload-preview-image">
+          {displayUrl ? (
+            <Avatar
+              src={displayUrl}
+              alt="Avatar preview"
+              sx={{ width: 120, height: 120 }}
+            >
+              {initials}
+            </Avatar>
+          ) : (
+            <Avatar sx={{ width: 120, height: 120 }}>{initials}</Avatar>
+          )}
+        </Box>
+        <Box className="avatar-upload-info">
+          <Typography className="avatar-upload-name">
+            {userName || 'User'}
+          </Typography>
+          <Typography className="avatar-upload-caption">
+            Click or drag to update
+          </Typography>
+        </Box>
       </Box>
 
       {/* Upload Progress */}
       {isUploading && uploadProgress > 0 && (
-        <Box className="profile-avatar-upload-progress">
+        <Box className="avatar-upload-progress">
           <LinearProgress
             variant="determinate"
             value={uploadProgress}
-            sx={{ borderRadius: 1, height: 6 }}
+            className="avatar-upload-progress-bar"
           />
-          <Typography variant="caption" sx={{ mt: 0.5 }}>
+          <Typography variant="caption" className="avatar-upload-progress-text">
             Uploading... {uploadProgress}%
           </Typography>
         </Box>
       )}
 
       {/* Dropzone */}
-      <Box
-        {...getRootProps()}
-        className={`profile-avatar-dropzone ${
-          isDragActive ? 'profile-avatar-dropzone-active' : ''
-        } ${isUploading ? 'profile-avatar-dropzone-disabled' : ''}`}
-      >
-        <input {...getInputProps()} />
-        <CloudUploadIcon className="profile-avatar-dropzone-icon" />
-        {isDragActive ? (
-          <Typography variant="body2" className="profile-avatar-dropzone-text">
-            Drop your image here
-          </Typography>
-        ) : (
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography
-              variant="body2"
-              className="profile-avatar-dropzone-text"
-            >
-              Drag & drop an image, or click to browse
+      <Box className="avatar-upload-dropzone-container">
+        <Box
+          {...getRootProps()}
+          className={`avatar-dropzone ${isDragActive ? 'dragActive' : ''} ${
+            error ? 'error' : ''
+          }`}
+        >
+          <input {...getInputProps()} />
+          <CloudUploadIcon className="avatar-upload-dropzone-icon" />
+          {isDragActive ? (
+            <Typography variant="body2" className="avatar-upload-dropzone-text">
+              Drop your image here
             </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: 'text.secondary', mt: 0.5, display: 'block' }}
-            >
-              JPG, PNG, WEBP or GIF (max 5MB)
-            </Typography>
-          </Box>
-        )}
+          ) : (
+            <Box>
+              <Typography
+                variant="body2"
+                className="avatar-upload-dropzone-text"
+              >
+                Drag & drop an image, or click to browse
+              </Typography>
+              <Typography
+                variant="caption"
+                className="avatar-upload-dropzone-text"
+              >
+                JPG, PNG, WEBP or GIF (max 5MB)
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Box>
 
       {/* Error Message */}
       {error && (
-        <Box className="profile-avatar-upload-error">
-          <ErrorIcon fontSize="small" />
-          <Typography variant="body2">{error}</Typography>
-        </Box>
+        <Alert severity="error" className="profile-alert">
+          {error}
+        </Alert>
       )}
 
       {/* Upload Button */}
@@ -173,7 +176,6 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
           component="label"
           fullWidth
           disabled={isUploading}
-          sx={{ mt: 1 }}
         >
           Choose File
           <input

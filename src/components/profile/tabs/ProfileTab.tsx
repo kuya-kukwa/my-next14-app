@@ -1,25 +1,29 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useForm, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, TextField, Button, CircularProgress, Alert } from '@mui/material';
 import {
   profileSchema,
   type ProfileInput,
 } from '@/lib/validation/profileSchemas';
-import { useUpdateProfile, type Profile } from '@/services/queries/profile';
+import { useUpdateProfile } from '@/services/queries/profile';
 import { useUploadAvatar } from '@/services/queries/avatar';
 import { AvatarUpload } from '../AvatarUpload';
 import { ProfileSection } from '../ProfileSection';
 import { User } from 'lucide-react';
+import { getToken } from '@/lib/session';
 
 interface ProfileTabProps {
-  profile: Profile | null | undefined;
-  jwt: string | undefined;
+  username?: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
 }
 
-export function ProfileTab({ profile, jwt }: ProfileTabProps) {
-  const updateProfileMutation = useUpdateProfile(jwt);
+export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
+  const jwt = getToken();
+  const updateProfileMutation = useUpdateProfile(jwt || undefined);
   const uploadAvatarMutation = useUploadAvatar();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -30,20 +34,42 @@ export function ProfileTab({ profile, jwt }: ProfileTabProps) {
   } = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      displayName: profile?.displayName || '',
-      avatarUrl: profile?.avatarUrl || '',
-      bio: profile?.bio || '',
+      displayName: username ? username : undefined,
+      avatarUrl: avatarUrl ? avatarUrl : undefined,
+      bio: bio ? bio : undefined,
     },
   });
 
   const currentAvatarUrl = watch('avatarUrl');
 
-  const onSubmit = async (data: ProfileInput) => {
+  const onValid = async (data: ProfileInput) => {
+    setSubmitError(null);
+    console.log('Submitting profile update with data:', data);
+    const currentAvatarUrl = watch('avatarUrl');
+    const transformedData = {
+      ...data,
+      displayName: data.displayName === '' ? undefined : data.displayName,
+      avatarUrl: currentAvatarUrl === '' ? undefined : currentAvatarUrl,
+      bio: data.bio === '' ? undefined : data.bio,
+    };
+    console.log('Transformed data:', transformedData);
     try {
-      await updateProfileMutation.mutateAsync(data);
+      await updateProfileMutation.mutateAsync(transformedData);
+      console.log('Profile update successful');
     } catch (error) {
       console.error('Failed to update profile:', error);
+      setSubmitError('Failed to update profile. Please try again.');
     }
+  };
+
+  const onInvalid = (errors: FieldErrors<ProfileInput>) => {
+    console.log('Form validation errors:', errors);
+    const errorMessages = Object.values(errors)
+      .map((field) => field?.message)
+      .filter(Boolean) as string[];
+    setSubmitError(
+      `Please fix the following errors: ${errorMessages.join(', ')}`
+    );
   };
 
   const handleAvatarUpload = async (file: File) => {
@@ -64,8 +90,11 @@ export function ProfileTab({ profile, jwt }: ProfileTabProps) {
         title="Profile Information"
         description="Update your personal information and profile picture"
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <form
+          onSubmit={handleSubmit(onValid, onInvalid)}
+          className="profile-form-container"
+        >
+          <Box className="profile-form-fields">
             {/* Avatar Upload */}
             <AvatarUpload
               currentUrl={currentAvatarUrl || undefined}
@@ -83,19 +112,6 @@ export function ProfileTab({ profile, jwt }: ProfileTabProps) {
               placeholder="Enter your display name"
             />
 
-            {/* Avatar URL */}
-            <TextField
-              {...register('avatarUrl')}
-              label="Avatar URL (Alternative)"
-              fullWidth
-              error={!!errors.avatarUrl}
-              helperText={
-                errors.avatarUrl?.message ||
-                'Or paste an image URL instead of uploading'
-              }
-              placeholder="https://example.com/avatar.jpg"
-            />
-
             {/* Bio */}
             <TextField
               {...register('bio')}
@@ -110,38 +126,45 @@ export function ProfileTab({ profile, jwt }: ProfileTabProps) {
               }
               placeholder="Tell us about yourself..."
             />
+          </Box>
 
-            {/* Success Message */}
-            {updateProfileMutation.isSuccess && !isDirty && (
-              <Alert severity="success">Profile updated successfully!</Alert>
-            )}
+          {/* Alerts */}
+          {updateProfileMutation.isSuccess && !isDirty && (
+            <Alert severity="success" className="profile-alert">
+              Profile updated successfully!
+            </Alert>
+          )}
 
-            {/* Error Message */}
-            {updateProfileMutation.isError && (
-              <Alert severity="error">
-                Failed to update profile. Please try again.
-              </Alert>
-            )}
+          {updateProfileMutation.isError && (
+            <Alert severity="error" className="profile-alert">
+              Failed to update profile. Please try again.
+            </Alert>
+          )}
 
-            {/* Submit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={
-                  !isDirty || isSubmitting || updateProfileMutation.isPending
-                }
-                startIcon={
-                  (isSubmitting || updateProfileMutation.isPending) && (
-                    <CircularProgress size={16} />
-                  )
-                }
-              >
-                {isSubmitting || updateProfileMutation.isPending
-                  ? 'Saving...'
-                  : 'Save Changes'}
-              </Button>
-            </Box>
+          {submitError && (
+            <Alert severity="error" className="profile-alert">
+              {submitError}
+            </Alert>
+          )}
+
+          {/* Submit Button */}
+          <Box className="profile-button-group">
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={
+                !isDirty || isSubmitting || updateProfileMutation.isPending
+              }
+              startIcon={
+                (isSubmitting || updateProfileMutation.isPending) && (
+                  <CircularProgress size={16} />
+                )
+              }
+            >
+              {isSubmitting || updateProfileMutation.isPending
+                ? 'Saving...'
+                : 'Save Changes'}
+            </Button>
           </Box>
         </form>
       </ProfileSection>

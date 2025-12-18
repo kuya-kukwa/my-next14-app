@@ -76,86 +76,72 @@ export function SessionCard({
     <>
       <Card
         variant="outlined"
-        sx={{
-          position: 'relative',
-          transition: 'all 0.2s ease',
-          '&:hover': {
-            borderColor: 'primary.main',
-            boxShadow: 1,
-          },
-        }}
+        className={`session-card-container ${
+          isCurrentSession ? 'current' : ''
+        }`}
       >
         <CardContent>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-            }}
-          >
+          <Box className="session-card-header">
             {/* Device Info */}
-            <Box sx={{ display: 'flex', gap: 2, flex: 1 }}>
-              <DeviceIcon size={24} style={{ color: '#666', marginTop: 2 }} />
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontSize: '1rem', fontWeight: 600 }}
-                >
+            <Box className="session-card-info">
+              <Box className="session-card-device">
+                <Box className="session-card-device-icon">
+                  <DeviceIcon size={20} />
+                </Box>
+                <Typography variant="h6" className="session-card-device-name">
                   {session.clientName || 'Unknown Device'}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 1 }}
-                >
-                  {session.osName}{' '}
-                  {session.osVersion && `• ${session.osVersion}`}
-                </Typography>
-
-                {/* Location & Time */}
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
-                  {session.countryName && (
-                    <Box
-                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                    >
-                      <MapPin size={14} style={{ color: '#999' }} />
-                      <Typography variant="caption" color="text.secondary">
-                        {session.countryName}
-                      </Typography>
-                    </Box>
-                  )}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Clock size={14} style={{ color: '#999' }} />
-                    <Typography variant="caption" color="text.secondary">
-                      {timeAgo}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Current Session Badge */}
-                {isCurrentSession && (
-                  <Chip
-                    label="Current Session"
-                    size="small"
-                    color="primary"
-                    sx={{ mt: 1 }}
-                  />
-                )}
               </Box>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                className="session-card-location"
+              >
+                {session.osName} {session.osVersion && `• ${session.osVersion}`}
+              </Typography>
+              <Typography variant="caption" className="session-card-ip">
+                {session.countryName && (
+                  <>
+                    <MapPin
+                      size={12}
+                      style={{
+                        display: 'inline',
+                        verticalAlign: 'middle',
+                        marginRight: '4px',
+                      }}
+                    />
+                    {session.countryName} •{' '}
+                  </>
+                )}
+                <Clock
+                  size={12}
+                  style={{
+                    display: 'inline',
+                    verticalAlign: 'middle',
+                    marginRight: '4px',
+                  }}
+                />
+                {timeAgo}
+              </Typography>
             </Box>
 
-            {/* Logout Button */}
+            {/* Current Session Badge */}
+            {isCurrentSession && (
+              <Box className="session-card-badge">
+                <Chip label="Current Session" size="small" color="primary" />
+              </Box>
+            )}
+          </Box>
+
+          <Box className="session-card-footer">
+            <Typography variant="caption" className="session-card-time">
+              Last active: {timeAgo}
+            </Typography>
             <IconButton
               onClick={handleLogoutClick}
               disabled={isDeleting}
               size="small"
-              sx={{
-                color: 'error.main',
-                '&apos:hover': {
-                  backgroundColor: 'error.light',
-                  color: 'error.dark',
-                },
-              }}
+              color="error"
             >
               <LogOut size={18} />
             </IconButton>

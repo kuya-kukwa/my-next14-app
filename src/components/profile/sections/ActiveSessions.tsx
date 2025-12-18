@@ -28,7 +28,7 @@ export function ActiveSessions() {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+      <Box className="sessions-loading">
         <CircularProgress />
       </Box>
     );
@@ -48,21 +48,14 @@ export function ActiveSessions() {
 
   return (
     <Box>
-      <Box
-        sx={{
-          mb: 2,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
+      <Box className="sessions-header">
         <Typography variant="body2" color="text.secondary">
           {sessions.total} active{' '}
           {sessions.total === 1 ? 'session' : 'sessions'}
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box className="sessions-list">
         {sessions.sessions.map((session) => (
           <SessionCard
             key={session.$id}

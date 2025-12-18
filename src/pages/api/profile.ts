@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getUserFromJWT } from '@/lib/appwriteServer';
-import { getServerDatabases, upsertUser, upsertProfile, getUserByEmail, getProfileByUserId, databaseId, COLLECTIONS } from '@/lib/appwriteDatabase';
+import { getServerDatabases, upsertUser, getUserByEmail, databaseId, COLLECTIONS } from '@/lib/appwriteDatabase';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
@@ -24,8 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     const user = await upsertUser(databases, email, name);
-    const profile = await upsertProfile(databases, user.$id);
-    return res.status(200).json({ profile });
+    return res.status(200).json({ profile: user });
   }
 
   if (req.method === 'PUT') {
@@ -33,20 +32,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     const { displayName = null, avatarUrl = null, bio = null } = req.body ?? {};
-    const existingProfile = await getProfileByUserId(databases, user.$id);
     
-    if (!existingProfile) {
-      return res.status(404).json({ error: 'Profile not found' });
-    }
-
-    const profile = await databases.updateDocument(
+    const updatedUser = await databases.updateDocument(
       databaseId,
-      COLLECTIONS.PROFILES,
-      existingProfile.$id,
+      COLLECTIONS.USERS,
+      user.$id,
       { displayName, avatarUrl, bio }
     );
     
-    return res.status(200).json({ profile });
+    return res.status(200).json({ profile: updatedUser });
   }
 
   return res.status(405).end();

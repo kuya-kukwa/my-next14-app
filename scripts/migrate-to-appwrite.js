@@ -75,19 +75,17 @@ async function upsertDocument(collectionName, docId, data) {
         updatedAt: u.updatedAt?.toISOString() || now
       };
       console.log(`Migrating user: ${u.email}`);
-      await upsertDocument('User', docId, payload);
+      const userDoc = await upsertDocument('User', docId, payload);
 
       if (u.profile) {
-        const profilePayload = {
-          userId: u.id,
+        const updatePayload = {
           displayName: u.profile.displayName || null,
           avatarUrl: u.profile.avatarUrl || null,
           bio: u.profile.bio || null,
-          createdAt: now,
-          updatedAt: now
         };
-        const profileId = u.profile.id;
-        await upsertDocument('Profile', profileId, profilePayload);
+        // Update the user document with profile data
+        await databases.updateDocument(databaseId, 'User', userDoc.$id, updatePayload);
+        console.log(`  ✓ Updated user ${u.email} with profile data`);
       }
     }
     console.log(`\n✅ Migrated ${users.length} users\n`);

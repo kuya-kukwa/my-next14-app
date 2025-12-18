@@ -86,19 +86,16 @@ export function DeleteAccountDialog({
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        sx: {
-          borderTop: '4px solid',
-          borderColor: 'error.main',
-        },
+        className: 'delete-dialog-paper',
       }}
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle className="delete-dialog-title">
         <AlertTriangle size={24} style={{ color: '#d32f2f' }} />
         Delete Account
       </DialogTitle>
 
       <DialogContent>
-        <Stepper activeStep={activeStep} sx={{ mb: 3 }}>
+        <Stepper activeStep={activeStep} className="delete-dialog-stepper">
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -107,14 +104,14 @@ export function DeleteAccountDialog({
         </Stepper>
 
         {activeStep === 0 && (
-          <Box>
-            <Alert severity="error" sx={{ mb: 2 }}>
+          <Box className="delete-dialog-content">
+            <Alert severity="error" className="delete-dialog-alert">
               <strong>Warning:</strong> This action is irreversible!
             </Alert>
-            <DialogContentText sx={{ mb: 2 }}>
+            <DialogContentText className="delete-dialog-content">
               Deleting your account will permanently remove:
             </DialogContentText>
-            <Box component="ul" sx={{ pl: 2, mb: 2 }}>
+            <Box component="ul" className="delete-dialog-content">
               <li>Your profile information and settings</li>
               <li>All your watchlist items</li>
               <li>Your viewing history and preferences</li>
@@ -127,8 +124,12 @@ export function DeleteAccountDialog({
         )}
 
         {activeStep === 1 && (
-          <form onSubmit={handleSubmit(onSubmit)} id="delete-account-form">
-            <DialogContentText sx={{ mb: 3 }}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            id="delete-account-form"
+            className="delete-dialog-content"
+          >
+            <DialogContentText className="delete-dialog-content">
               To confirm deletion, please enter your password:
             </DialogContentText>
 
@@ -142,10 +143,11 @@ export function DeleteAccountDialog({
               helperText={errors.password?.message}
               placeholder="Enter your password"
               disabled={deleteAccountMutation.isPending || isSubmitting}
+              className="delete-dialog-field"
             />
 
             {deleteAccountMutation.isError && (
-              <Alert severity="error" sx={{ mt: 2 }}>
+              <Alert severity="error" className="delete-dialog-alert">
                 Failed to delete account. Please check your password and try
                 again.
               </Alert>
@@ -154,7 +156,7 @@ export function DeleteAccountDialog({
         )}
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions className="delete-dialog-actions">
         {activeStep === 0 ? (
           <>
             <Button

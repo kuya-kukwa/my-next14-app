@@ -41,6 +41,25 @@ export function authHeader(): Record<string, string> {
   return jwt ? { Authorization: `Bearer ${jwt}` } : {} as Record<string, string>;
 }
 
+/**
+ * Extract user ID from JWT token
+ */
+export function getUserIdFromToken(): string | null {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    // Appwrite JWT contains userId field
+    return payload.userId || null;
+  } catch {
+    return null;
+  }
+}
+
 // Check if token is expired
 export function isTokenExpired(): boolean {
   const token = getToken();
@@ -131,9 +150,17 @@ export function shouldRefreshSession(): boolean {
 
 /**
  * Refresh the JWT session by creating a new JWT from the current session
+ * Returns false if there's no active session or token is expired
  */
 export async function refreshSession(): Promise<boolean> {
   try {
+    // If token is already expired, can't refresh - user needs to sign in again
+    if (isTokenExpired()) {
+      console.warn('[Session] Cannot refresh expired token - user must sign in again');
+      clearToken();
+      return false;
+    }
+    
     const { account } = await import('@/lib/appwriteClient').then(m => m.getAppwriteBrowser());
     
     // Create new JWT from current session
@@ -142,11 +169,14 @@ export async function refreshSession(): Promise<boolean> {
       const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
       setToken(jwt);
       updateLastActivity();
+      console.log('[Session] JWT refreshed successfully');
       return true;
     }
     return false;
   } catch (error) {
-    console.error('Failed to refresh session:', error);
+    console.error('[Session] Failed to refresh session:', error);
+    // Clear token on refresh failure
+    clearToken();
     return false;
   }
 }

@@ -50,16 +50,27 @@ async function createCollectionIfMissing(name) {
   }
 
   console.log(`Creating collection '${name}'...`);
+  
+  // Use stricter permissions for Watchlist collection
+  const permissions = name === 'Watchlist'
+    ? [
+        Permission.read(Role.users()),     // Only authenticated users
+        Permission.create(Role.users()),   // Only authenticated users
+        Permission.update(Role.users()),   // Only authenticated users
+        Permission.delete(Role.users())    // Only authenticated users
+      ]
+    : [
+        Permission.read(Role.any()),
+        Permission.create(Role.any()),
+        Permission.update(Role.any()),
+        Permission.delete(Role.any())
+      ];
+  
   const res = await databases.createCollection(
     databaseId, 
     name, 
     name, 
-    [
-      Permission.read(Role.any()),
-      Permission.create(Role.any()),
-      Permission.update(Role.any()),
-      Permission.delete(Role.any())
-    ]
+    permissions
   );
   console.log(`Created collection '${name}' id=${res.$id}`);
   return res.$id;

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/http';
+import { getUserIdFromToken } from '@/lib/session';
 
 export type WatchlistItem = {
   movieId: string;
@@ -22,12 +23,14 @@ export type WatchlistItemResponse = {
 };
 
 export const watchlistKeys = {
-  all: ['watchlist'] as const,
+  all: (userId?: string | null) => ['watchlist', userId] as const,
 };
 
 export function useWatchlist() {
+  const userId = getUserIdFromToken();
+  
   return useQuery({
-    queryKey: watchlistKeys.all,
+    queryKey: watchlistKeys.all(userId),
     queryFn: async () => {
       const response = await api.get<{ success: true; data: WatchlistResponse }>('/api/watchlist');
       return response.data;
@@ -39,6 +42,7 @@ export function useWatchlist() {
 
 export function useAddToWatchlist() {
   const queryClient = useQueryClient();
+  const userId = getUserIdFromToken();
 
   return useMutation({
     mutationFn: async (data: AddToWatchlistRequest) => {
@@ -47,14 +51,14 @@ export function useAddToWatchlist() {
     },
     onMutate: async (newWatchlistItem) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: watchlistKeys.all });
+      await queryClient.cancelQueries({ queryKey: watchlistKeys.all(userId) });
 
       // Snapshot previous value
-      const previousWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all);
+      const previousWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all(userId));
 
       // Optimistically update
       if (previousWatchlist) {
-        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all, {
+        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all(userId), {
           ...previousWatchlist,
           movieIds: [...previousWatchlist.movieIds, newWatchlistItem.movieId],
           total: previousWatchlist.total + 1,
@@ -65,9 +69,9 @@ export function useAddToWatchlist() {
     },
     onSuccess: (data, variables) => {
       // Update cache with server response without causing scroll
-      const currentWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all);
+      const currentWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all(userId));
       if (currentWatchlist && data.watchlistItem) {
-        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all, {
+        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all(userId), {
           ...currentWatchlist,
           movieIds: currentWatchlist.movieIds.includes(variables.movieId)
             ? currentWatchlist.movieIds
@@ -78,7 +82,7 @@ export function useAddToWatchlist() {
     onError: (_error, _variables, context) => {
       // Rollback on error
       if (context?.previousWatchlist) {
-        queryClient.setQueryData(watchlistKeys.all, context.previousWatchlist);
+        queryClient.setQueryData(watchlistKeys.all(userId), context.previousWatchlist);
       }
     },
   });
@@ -86,6 +90,7 @@ export function useAddToWatchlist() {
 
 export function useRemoveFromWatchlist() {
   const queryClient = useQueryClient();
+  const userId = getUserIdFromToken();
 
   return useMutation({
     mutationFn: async (movieId: string) => {
@@ -94,14 +99,14 @@ export function useRemoveFromWatchlist() {
     },
     onMutate: async (movieId) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: watchlistKeys.all });
+      await queryClient.cancelQueries({ queryKey: watchlistKeys.all(userId) });
 
       // Snapshot previous value
-      const previousWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all);
+      const previousWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all(userId));
 
       // Optimistically update
       if (previousWatchlist) {
-        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all, {
+        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all(userId), {
           ...previousWatchlist,
           movieIds: previousWatchlist.movieIds.filter((id) => id !== movieId),
           total: previousWatchlist.total - 1,
@@ -112,9 +117,9 @@ export function useRemoveFromWatchlist() {
     },
     onSuccess: (_data, movieId) => {
       // Update cache with server confirmation without causing scroll
-      const currentWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all);
+      const currentWatchlist = queryClient.getQueryData<WatchlistResponse>(watchlistKeys.all(userId));
       if (currentWatchlist) {
-        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all, {
+        queryClient.setQueryData<WatchlistResponse>(watchlistKeys.all(userId), {
           ...currentWatchlist,
           movieIds: currentWatchlist.movieIds.filter((id) => id !== movieId),
         });
@@ -123,7 +128,7 @@ export function useRemoveFromWatchlist() {
     onError: (_error, _variables, context) => {
       // Rollback on error
       if (context?.previousWatchlist) {
-        queryClient.setQueryData(watchlistKeys.all, context.previousWatchlist);
+        queryClient.setQueryData(watchlistKeys.all(userId), context.previousWatchlist);
       }
     },
   });

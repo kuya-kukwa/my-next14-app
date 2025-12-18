@@ -32,9 +32,9 @@ export function useUploadAvatar() {
 
         if (!response.ok) {
           const error = await response.json();
-          // If token is invalid, try to refresh and retry once
-          if (error.message === 'Invalid token' && !response.headers.get('x-retry')) {
-            logger.debug('Token invalid, attempting refresh...');
+          // If token is invalid or expired, try to refresh and retry once
+          if ((error.message === 'Invalid token' || error.message?.includes('expired')) && !response.headers.get('x-retry')) {
+            logger.debug('Token invalid/expired, attempting refresh...');
             const refreshed = await refreshSession();
             if (refreshed) {
               const newToken = getToken();
@@ -53,6 +53,9 @@ export function useUploadAvatar() {
                 const retryError = await retryResponse.json();
                 throw new Error(retryError.message || 'Failed to upload avatar');
               }
+            } else {
+              // Refresh failed - session expired, user needs to sign in again
+              throw new Error('Your session has expired. Please sign in again to upload your avatar.');
             }
           }
           throw new Error(error.message || 'Failed to upload avatar');

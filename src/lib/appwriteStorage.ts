@@ -1,4 +1,5 @@
 import { Client as BrowserClient, Storage as BrowserStorage } from 'appwrite';
+import { getToken, isTokenExpired, clearToken } from './session';
 
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!;
@@ -14,7 +15,20 @@ export function getClientStorage(jwt?: string) {
   const client = new BrowserClient()
     .setEndpoint(endpoint)
     .setProject(projectId);
-  if (jwt) client.setJWT(jwt);
+  
+  // Use provided JWT or get from session
+  const token = jwt || getToken();
+  
+  if (token) {
+    // Check if token is expired before using it
+    if (isTokenExpired()) {
+      clearToken();
+      console.warn('[Storage] Expired JWT token cleared');
+    } else {
+      client.setJWT(token);
+    }
+  }
+  
   return new BrowserStorage(client);
 }
 

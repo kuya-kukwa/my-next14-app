@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, TextField, Button, CircularProgress, Alert } from '@mui/material';
@@ -25,6 +25,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
   const updateProfileMutation = useUpdateProfile(jwt || undefined);
   const uploadAvatarMutation = useUploadAvatar();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [hasRecentSuccess, setHasRecentSuccess] = useState(false);
 
   const {
     register,
@@ -32,6 +33,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
     formState: { errors, isDirty, isSubmitting },
     setValue,
     watch,
+    reset,
   } = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -43,8 +45,16 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
 
   const currentAvatarUrl = watch('avatarUrl');
 
+  // Reset success state when user starts making changes
+  useEffect(() => {
+    if (isDirty && hasRecentSuccess) {
+      setHasRecentSuccess(false);
+    }
+  }, [isDirty, hasRecentSuccess]);
+
   const onValid = async (data: ProfileInput) => {
     setSubmitError(null);
+    setHasRecentSuccess(false); // Reset success state
     logger.debug('Submitting profile update with data:', data);
     const currentAvatarUrl = watch('avatarUrl');
     const transformedData = {
@@ -56,6 +66,9 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
     logger.debug('Transformed data:', transformedData);
     try {
       await updateProfileMutation.mutateAsync(transformedData);
+      setHasRecentSuccess(true); // Mark as recently successful
+      // Reset form to mark as not dirty after successful update
+      reset(transformedData);
       logger.debug('Profile update successful');
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -162,7 +175,9 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
                 )
               }
             >
-              {isSubmitting || updateProfileMutation.isPending
+              {hasRecentSuccess && !isDirty
+                ? 'Saved Successfully'
+                : isSubmitting || updateProfileMutation.isPending
                 ? 'Saving...'
                 : 'Save Changes'}
             </Button>

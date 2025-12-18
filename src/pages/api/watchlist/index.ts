@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerDatabases, upsertUser, databaseId, COLLECTIONS, Query, ID } from '@/lib/appwriteDatabase';
 import { withCORS, withRateLimit, withAuth, sendError, sendSuccess, type AuthenticatedUser } from '@/lib/apiMiddleware';
 import { watchlistAddSchema } from '@/lib/validation';
+import { Permission, Role } from 'node-appwrite';
 
 async function watchlistHandler(
   req: NextApiRequest,
@@ -58,7 +59,7 @@ async function watchlistHandler(
       });
     }
 
-    // Create new watchlist item
+    // Create new watchlist item with user-specific permissions
     const watchlistItem = await databases.createDocument(
       databaseId,
       COLLECTIONS.WATCHLIST,
@@ -67,7 +68,12 @@ async function watchlistHandler(
         userId: userDoc.$id,
         movieId,
         createdAt: new Date().toISOString()
-      }
+      },
+      [
+        Permission.read(Role.user(userDoc.$id)),
+        Permission.update(Role.user(userDoc.$id)),
+        Permission.delete(Role.user(userDoc.$id))
+      ]
     );
 
     return sendSuccess(res, {

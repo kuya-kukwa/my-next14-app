@@ -34,8 +34,19 @@ async function profileHandler(
       return sendError(res, 404, 'User not found', 'User profile not found');
     }
 
+    // Parse body if it's a string (Turbopack issue)
+    let bodyData = req.body;
+    if (typeof req.body === 'string') {
+      try {
+        bodyData = JSON.parse(req.body);
+      } catch (error) {
+        logger.error('[Profile API] Failed to parse body:', error);
+        return sendError(res, 400, 'Invalid request', 'Request body must be valid JSON');
+      }
+    }
+
     // Validate request body
-    const validation = profileUpdateSchema.safeParse(req.body);
+    const validation = profileUpdateSchema.safeParse(bodyData);
     if (!validation.success) {
       const errorMessage = validation.error.issues[0]?.message || 'Invalid profile data';
       return sendError(res, 400, 'Validation error', errorMessage);

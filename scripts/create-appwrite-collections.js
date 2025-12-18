@@ -99,16 +99,11 @@ async function createAttributes(databaseId, collectionId, attributes) {
       { name: 'User', attributes: [
         { key: 'name', type: 'string', size: 255, required: true },
         { key: 'email', type: 'string', size: 255, required: true },
+        { key: 'displayName', type: 'string', size: 255, required: false },
         { key: 'passwordHash', type: 'string', size: 512, required: false }, // hashed password; optional for OAuth users
         { key: 'createdAt', type: 'datetime', required: true },
-        { key: 'updatedAt', type: 'datetime', required: true }
-      ] },
-      { name: 'Profile', attributes: [
-        { key: 'userId', type: 'string', size: 100, required: true },
-        { key: 'displayName', type: 'string', size: 255 },
         { key: 'avatarUrl', type: 'string', size: 1024 },
-        { key: 'bio', type: 'text' },
-        { key: 'createdAt', type: 'datetime', required: true },
+        { key: 'bio', type: 'string', size: 1000, required: false },
         { key: 'updatedAt', type: 'datetime', required: true }
       ] },
       { name: 'Movie', attributes: [
@@ -134,7 +129,7 @@ async function createAttributes(databaseId, collectionId, attributes) {
         { key: 'name', type: 'string', size: 255, required: true },
         { key: 'email', type: 'string', size: 255, required: true },
         { key: 'subject', type: 'string', size: 255 },
-        { key: 'message', type: 'text', required: true },
+        { key: 'message', type: 'string', size: 2000, required: true },
         { key: 'userId', type: 'string', size: 100 }, // optional reference to user
         { key: 'createdAt', type: 'datetime', required: true }
       ] }

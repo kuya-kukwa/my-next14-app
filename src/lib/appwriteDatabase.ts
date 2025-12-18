@@ -26,7 +26,6 @@ export function getClientDatabases(jwt?: string) {
 // Collection IDs (matching the names created in Appwrite)
 export const COLLECTIONS = {
   USERS: 'User',
-  PROFILES: 'Profile',
   MOVIES: 'Movie',
   WATCHLIST: 'Watchlist',
   CONTACT_MESSAGES: 'ContactMessage'
@@ -61,46 +60,10 @@ export async function upsertUser(databases: NodeDatabases, email: string, name: 
   }
 }
 
-// Helper: Create or get profile for user
-export async function upsertProfile(databases: NodeDatabases, userId: string) {
-  try {
-    const existing = await databases.listDocuments(databaseId, COLLECTIONS.PROFILES, [
-      Query.equal('userId', userId)
-    ]);
-    
-    if (existing.documents.length > 0) {
-      return existing.documents[0];
-    }
-    
-    return await databases.createDocument(
-      databaseId,
-      COLLECTIONS.PROFILES,
-      ID.unique(),
-      {
-        userId,
-        displayName: null,
-        avatarUrl: null,
-        bio: null
-      }
-    );
-  } catch (error) {
-    console.error('Error upserting profile:', error);
-    throw error;
-  }
-}
-
 // Helper: Get user by email
 export async function getUserByEmail(databases: NodeDatabases, email: string) {
   const result = await databases.listDocuments(databaseId, COLLECTIONS.USERS, [
     Query.equal('email', email)
-  ]);
-  return result.documents[0] || null;
-}
-
-// Helper: Get profile by userId
-export async function getProfileByUserId(databases: NodeDatabases, userId: string) {
-  const result = await databases.listDocuments(databaseId, COLLECTIONS.PROFILES, [
-    Query.equal('userId', userId)
   ]);
   return result.documents[0] || null;
 }

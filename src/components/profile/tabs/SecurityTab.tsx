@@ -1,14 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Box,
-  TextField,
-  Button,
-  CircularProgress,
-  Alert,
-  Divider,
-} from '@mui/material';
+import { Box, TextField, Button, CircularProgress, Alert } from '@mui/material';
 import { Shield, AlertTriangle } from 'lucide-react';
 import {
   passwordChangeSchema,
@@ -61,8 +54,11 @@ export function SecurityTab({ onDeleteAccountClick }: SecurityTabProps) {
         title="Change Password"
         description="Update your password to keep your account secure"
       >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="profile-form-container"
+        >
+          <Box className="profile-form-fields">
             {/* Current Password */}
             <TextField
               {...register('currentPassword')}
@@ -98,44 +94,46 @@ export function SecurityTab({ onDeleteAccountClick }: SecurityTabProps) {
               helperText={errors.confirmPassword?.message}
               placeholder="Confirm your new password"
             />
+          </Box>
 
-            {/* Success Message */}
-            {updatePasswordMutation.isSuccess && !isDirty && (
-              <Alert severity="success">Password updated successfully!</Alert>
-            )}
+          {/* Success Message */}
+          {updatePasswordMutation.isSuccess && !isDirty && (
+            <Alert severity="success" className="profile-alert">
+              Password updated successfully!
+            </Alert>
+          )}
 
-            {/* Error Message */}
-            {updatePasswordMutation.isError && (
-              <Alert severity="error">
-                Failed to update password. Please check your current password
-                and try again.
-              </Alert>
-            )}
+          {/* Error Message */}
+          {updatePasswordMutation.isError && (
+            <Alert severity="error" className="profile-alert">
+              Failed to update password. Please check your current password and
+              try again.
+            </Alert>
+          )}
 
-            {/* Submit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={
-                  !isDirty || isSubmitting || updatePasswordMutation.isPending
-                }
-                startIcon={
-                  (isSubmitting || updatePasswordMutation.isPending) && (
-                    <CircularProgress size={16} />
-                  )
-                }
-              >
-                {isSubmitting || updatePasswordMutation.isPending
-                  ? 'Updating...'
-                  : 'Update Password'}
-              </Button>
-            </Box>
+          {/* Submit Button */}
+          <Box className="profile-button-group">
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={
+                !isDirty || isSubmitting || updatePasswordMutation.isPending
+              }
+              startIcon={
+                (isSubmitting || updatePasswordMutation.isPending) && (
+                  <CircularProgress size={16} />
+                )
+              }
+            >
+              {isSubmitting || updatePasswordMutation.isPending
+                ? 'Updating...'
+                : 'Update Password'}
+            </Button>
           </Box>
         </form>
       </ProfileSection>
 
-      <Divider sx={{ my: 4 }} />
+      <hr className="profile-divider" />
 
       {/* Active Sessions Section */}
       <ProfileSection
@@ -146,7 +144,7 @@ export function SecurityTab({ onDeleteAccountClick }: SecurityTabProps) {
         <ActiveSessions />
       </ProfileSection>
 
-      <Divider sx={{ my: 4 }} />
+      <hr className="profile-divider" />
 
       {/* Danger Zone */}
       <ProfileSection
@@ -155,7 +153,7 @@ export function SecurityTab({ onDeleteAccountClick }: SecurityTabProps) {
         description="Permanently delete your account and all associated data"
         variant="danger"
       >
-        <Alert severity="warning" sx={{ mb: 2 }}>
+        <Alert severity="warning" className="profile-alert">
           Once you delete your account, there is no going back. This action
           cannot be undone.
         </Alert>

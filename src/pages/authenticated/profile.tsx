@@ -5,8 +5,8 @@ import { Box, Container, CircularProgress, Typography } from '@mui/material';
 import { getToken, isTokenExpired, clearToken } from '@/lib/session';
 import { useUserAccount } from '@/services/queries/profile';
 import { useProfile } from '@/services/queries/profile';
+import { CollapsibleSidebar } from '@/components/profile/CollapsibleSidebar';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { ProfileNavigation } from '@/components/profile/ProfileNavigation';
 import { ProfileTab } from '@/components/profile/tabs/ProfileTab';
 import { DeleteAccountDialog } from '@/components/profile/dialogs/DeleteAccountDialog';
 
@@ -88,15 +88,11 @@ export default function ProfilePage() {
   if (!isMounted || userLoading || profileLoading) {
     return (
       <Container maxWidth="xl">
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-          }}
-        >
+        <Box className="profile-loading-container">
           <CircularProgress />
+          <Typography className="profile-loading-text">
+            Loading profile...
+          </Typography>
         </Box>
       </Container>
     );
@@ -105,48 +101,36 @@ export default function ProfilePage() {
   // Get user info
   const displayName = profile?.displayName || user?.name || 'User';
   const email = user?.email || '';
-  const avatarUrl = profile?.avatarUrl || undefined;
 
   return (
     <>
       <Box className="profile-page">
         <Box className="profile-card">
-          {/* Sidebar */}
-          <Box className="profile-sidebar">
-            <Box className="profile-sidebar-header">
-              <ProfileHeader
-                name={displayName}
-                email={email}
-                avatarUrl={avatarUrl}
-              />
-            </Box>
-            <Box className="profile-sidebar-nav">
-              <ProfileNavigation
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-              />
-            </Box>
-          </Box>
+          {/* Collapsible Sidebar */}
+          <CollapsibleSidebar
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            userName={displayName}
+            userEmail={email}
+            avatarUrl={profile?.avatarUrl || undefined}
+          />
 
           {/* Content */}
           <Box className="profile-content">
             {activeTab === 0 && (
-              <ProfileTab profile={profile} jwt={jwt || undefined} />
+              <ProfileTab
+                username={displayName}
+                avatarUrl={profile?.avatarUrl}
+                bio={profile?.bio}
+              />
             )}
             {activeTab === 1 && (
               <SecurityTab onDeleteAccountClick={handleOpenDeleteDialog} />
             )}
             {activeTab === 2 && (
-              <Box sx={{ py: 4, textAlign: 'center' }}>
+              <Box className="profile-loading-tab">
                 <Typography variant="h6" color="text.secondary">
                   History tab - Coming soon
-                </Typography>
-              </Box>
-            )}
-            {activeTab === 3 && (
-              <Box sx={{ py: 4, textAlign: 'center' }}>
-                <Typography variant="h6" color="text.secondary">
-                  Preferences tab - Coming soon
                 </Typography>
               </Box>
             )}

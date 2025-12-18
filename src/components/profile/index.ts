@@ -1,6 +1,7 @@
 // Profile Components
 export { ProfileHeader } from './ProfileHeader';
 export { ProfileNavigation } from './ProfileNavigation';
+export { CollapsibleSidebar } from './CollapsibleSidebar';
 export { ProfileSection } from './ProfileSection';
 export { AvatarUpload } from './AvatarUpload';
 

@@ -391,7 +391,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         variant="outlined"
                         sx={{
                           fontWeight: 600,
-                          fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                          fontSize: {
+                            xs: '0.75rem',
+                            sm: '0.875rem',
+                            md: '1rem',
+                          },
                           px: { xs: 1.5, sm: 2, md: 2.5 },
                           py: { xs: 0.5, sm: 0.75, md: 1 },
                           borderRadius: '9999px',
@@ -418,7 +422,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         variant="outlined"
                         sx={{
                           fontWeight: 600,
-                          fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                          fontSize: {
+                            xs: '0.75rem',
+                            sm: '0.875rem',
+                            md: '1rem',
+                          },
                           px: { xs: 1.5, sm: 2, md: 2.5 },
                           py: { xs: 0.5, sm: 0.75, md: 1 },
                           borderRadius: '9999px',

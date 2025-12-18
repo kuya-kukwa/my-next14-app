@@ -335,7 +335,7 @@
 /* Profile Content - Scrollable tab content area */
 .profile-content {
   overflow-y: auto;
-  padding: var(--spacing-3xl) var(--spacing-2xl);
+  padding: var(--spacing-2xl) var(--spacing-xl);
   background: var(--color-bg-secondary);
 }
 
@@ -375,7 +375,7 @@
 
 /* Profile Tab Sections */
 .profile-section {
-  margin-bottom: var(--spacing-4xl);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .profile-section:last-child {
@@ -588,7 +588,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
 }
 
 .profile-section-icon {
@@ -609,7 +609,7 @@
 .profile-section-description {
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
-  margin: 0 0 var(--spacing-2xl) 0;
+  margin: 0 0 var(--spacing-xl) 0;
   line-height: var(--line-height-relaxed);
 }
 
@@ -624,8 +624,8 @@
 .profile-form-fields {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
-  margin-bottom: var(--spacing-3xl);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .profile-button-group {
@@ -650,6 +650,10 @@
 /* AVATAR UPLOAD COMPONENT                        */
 /* ────────────────────────────────────────────── */
 
+:root {
+  --avatar-upload-size: clamp(140px, 15vw, 160px);
+}
+
 .avatar-upload-container {
   width: 100%;
 }
@@ -658,58 +662,71 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-xl);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-lg);
 }
 
 .avatar-upload-preview-image {
   position: relative;
+  width: var(--avatar-upload-size);
+  height: var(--avatar-upload-size);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  outline: none;
+}
+
+.avatar-upload-preview-image:hover {
+  transform: scale(1.02);
+}
+
+.avatar-upload-preview-image:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Hover Overlay */
+.avatar-upload-hover-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  padding: var(--spacing-md);
+}
+
+.avatar-upload-preview-image:hover .avatar-upload-hover-overlay,
+.avatar-upload-hover-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.avatar-upload-hover-overlay.active {
+  background: rgba(229, 9, 20, 0.85);
+  border: 2px solid var(--color-primary);
 }
 
 .avatar-upload-badge {
   position: absolute;
   bottom: 0;
   right: 0;
-}
-
-.avatar-upload-info {
-  text-align: center;
-}
-
-.avatar-upload-name {
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--spacing-xs) 0;
-}
-
-.avatar-upload-caption {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.avatar-upload-dropzone-container {
-  margin-bottom: var(--spacing-lg);
-}
-
-.avatar-upload-dropzone-icon {
-  font-size: 3rem;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
-}
-
-.avatar-upload-dropzone-text {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  margin: var(--spacing-sm) 0 0 0;
+  z-index: 2;
 }
 
 .avatar-upload-progress {
-  margin-top: var(--spacing-md);
+  width: 100%;
+  max-width: 240px;
+  margin: var(--spacing-md) auto 0;
 }
 
 .avatar-upload-progress-bar {
   margin-bottom: var(--spacing-xs);
+  border-radius: 4px;
 }
 
 .avatar-upload-progress-text {

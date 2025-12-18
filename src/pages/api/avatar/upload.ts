@@ -1,13 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
-import path from 'path';
 import { promisify } from 'util';
+import { getUserFromJWT } from '@/lib/appwriteServer';
+import { getServerDatabases, getUserByEmail, databaseId, COLLECTIONS } from '@/lib/appwriteDatabase';
+import { uploadAvatarFile, deleteAvatarFile } from '@/lib/appwriteStorage.server';
 
 const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const unlink = promisify(fs.unlink);
-const mkdir = promisify(fs.mkdir);
 
 // Disable body parsing to handle multipart form data
 export const config = {
@@ -19,10 +18,6 @@ export const config = {
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-/**
- * Upload avatar endpoint
- * Handles file upload, validation, and storage
- */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -32,6 +27,26 @@ export default async function handler(
   }
 
   try {
+    // Get JWT from Authorization header
+    const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
+    if (!jwt) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Verify user
+    const appwriteUser = await getUserFromJWT(jwt);
+    if (!appwriteUser || typeof appwriteUser !== 'object' || !('email' in appwriteUser)) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const email = (appwriteUser as { email?: string }).email || '';
+    const databases = getServerDatabases();
+    const user = await getUserByEmail(databases, email);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     // Parse multipart form data
     const form = new IncomingForm({
       maxFileSize: MAX_FILE_SIZE,
@@ -65,36 +80,42 @@ export default async function handler(
       });
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'avatars');
-    try {
-      await mkdir(uploadsDir, { recursive: true });
-    } catch {
-      // Directory might already exist
+    // Read file buffer
+    const fileBuffer = await readFile(file.filepath);
+
+    // Upload to Appwrite Storage
+    const { fileId, url } = await uploadAvatarFile(
+      fileBuffer,
+      file.originalFilename || file.newFilename || 'avatar.jpg'
+    );
+
+    // Delete old avatar if exists
+    if (user.avatarFileId) {
+      try {
+        await deleteAvatarFile(user.avatarFileId);
+      } catch (error) {
+        console.error('Failed to delete old avatar:', error);
+        // Continue anyway
+      }
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const ext = path.extname(file.originalFilename || file.newFilename || '');
-    const filename = `avatar-${timestamp}${ext}`;
-    const filepath = path.join(uploadsDir, filename);
-
-    // Read and write file
-    const fileData = await readFile(file.filepath);
-    await writeFile(filepath, fileData);
-
-    // Delete temporary file
-    await unlink(file.filepath);
-
-    // Generate public URL
-    const avatarUrl = `/uploads/avatars/${filename}`;
-
-    // TODO: Update user profile in database with avatarUrl
-    // This will be implemented when we integrate with your user profile system
+    // Update user in database with new avatar fileId and URL
+    await databases.updateDocument(
+      databaseId,
+      COLLECTIONS.USERS,
+      user.$id,
+      {
+        // do not touch name here; only optional fields + updatedAt
+        avatarFileId: fileId,
+        avatarUrl: url,
+        updatedAt: new Date().toISOString(),
+      }
+    );
 
     return res.status(201).json({
       success: true,
-      avatarUrl,
+      avatarUrl: url,
+      fileId,
       message: 'Avatar uploaded successfully',
     });
   } catch (error: unknown) {

@@ -128,3 +128,25 @@ export function shouldRefreshSession(): boolean {
     return false;
   }
 }
+
+/**
+ * Refresh the JWT session by creating a new JWT from the current session
+ */
+export async function refreshSession(): Promise<boolean> {
+  try {
+    const { account } = await import('@/lib/appwriteClient').then(m => m.getAppwriteBrowser());
+    
+    // Create new JWT from current session
+    const jwtRes = await account.createJWT() as unknown;
+    if (jwtRes && typeof jwtRes === 'object' && 'jwt' in jwtRes) {
+      const jwt = (jwtRes as { jwt?: string }).jwt ?? '';
+      setToken(jwt);
+      updateLastActivity();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Failed to refresh session:', error);
+    return false;
+  }
+}

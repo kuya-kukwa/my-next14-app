@@ -105,7 +105,7 @@ export default function ProfilePage() {
   }
 
   // Get user info
-  const displayName = profile?.displayName || user?.name || 'User';
+  const displayName = profile?.name || user?.name || 'User';
   const email = user?.email || '';
 
   return (

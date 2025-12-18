@@ -11,10 +11,13 @@ export async function http<T>(input: RequestInfo, init?: RequestInit): Promise<T
       body = await res.json();
     } catch {}
 
-    if (body && typeof body === 'object' && 'error' in (body as Record<string, unknown>)) {
-      const msg = (body as Record<string, unknown>)['error'];
-      if (typeof msg === 'string') throw new Error(msg);
-      throw new Error(JSON.stringify(msg));
+    if (body && typeof body === 'object') {
+      const obj = body as Record<string, unknown>;
+      // Prefer explicit message when available
+      const msg = (typeof obj.message === 'string' && obj.message)
+        || (typeof obj.error === 'string' && obj.error)
+        || `Request failed with ${res.status}`;
+      throw new Error(msg);
     }
 
     throw new Error(`Request failed with ${res.status}`);

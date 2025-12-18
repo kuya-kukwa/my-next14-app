@@ -7,7 +7,7 @@ export interface UploadAvatarResponse {
 }
 
 /**
- * Upload avatar image to server
+ * Upload avatar image to Appwrite Storage
  */
 export function useUploadAvatar() {
   const queryClient = useQueryClient();
@@ -17,21 +17,54 @@ export function useUploadAvatar() {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch('/api/avatar/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+      // Get JWT token from session
+      const { getToken, refreshSession } = await import('@/lib/session');
+      let jwt = getToken();
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to upload avatar');
-      }
+      const attemptUpload = async (token: string): Promise<UploadAvatarResponse> => {
+        const response = await fetch('/api/avatar/upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
 
-      return response.json();
+        if (!response.ok) {
+          const error = await response.json();
+          // If token is invalid, try to refresh and retry once
+          if (error.message === 'Invalid token' && !response.headers.get('x-retry')) {
+            console.log('Token invalid, attempting refresh...');
+            const refreshed = await refreshSession();
+            if (refreshed) {
+              const newToken = getToken();
+              if (newToken) {
+                // Retry with new token, mark as retry to avoid infinite loop
+                const retryResponse = await fetch('/api/avatar/upload', {
+                  method: 'POST',
+                  body: formData,
+                  credentials: 'include',
+                  headers: { Authorization: `Bearer ${newToken}`, 'x-retry': 'true' },
+                });
+                if (retryResponse.ok) {
+                  return retryResponse.json();
+                }
+                const retryError = await retryResponse.json();
+                throw new Error(retryError.message || 'Failed to upload avatar');
+              }
+            }
+          }
+          throw new Error(error.message || 'Failed to upload avatar');
+        }
+
+        return response.json();
+      };
+
+      return attemptUpload(jwt || '');
     },
     onSuccess: () => {
-      // Invalidate user account query to refresh avatar
+      // Invalidate profile query to refresh avatar from database
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      // Also invalidate user account query
       queryClient.invalidateQueries({ queryKey: ['user', 'account'] });
     },
   });

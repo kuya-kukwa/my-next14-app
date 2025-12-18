@@ -9,6 +9,13 @@ import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import { useSessionRefresh } from '@/hooks/useSessionRefresh';
+
+// Component to handle session refresh
+function SessionRefreshHandler() {
+  useSessionRefresh();
+  return null;
+}
 
 // Dynamically import React Query Devtools to avoid chunk loading issues with Turbopack
 const ReactQueryDevtools = dynamic(
@@ -28,6 +35,7 @@ export default function App(props: AppProps) {
       <AppCacheProvider {...props}>
         <ThemeContextProvider>
           <QueryClientProvider client={queryClient}>
+            <SessionRefreshHandler />
             <Layout>
               <Component {...pageProps} />
             </Layout>

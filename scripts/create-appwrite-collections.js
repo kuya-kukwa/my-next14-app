@@ -99,10 +99,10 @@ async function createAttributes(databaseId, collectionId, attributes) {
       { name: 'User', attributes: [
         { key: 'name', type: 'string', size: 255, required: true },
         { key: 'email', type: 'string', size: 255, required: true },
-        { key: 'displayName', type: 'string', size: 255, required: false },
         { key: 'passwordHash', type: 'string', size: 512, required: false }, // hashed password; optional for OAuth users
         { key: 'createdAt', type: 'datetime', required: true },
-        { key: 'avatarUrl', type: 'string', size: 1024 },
+        { key: 'avatarFileId', type: 'string', size: 255, required: false }, // Appwrite Storage file ID
+        { key: 'avatarUrl', type: 'string', size: 1024, required: false }, // CDN URL for avatar
         { key: 'bio', type: 'string', size: 1000, required: false },
         { key: 'updatedAt', type: 'datetime', required: true }
       ] },

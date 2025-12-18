@@ -34,7 +34,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
   } = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      displayName: username ? username : undefined,
+      name: username || '',
       avatarUrl: avatarUrl ? avatarUrl : undefined,
       bio: bio ? bio : undefined,
     },
@@ -48,7 +48,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
     const currentAvatarUrl = watch('avatarUrl');
     const transformedData = {
       ...data,
-      displayName: data.displayName === '' ? undefined : data.displayName,
+      name: data.name === '' ? undefined : data.name,
       avatarUrl: currentAvatarUrl === '' ? undefined : currentAvatarUrl,
       bio: data.bio === '' ? undefined : data.bio,
     };
@@ -104,12 +104,12 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
 
             {/* Display Name */}
             <TextField
-              {...register('displayName')}
-              label="Display Name"
+              {...register('name')}
+              label="Name"
               fullWidth
-              error={!!errors.displayName}
-              helperText={errors.displayName?.message}
-              placeholder="Enter your display name"
+              error={!!errors.name}
+              helperText={errors.name?.message}
+              placeholder="Enter your name"
             />
 
             {/* Bio */}

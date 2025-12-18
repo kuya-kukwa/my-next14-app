@@ -3,7 +3,6 @@ import { useDropzone, FileRejection } from 'react-dropzone';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import LinearProgress from '@mui/material/LinearProgress';
 import Alert from '@mui/material/Alert';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -90,28 +89,66 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
 
   return (
     <Box className="avatar-upload-container">
-      {/* Avatar Preview */}
+      {/* Avatar Preview with In-Circle Dropzone */}
       <Box className="avatar-upload-preview">
-        <Box className="avatar-upload-preview-image">
+        <Box
+          {...getRootProps()}
+          className="avatar-upload-preview-image"
+          role="button"
+          aria-label="Upload profile picture"
+          tabIndex={0}
+          aria-describedby={error ? 'avatar-upload-error' : undefined}
+        >
+          <input {...getInputProps()} />
+
+          {/* Avatar */}
           {displayUrl ? (
             <Avatar
               src={displayUrl}
               alt="Avatar preview"
-              sx={{ width: 120, height: 120 }}
+              sx={{ width: 160, height: 160 }}
             >
               {initials}
             </Avatar>
           ) : (
-            <Avatar sx={{ width: 120, height: 120 }}>{initials}</Avatar>
+            <Avatar sx={{ width: 160, height: 160 }}>{initials}</Avatar>
           )}
-        </Box>
-        <Box className="avatar-upload-info">
-          <Typography className="avatar-upload-name">
-            {userName || 'User'}
-          </Typography>
-          <Typography className="avatar-upload-caption">
-            Click or drag to update
-          </Typography>
+
+          {/* Hover Overlay */}
+          {!isUploading && (
+            <Box
+              className={`avatar-upload-hover-overlay ${
+                isDragActive ? 'active' : ''
+              }`}
+            >
+              <CloudUploadIcon
+                sx={{
+                  fontSize: '2.5rem',
+                  color: 'white',
+                  marginBottom: '8px',
+                }}
+              />
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'white',
+                  fontWeight: 600,
+                  marginBottom: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                {isDragActive ? 'Drop to upload' : 'Update photo'}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                }}
+              ></Typography>
+            </Box>
+          )}
         </Box>
       </Box>
 
@@ -129,73 +166,15 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
         </Box>
       )}
 
-      {/* Dropzone */}
-      <Box className="avatar-upload-dropzone-container">
-        <Box
-          {...getRootProps()}
-          className={`avatar-dropzone ${isDragActive ? 'dragActive' : ''} ${
-            error ? 'error' : ''
-          }`}
-        >
-          <input {...getInputProps()} />
-          <CloudUploadIcon className="avatar-upload-dropzone-icon" />
-          {isDragActive ? (
-            <Typography variant="body2" className="avatar-upload-dropzone-text">
-              Drop your image here
-            </Typography>
-          ) : (
-            <Box>
-              <Typography
-                variant="body2"
-                className="avatar-upload-dropzone-text"
-              >
-                Drag & drop an image, or click to browse
-              </Typography>
-              <Typography
-                variant="caption"
-                className="avatar-upload-dropzone-text"
-              >
-                JPG, PNG, WEBP or GIF (max 5MB)
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      </Box>
-
       {/* Error Message */}
       {error && (
-        <Alert severity="error" className="profile-alert">
+        <Alert
+          severity="error"
+          className="profile-alert"
+          id="avatar-upload-error"
+        >
           {error}
         </Alert>
-      )}
-
-      {/* Upload Button */}
-      {!isUploading && (
-        <Button
-          variant="outlined"
-          component="label"
-          fullWidth
-          disabled={isUploading}
-        >
-          Choose File
-          <input
-            type="file"
-            hidden
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                if (file.size > MAX_FILE_SIZE) {
-                  setError('File is too large. Maximum size is 5MB.');
-                  return;
-                }
-                const objectUrl = URL.createObjectURL(file);
-                setPreview(objectUrl);
-                onUpload(file);
-              }
-            }}
-          />
-        </Button>
       )}
     </Box>
   );

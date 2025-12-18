@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import { Box, Container, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import { getToken, isTokenExpired, clearToken } from '@/lib/session';
 import { useUserAccount } from '@/services/queries/profile';
 import { useProfile } from '@/services/queries/profile';
 import { CollapsibleSidebar } from '@/components/profile/CollapsibleSidebar';
-import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ProfileTab } from '@/components/profile/tabs/ProfileTab';
 import { DeleteAccountDialog } from '@/components/profile/dialogs/DeleteAccountDialog';
 
@@ -87,14 +86,21 @@ export default function ProfilePage() {
   // Loading state
   if (!isMounted || userLoading || profileLoading) {
     return (
-      <Container maxWidth="xl">
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <Box className="profile-loading-container">
           <CircularProgress />
           <Typography className="profile-loading-text">
             Loading profile...
           </Typography>
         </Box>
-      </Container>
+      </Box>
     );
   }
 

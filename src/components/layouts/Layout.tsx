@@ -48,6 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
   const isHomePage = router.pathname === '/home';
+  const isProfilePage = router.pathname === '/authenticated/profile';
 
   // Check auth state and token expiration
   useEffect(() => {
@@ -217,121 +218,85 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       }}
     >
       {/* Header */}
-      <AppBar
-        position={isHeaderStatic ? 'static' : 'absolute'}
-        elevation={0}
-        sx={{
-          backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
-          borderBottom: isHeaderStatic
-            ? isDark
-              ? '1px solid rgba(255,255,255,0.08)'
-              : '1px solid rgba(0,0,0,0.08)'
-            : 'none',
-          backdropFilter: !isHeaderStatic ? 'blur(12px)' : 'none',
-          background: !isHeaderStatic
-            ? isDark
-              ? 'rgba(10, 10, 10, 0.8)'
-              : 'rgba(250, 250, 250, 0.8)'
-            : isDark
-            ? '#0a0a0a'
-            : '#fafafa',
-          transition: 'all 0.5s',
-          zIndex: 1100,
-        }}
-      >
-        <Toolbar
+      {!isProfilePage && (
+        <AppBar
+          position={isHeaderStatic ? 'static' : 'absolute'}
+          elevation={0}
           sx={{
-            maxWidth: '1280px',
-            width: '100%',
-            mx: 'auto',
-            px: { xs: 2, sm: 3, md: 4 },
-            py: { xs: 1.5, sm: 2, md: 2.5 },
-            justifyContent: 'space-between',
+            backgroundColor: isDark ? '#0a0a0a' : '#fafafa',
+            borderBottom: isHeaderStatic
+              ? isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1px solid rgba(0,0,0,0.08)'
+              : 'none',
+            backdropFilter: !isHeaderStatic ? 'blur(12px)' : 'none',
+            background: !isHeaderStatic
+              ? isDark
+                ? 'rgba(10, 10, 10, 0.8)'
+                : 'rgba(250, 250, 250, 0.8)'
+              : isDark
+              ? '#0a0a0a'
+              : '#fafafa',
+            transition: 'all 0.5s',
+            zIndex: 1100,
           }}
         >
-          {/* Mobile Menu Button */}
-          {!isHomePage && (
-            <IconButton
-              onClick={toggleMobileMenu}
-              sx={{
-                display: { xs: 'flex', md: 'none' },
-                color: isDark ? '#ffffff' : '#0a0a0a',
-                mr: 1,
-              }}
-              aria-label="open menu"
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-
-          {/* Logo */}
-          <Link
-            href={isAuthenticated ? '/home' : '/'}
-            className="no-underline flex items-center gap-2"
+          <Toolbar
+            sx={{
+              maxWidth: '1280px',
+              width: '100%',
+              mx: 'auto',
+              px: { xs: 2, sm: 3, md: 4 },
+              py: { xs: 1.5, sm: 2, md: 2.5 },
+              justifyContent: 'space-between',
+            }}
           >
-            <Box
-              component="span"
-              sx={{
-                fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                fontWeight: 'bold',
-                letterSpacing: '-0.025em',
-                color: isDark ? '#ffffff' : '#0a0a0a',
-                transition: 'opacity 0.3s',
-                '&:hover': { opacity: 0.8 },
-              }}
-            >
-              NextFlix
-            </Box>
-          </Link>
-
-          {/* Center Nav - Hide on homepage */}
-          {!isHomePage && (
-            <Box
-              sx={{
-                display: { xs: 'none', md: 'flex' },
-                gap: 4,
-                alignItems: 'center',
-              }}
-            >
-              <Link
-                href={isAuthenticated ? '/home' : '/movies'}
-                className="no-underline"
+            {/* Mobile Menu Button */}
+            {!isHomePage && (
+              <IconButton
+                onClick={toggleMobileMenu}
+                sx={{
+                  display: { xs: 'flex', md: 'none' },
+                  color: isDark ? '#ffffff' : '#0a0a0a',
+                  mr: 1,
+                }}
+                aria-label="open menu"
               >
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    color: isDark ? '#e5e5e5' : '#0a0a0a',
-                    transition: 'opacity 0.3s',
-                    '&:hover': { opacity: 0.7 },
-                  }}
-                >
-                  Movies
-                </Box>
-              </Link>
-              <Link href="/authenticated/watchlist" className="no-underline">
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    color: isDark ? '#e5e5e5' : '#0a0a0a',
-                    transition: 'opacity 0.3s',
-                    '&:hover': { opacity: 0.7 },
-                  }}
-                >
-                  Watchlist
-                </Box>
-              </Link>
-              {[
-                { id: 'value-proposition', label: 'Why Us' },
-                { id: 'trending', label: 'Trending' },
-              ].map((item) => (
+                <MenuIcon />
+              </IconButton>
+            )}
+
+            {/* Logo */}
+            <Link
+              href={isAuthenticated ? '/home' : '/'}
+              className="no-underline flex items-center gap-2"
+            >
+              <Box
+                component="span"
+                sx={{
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                  fontWeight: 'bold',
+                  letterSpacing: '-0.025em',
+                  color: isDark ? '#ffffff' : '#0a0a0a',
+                  transition: 'opacity 0.3s',
+                  '&:hover': { opacity: 0.8 },
+                }}
+              >
+                NextFlix
+              </Box>
+            </Link>
+
+            {/* Center Nav - Hide on homepage */}
+            {!isHomePage && (
+              <Box
+                sx={{
+                  display: { xs: 'none', md: 'flex' },
+                  gap: 4,
+                  alignItems: 'center',
+                }}
+              >
                 <Link
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={(e) => handleScrollTo(e, item.id)}
+                  href={isAuthenticated ? '/home' : '/movies'}
                   className="no-underline"
                 >
                   <Box
@@ -344,105 +309,143 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       '&:hover': { opacity: 0.7 },
                     }}
                   >
-                    {item.label}
+                    Movies
                   </Box>
                 </Link>
-              ))}
-            </Box>
-          )}
-
-          {/* Right Actions */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: { xs: 0.75, sm: 1.5, md: 2 },
-            }}
-          >
-            {isAuthenticated ? (
-              <>
-                <Link href="/authenticated/profile" className="no-underline">
-                  <IconButton
-                    aria-label="profile"
-                    size="small"
+                <Link href="/authenticated/watchlist" className="no-underline">
+                  <Box
+                    component="span"
                     sx={{
-                      color: isDark ? '#ffffff' : '#0a0a0a',
-                      transition: 'transform 0.3s',
-                      p: { xs: 0.75, sm: 1 },
-                      '&:hover': {
-                        backgroundColor: isDark
-                          ? 'rgba(255,255,255,0.1)'
-                          : 'rgba(0,0,0,0.05)',
-                        transform: 'scale(1.1)',
-                      },
+                      fontWeight: 500,
+                      fontSize: '1rem',
+                      color: isDark ? '#e5e5e5' : '#0a0a0a',
+                      transition: 'opacity 0.3s',
+                      '&:hover': { opacity: 0.7 },
                     }}
                   >
-                    <AccountCircleIcon fontSize="small" />
-                  </IconButton>
+                    Watchlist
+                  </Box>
                 </Link>
-              </>
-            ) : (
-              <>
-                {!isSignInPage && (
-                  <Link href="/signin" className="no-underline">
-                    <Button
-                      variant="outlined"
+                {[
+                  { id: 'value-proposition', label: 'Why Us' },
+                  { id: 'trending', label: 'Trending' },
+                ].map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`#${item.id}`}
+                    onClick={(e) => handleScrollTo(e, item.id)}
+                    className="no-underline"
+                  >
+                    <Box
+                      component="span"
                       sx={{
-                        fontWeight: 600,
-                        fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
-                        px: { xs: 1.5, sm: 2, md: 2.5 },
-                        py: { xs: 0.5, sm: 0.75, md: 1 },
-                        borderRadius: '9999px',
-                        backgroundColor: 'transparent',
+                        fontWeight: 500,
+                        fontSize: '1rem',
                         color: isDark ? '#e5e5e5' : '#0a0a0a',
-                        border: { xs: '1.5px solid', md: '2px solid' },
-                        borderColor: isDark ? '#e5e5e5' : '#0a0a0a',
-                        transition: 'all 0.3s',
-                        minWidth: 'auto',
+                        transition: 'opacity 0.3s',
+                        '&:hover': { opacity: 0.7 },
+                      }}
+                    >
+                      {item.label}
+                    </Box>
+                  </Link>
+                ))}
+              </Box>
+            )}
+
+            {/* Right Actions */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: { xs: 0.75, sm: 1.5, md: 2 },
+              }}
+            >
+              {isAuthenticated ? (
+                <>
+                  <Link href="/authenticated/profile" className="no-underline">
+                    <IconButton
+                      aria-label="profile"
+                      size="small"
+                      sx={{
+                        color: isDark ? '#ffffff' : '#0a0a0a',
+                        transition: 'transform 0.3s',
+                        p: { xs: 0.75, sm: 1 },
                         '&:hover': {
+                          backgroundColor: isDark
+                            ? 'rgba(255,255,255,0.1)'
+                            : 'rgba(0,0,0,0.05)',
+                          transform: 'scale(1.1)',
+                        },
+                      }}
+                    >
+                      <AccountCircleIcon fontSize="small" />
+                    </IconButton>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {!isSignInPage && (
+                    <Link href="/signin" className="no-underline">
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                          px: { xs: 1.5, sm: 2, md: 2.5 },
+                          py: { xs: 0.5, sm: 0.75, md: 1 },
+                          borderRadius: '9999px',
+                          backgroundColor: 'transparent',
+                          color: isDark ? '#e5e5e5' : '#0a0a0a',
+                          border: { xs: '1.5px solid', md: '2px solid' },
+                          borderColor: isDark ? '#e5e5e5' : '#0a0a0a',
+                          transition: 'all 0.3s',
+                          minWidth: 'auto',
+                          '&:hover': {
+                            backgroundColor: '#e50914',
+                            color: '#ffffff',
+                            borderColor: '#e50914',
+                          },
+                        }}
+                      >
+                        Sign In
+                      </Button>
+                    </Link>
+                  )}
+                  {!isSignUpPage && (
+                    <Link href="/signup" className="no-underline">
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+                          px: { xs: 1.5, sm: 2, md: 2.5 },
+                          py: { xs: 0.5, sm: 0.75, md: 1 },
+                          borderRadius: '9999px',
                           backgroundColor: '#e50914',
                           color: '#ffffff',
-                          borderColor: '#e50914',
-                        },
-                      }}
-                    >
-                      Sign In
-                    </Button>
-                  </Link>
-                )}
-                {!isSignUpPage && (
-                  <Link href="/signup" className="no-underline">
-                    <Button
-                      variant="outlined"
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
-                        px: { xs: 1.5, sm: 2, md: 2.5 },
-                        py: { xs: 0.5, sm: 0.75, md: 1 },
-                        borderRadius: '9999px',
-                        backgroundColor: '#e50914',
-                        color: '#ffffff',
-                        border: {
-                          xs: '1.5px solid #e50914',
-                          md: '2px solid #e50914',
-                        },
-                        transition: 'all 0.3s',
-                        minWidth: 'auto',
-                        '&:hover': {
-                          backgroundColor: '#b2070f',
-                          borderColor: '#b2070f',
-                        },
-                      }}
-                    >
-                      Sign Up
-                    </Button>
-                  </Link>
-                )}
-              </>
-            )}
-          </Box>
-        </Toolbar>
-      </AppBar>
+                          border: {
+                            xs: '1.5px solid #e50914',
+                            md: '2px solid #e50914',
+                          },
+                          transition: 'all 0.3s',
+                          minWidth: 'auto',
+                          '&:hover': {
+                            backgroundColor: '#b2070f',
+                            borderColor: '#b2070f',
+                          },
+                        }}
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                  )}
+                </>
+              )}
+            </Box>
+          </Toolbar>
+        </AppBar>
+      )}
 
       {/* Mobile Navigation Drawer */}
       <Drawer

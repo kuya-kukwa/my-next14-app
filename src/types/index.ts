@@ -17,6 +17,17 @@ export interface Movie {
   trailerName?: string; // Trailer title
 }
 
+export interface User {
+  $id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  avatarUrl?: string | null;
+  avatarFileId?: string | null;
+  bio?: string | null;
+}
+
 // Value Proposition Types
 export interface ValueProp {
   icon: React.ReactNode;

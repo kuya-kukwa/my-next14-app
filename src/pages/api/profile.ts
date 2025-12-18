@@ -7,6 +7,7 @@ import {
   databaseId,
   COLLECTIONS,
 } from '@/lib/appwriteDatabase';
+import type { User } from '@/types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const jwt = req.headers.authorization?.replace('Bearer ', '') || '';
@@ -52,37 +53,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log('[Profile API] Received update request:', { bodyName, avatarUrl, bio });
       console.log('[Profile API] Current user:', { 
-        id: (user as any).$id, 
-        name: (user as any).name, 
-        bio: (user as any).bio,
-        avatarUrl: (user as any).avatarUrl 
+        id: (user as unknown as User).$id, 
+        name: (user as unknown as User).name, 
+        bio: (user as unknown as User).bio,
+        avatarUrl: (user as unknown as User).avatarUrl 
       });
 
       // Determine final values - always include all fields
       const nextName =
         typeof bodyName === 'string' && bodyName.trim() !== ''
           ? bodyName
-          : (user as any).name;
+          : (user as unknown as User).name;
 
       const nextAvatarUrl =
         typeof avatarUrl === 'string'
           ? avatarUrl.trim() === '' ? null : avatarUrl
-          : (user as any).avatarUrl ?? null;
+          : (user as unknown as User).avatarUrl ?? null;
 
       const nextBio =
         typeof bio === 'string'
           ? bio.trim() === '' ? null : bio
-          : (user as any).bio ?? null;
+          : (user as unknown as User).bio ?? null;
 
       // ALWAYS include all fields to ensure Appwrite processes the update
       const updatePayload: Record<string, unknown> = {
         name: nextName,
-        email: (user as any).email,
-        createdAt: (user as any).createdAt,
+        email: (user as unknown as User).email,
+        createdAt: (user as unknown as User).createdAt,
         updatedAt: new Date().toISOString(),
         avatarUrl: nextAvatarUrl,
         bio: nextBio,
-        avatarFileId: (user as any).avatarFileId ?? null,
+        avatarFileId: (user as unknown as User).avatarFileId ?? null,
       };
 
       console.log('[Profile API] Update payload:', JSON.stringify(updatePayload, null, 2));
@@ -91,7 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await databases.updateDocument(
         databaseId,
         COLLECTIONS.USERS,
-        (user as any).$id,
+        (user as unknown as User).$id,
         updatePayload
       );
 
@@ -99,14 +100,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const freshUser = await databases.getDocument(
         databaseId,
         COLLECTIONS.USERS,
-        (user as any).$id
+        (user as unknown as User).$id
       );
 
       console.log('[Profile API] Update successful, fresh user data:', {
         id: freshUser.$id,
-        name: (freshUser as any).name,
-        bio: (freshUser as any).bio,
-        avatarUrl: (freshUser as any).avatarUrl
+        name: (freshUser as unknown as User).name,
+        bio: (freshUser as unknown as User).bio,
+        avatarUrl: (freshUser as unknown as User).avatarUrl
       });
 
       return res.status(200).json({ profile: freshUser });

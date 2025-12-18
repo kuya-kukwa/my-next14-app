@@ -19,7 +19,7 @@ export function useUploadAvatar() {
 
       // Get JWT token from session
       const { getToken, refreshSession } = await import('@/lib/session');
-      let jwt = getToken();
+      const jwt = getToken();
 
       const attemptUpload = async (token: string): Promise<UploadAvatarResponse> => {
         const response = await fetch('/api/avatar/upload', {

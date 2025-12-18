@@ -51,8 +51,8 @@ export interface AuthenticatedUser {
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  // Add your production domains here:
-  // 'https://yourdomain.com',
+  'https://nextflix-livid.vercel.app',
+  // Add additional production domains here if needed:
   // 'https://www.yourdomain.com',
 ];
 

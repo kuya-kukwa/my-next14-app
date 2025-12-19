@@ -86,8 +86,41 @@ export function useUpdateProfile(jwt?: string) {
 
       return attemptUpdate(jwt || '');
     },
+    // Add mutation-level timeout as fallback
+    retry: false,
+    networkMode: 'online',
+    onMutate: async (updatedData) => {
+      // Cancel outgoing refetches to avoid overwriting optimistic update
+      await qc.cancelQueries({ queryKey: profileKeys.all(userId) });
+
+      // Snapshot previous value for rollback
+      const previousProfile = qc.getQueryData<Profile>(profileKeys.all(userId));
+
+      // Optimistically update cache immediately
+      if (previousProfile) {
+        qc.setQueryData<Profile>(profileKeys.all(userId), {
+          ...previousProfile,
+          ...updatedData,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      // Return context with snapshot for potential rollback
+      return { previousProfile };
+    },
     onSuccess: (profile) => {
+      // Update cache with server response
       qc.setQueryData(profileKeys.all(userId), profile);
+    },
+    onError: (_error, _variables, context) => {
+      // Rollback to previous state on error
+      if (context?.previousProfile) {
+        qc.setQueryData(profileKeys.all(userId), context.previousProfile);
+      }
+    },
+    onSettled: () => {
+      // Ensure cache stays in sync with server
+      qc.invalidateQueries({ queryKey: profileKeys.all(userId) });
     },
   });
 }

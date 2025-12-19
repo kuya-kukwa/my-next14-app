@@ -25,6 +25,9 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
   const updateProfileMutation = useUpdateProfile(jwt || undefined);
   const uploadAvatarMutation = useUploadAvatar();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(
+    null
+  );
   const [hasRecentSuccess, setHasRecentSuccess] = useState(false);
 
   const {
@@ -52,9 +55,34 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
     }
   }, [isDirty, hasRecentSuccess]);
 
+  // Sync mutation error to general error message
+  useEffect(() => {
+    if (updateProfileMutation.isError && updateProfileMutation.error) {
+      const errorMessage =
+        updateProfileMutation.error instanceof Error
+          ? updateProfileMutation.error.message
+          : 'Error updating your profile. Please try again.';
+
+      // Check if it's a network error
+      const isNetworkError =
+        errorMessage.toLowerCase().includes('timeout') ||
+        errorMessage.toLowerCase().includes('network') ||
+        errorMessage.toLowerCase().includes('connection') ||
+        errorMessage.toLowerCase().includes('fetch') ||
+        errorMessage.toLowerCase().includes('failed to fetch');
+
+      // For network errors, show simple clear message
+      if (isNetworkError) {
+        setSubmitError('Error updating your profile. Please check your connection and try again.');
+      } else {
+        setSubmitError(errorMessage);
+      }
+    }
+  }, [updateProfileMutation.isError, updateProfileMutation.error]);
+
   const onValid = async (data: ProfileInput) => {
     setSubmitError(null);
-    setHasRecentSuccess(false); // Reset success state
+    setHasRecentSuccess(false);
     logger.debug('Submitting profile update with data:', data);
     const currentAvatarUrl = watch('avatarUrl');
     const transformedData = {
@@ -64,15 +92,33 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
       bio: data.bio === '' ? undefined : data.bio,
     };
     logger.debug('Transformed data:', transformedData);
+
     try {
       await updateProfileMutation.mutateAsync(transformedData);
-      setHasRecentSuccess(true); // Mark as recently successful
-      // Reset form to mark as not dirty after successful update
+      setHasRecentSuccess(true);
       reset(transformedData);
       logger.debug('Profile update successful');
     } catch (error) {
       console.error('Failed to update profile:', error);
-      setSubmitError('Failed to update profile. Please try again.');
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Error updating your profile. Please try again.';
+
+      // Detect network errors (timeout, connection issues)
+      const isNetworkError =
+        errorMessage.toLowerCase().includes('timeout') ||
+        errorMessage.toLowerCase().includes('network') ||
+        errorMessage.toLowerCase().includes('connection') ||
+        errorMessage.toLowerCase().includes('fetch') ||
+        errorMessage.toLowerCase().includes('failed to fetch');
+
+      // Show simple, clear error message
+      if (isNetworkError) {
+        setSubmitError('Error updating your profile. Please check your connection and try again.');
+      } else {
+        setSubmitError(errorMessage);
+      }
     }
   };
 
@@ -87,6 +133,7 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
   };
 
   const handleAvatarUpload = async (file: File) => {
+    setAvatarUploadError(null);
     try {
       const result = await uploadAvatarMutation.mutateAsync(file);
       if (result.avatarUrl) {
@@ -94,6 +141,11 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
       }
     } catch (error) {
       console.error('Failed to upload avatar:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to upload avatar. Please try again.';
+      setAvatarUploadError(errorMessage);
     }
   };
 
@@ -115,6 +167,13 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
               onUpload={handleAvatarUpload}
               isUploading={uploadAvatarMutation.isPending}
             />
+
+            {/* Avatar Upload Error */}
+            {avatarUploadError && (
+              <Alert severity="error" className="profile-alert">
+                {avatarUploadError}
+              </Alert>
+            )}
 
             {/* Display Name */}
             <TextField

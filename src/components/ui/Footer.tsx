@@ -9,84 +9,80 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 
 const Footer = memo(() => {
   return (
-    <footer className="relative z-10 overflow-hidden pb-0 pt-20 lg:pb-0 lg:pt-[100px] transition-colors duration-500 footer-bg">
-      <div className="container mx-auto px-4">
+    <footer className="relative z-10 overflow-hidden py-12 sm:py-16 lg:py-20 transition-colors duration-500 footer-bg">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         {/* Main Footer Content */}
-        <div className="flex flex-wrap justify-between gap-4 lg:gap-0">
+        <div className="flex flex-col items-center text-center space-y-8">
           {/* Logo and Description */}
-          <div className="w-full lg:w-1/3 mb-6 lg:mb-0 text-center">
+          <div className="w-full max-w-md">
             <Link
               href="/"
-              className="mb-2 inline-block hover:opacity-80 transition-opacity"
+              className="inline-block mb-4 hover:opacity-80 transition-opacity"
             >
-              <div className="flex items-center justify-center gap-2 sm:gap-3">
-                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-primary rounded-sm flex items-center justify-center font-bold text-lg sm:text-2xl shadow-lg shadow-primary/40"></div>
-                <span className="text-xl sm:text-3xl font-bold tracking-tight">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-lg flex items-center justify-center font-bold text-xl sm:text-2xl shadow-lg shadow-primary/40 transition-transform hover:scale-105"></div>
+                <span className="text-2xl sm:text-3xl font-bold tracking-tight">
                   NextFlix
                 </span>
               </div>
             </Link>
-            <p className="mb-0 sm:mb-1 text-sm sm:text-base transition-colors duration-500 text-muted">
-              Your ultimate destination for cinematic entertainment.
+            <p className="text-sm sm:text-base leading-relaxed transition-colors duration-500 text-muted max-w-sm mx-auto">
+              Your ultimate destination for cinematic entertainment. Discover, watch, and enjoy the best movies.
             </p>
           </div>
-        </div>
 
-        {/* Social Links */}
-
-        <div className="flex justify-center mt-10 mb-6">
-          <div className="flex space-x-6 sm:space-x-8">
-            <a
-              href="#"
-              className="text-muted hover:text-primary transition-colors duration-300"
-              aria-label="Facebook"
-            >
-              <FacebookIcon sx={{ fontSize: 40 }} />
-            </a>
-            <a
-              href="#"
-              className="text-muted hover:text-primary transition-colors duration-300"
-              aria-label="Twitter"
-            >
-              <TwitterIcon sx={{ fontSize: 40 }} />
-            </a>
-            <a
-              href="#"
-              className="text-muted hover:text-primary transition-colors duration-300"
-              aria-label="Instagram"
-            >
-              <InstagramIcon sx={{ fontSize: 40 }} />
-            </a>
-            <a
-              href="#"
-              className="text-muted hover:text-primary transition-colors duration-300"
-              aria-label="LinkedIn"
-            >
-              <LinkedInIcon sx={{ fontSize: 40 }} />
-            </a>
-            <a
-              href="#"
-              className="text-muted hover:text-primary transition-colors duration-300"
-              aria-label="YouTube"
-            >
-              <YouTubeIcon sx={{ fontSize: 40 }} />
-            </a>
-            <a
-              href="#"
-              className="text-muted hover:text-primary transition-colors duration-300"
-              aria-label="GitHub"
-            >
-              <GitHubIcon sx={{ fontSize: 40 }} />
-            </a>
+          {/* Social Links */}
+          <div className="w-full">
+            <div className="flex justify-center items-center gap-4 sm:gap-6 flex-wrap">
+              <a
+                href="#"
+                className="text-muted hover:text-primary transition-all duration-300 hover:scale-110"
+                aria-label="Facebook"
+              >
+                <FacebookIcon sx={{ fontSize: { xs: 32, sm: 36 } }} />
+              </a>
+              <a
+                href="#"
+                className="text-muted hover:text-primary transition-all duration-300 hover:scale-110"
+                aria-label="Twitter"
+              >
+                <TwitterIcon sx={{ fontSize: { xs: 32, sm: 36 } }} />
+              </a>
+              <a
+                href="#"
+                className="text-muted hover:text-primary transition-all duration-300 hover:scale-110"
+                aria-label="Instagram"
+              >
+                <InstagramIcon sx={{ fontSize: { xs: 32, sm: 36 } }} />
+              </a>
+              <a
+                href="#"
+                className="text-muted hover:text-primary transition-all duration-300 hover:scale-110"
+                aria-label="LinkedIn"
+              >
+                <LinkedInIcon sx={{ fontSize: { xs: 32, sm: 36 } }} />
+              </a>
+              <a
+                href="#"
+                className="text-muted hover:text-primary transition-all duration-300 hover:scale-110"
+                aria-label="YouTube"
+              >
+                <YouTubeIcon sx={{ fontSize: { xs: 32, sm: 36 } }} />
+              </a>
+              <a
+                href="#"
+                className="text-muted hover:text-primary transition-all duration-300 hover:scale-110"
+                aria-label="GitHub"
+              >
+                <GitHubIcon sx={{ fontSize: { xs: 32, sm: 36 } }} />
+              </a>
+            </div>
           </div>
-        </div>
 
-        {/*  Copyright - Bottom */}
-        <div className="mt-2 sm:mt-3 pt-4 sm:pt-6 transition-colors duration-500 border-top-muted">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-xs sm:text-sm order-2 md:order-1 transition-colors duration-500 text-muted">
-              &copy; {new Date().getFullYear()} NextFlix. All cinematic rights
-              reserved.
+          {/* Copyright */}
+          <div className="w-full pt-6 border-t border-gray-200 dark:border-gray-800 transition-colors duration-500">
+            <p className="text-xs sm:text-sm text-muted">
+              © {new Date().getFullYear()} NextFlix. All rights reserved.
             </p>
           </div>
         </div>

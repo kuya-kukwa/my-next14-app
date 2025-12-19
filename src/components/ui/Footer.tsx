@@ -30,7 +30,7 @@ const Footer = memo(() => {
 
         {/* Social Links and Copyright - Bottom */}
         <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 transition-colors duration-500 border-top-muted">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col md:flex-row items-center justify-between">
             <p className="text-xs sm:text-sm order-2 md:order-1 transition-colors duration-500 text-muted">
               &copy; {new Date().getFullYear()} NextFlix. All cinematic rights
               reserved.

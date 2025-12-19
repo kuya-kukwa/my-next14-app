@@ -32,7 +32,7 @@ const Footer = memo(() => {
           </div>
         </div>
 
-        {/* Social Links */}
+        {/* Social Links 
         <div className="flex justify-center mt-10 mb-6">
           <div className="flex space-x-20">
             <a
@@ -79,6 +79,8 @@ const Footer = memo(() => {
             </a>
           </div>
         </div>
+
+        */}
 
         {/*  Copyright - Bottom */}
         <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 transition-colors duration-500 border-top-muted">

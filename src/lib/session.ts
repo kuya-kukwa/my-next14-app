@@ -28,7 +28,20 @@ export function getToken(): string | null {
 export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE) {
   const expirationTime = getTokenExpirationTime(jwt);
   const currentTime = Math.floor(Date.now() / 1000);
-  const maxAge = expirationTime ? expirationTime - currentTime : maxAgeSeconds;
+  let maxAge = maxAgeSeconds;
+  
+  if (expirationTime) {
+    const calculatedMaxAge = expirationTime - currentTime;
+    // Only use JWT expiration if it's in the future (positive value)
+    if (calculatedMaxAge > 0) {
+      maxAge = calculatedMaxAge;
+    } else {
+      // Token is already expired, don't set it
+      console.warn('[Session] Attempting to set an expired token');
+      return;
+    }
+  }
+  
   setCookie(TOKEN_KEY, jwt, {
     maxAge,
     sameSite: 'strict',

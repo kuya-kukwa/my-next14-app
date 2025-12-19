@@ -35,14 +35,25 @@ export function useSignUp() {
       try {
         const { account } = getAppwriteBrowser();
 
-        // Create Appwrite account
-        await account.create('unique()', data.email, data.password, data.name);
-
         // Delete any existing session to avoid conflicts
         try {
           await account.deleteSession('current');
         } catch {
           // No active session - that's OK
+        }
+
+        // Create Appwrite account
+        try {
+          await account.create('unique()', data.email, data.password, data.name);
+        } catch (createErr: unknown) {
+          // Check if user already exists
+          if (createErr && typeof createErr === 'object' && 'message' in createErr) {
+            const errMsg = String(createErr.message || '').toLowerCase();
+            if (errMsg.includes('user') && (errMsg.includes('already exists') || errMsg.includes('same id') || errMsg.includes('same email') || errMsg.includes('same phone'))) {
+              throw new Error('An account with this email already exists. Please sign in instead.');
+            }
+          }
+          throw createErr;
         }
 
         // Create email/password session

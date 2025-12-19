@@ -1,27 +1,32 @@
-# Expired JWT Token Fix
+# Expired JWT Token & Cookie Synchronization Fix
 
-## Problem
+## Problems Fixed
 
-You were seeing this error:
+### 1. Expired JWT Errors
 
 ```
 {"message":"Failed to verify JWT. Invalid token: Expired","code":401,"type":"user_jwt_invalid","version":"1.8.0"}
 ```
 
 This happens when:
+- A JWT token exists in browser cookies
+- The token has expired (JWTs have a limited lifetime)
+- The Appwrite client tries to use the expired token
 
-1. A JWT token exists in your browser cookies
-2. The token has expired (JWTs have a limited lifetime)
-3. The Appwrite client tries to use the expired token
+### 2. Cookie/JWT Expiration Mismatch
 
-## Solution Applied
+Previously, cookies were set with a fixed 3-day expiration while JWT tokens had their own expiration time. This caused:
+- Cookies persisting longer than JWT validity
+- Authentication confusion when cookies exist but tokens are expired
+- Unnecessary session refresh attempts with invalid tokens
 
-Updated [src/lib/appwriteClient.ts](src/lib/appwriteClient.ts) to automatically detect and clear expired JWT tokens before they cause errors.
+## Solutions Applied
 
-### How It Works
+### 1. Automatic Expired Token Detection
+
+Updated [src/lib/appwriteClient.ts](src/lib/appwriteClient.ts) to automatically detect and clear expired JWT tokens.
 
 **Before:**
-
 ```typescript
 const jwt = getToken();
 if (jwt) {
@@ -30,7 +35,6 @@ if (jwt) {
 ```
 
 **After:**
-
 ```typescript
 const jwt = getToken();
 if (jwt) {
@@ -40,6 +44,53 @@ if (jwt) {
   } else {
     client.setJWT(jwt); // ✅ Only set valid tokens
   }
+}
+```
+
+### 2. Cookie/JWT Expiration Synchronization
+
+Updated [src/lib/session.ts](src/lib/session.ts) to synchronize cookie expiration with JWT token expiration.
+
+**New Features:**
+- `getTokenExpirationTime()` - Extracts expiration time from JWT payload
+- `setToken()` - Now calculates cookie `maxAge` dynamically from JWT expiration
+- Prevents setting cookies for already-expired tokens
+
+**Before:**
+```typescript
+export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE) {
+  setCookie(TOKEN_KEY, jwt, {
+    maxAge: maxAgeSeconds, // ❌ Fixed 3 days, may exceed JWT validity
+    sameSite: 'strict',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+  });
+}
+```
+
+**After:**
+```typescript
+export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE) {
+  const expirationTime = getTokenExpirationTime(jwt);
+  const currentTime = Math.floor(Date.now() / 1000);
+  let maxAge = maxAgeSeconds;
+  
+  if (expirationTime) {
+    const calculatedMaxAge = expirationTime - currentTime;
+    if (calculatedMaxAge > 0) {
+      maxAge = calculatedMaxAge; // ✅ Synced with JWT expiration
+    } else {
+      console.warn('[Session] Attempting to set an expired token');
+      return; // ✅ Don't set expired tokens
+    }
+  }
+  
+  setCookie(TOKEN_KEY, jwt, {
+    maxAge,
+    sameSite: 'strict',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+  });
 }
 ```
 

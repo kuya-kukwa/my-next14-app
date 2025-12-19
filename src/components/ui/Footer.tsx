@@ -26,30 +26,6 @@ const Footer = memo(() => {
               anywhere.
             </p>
           </div>
-
-          {/* Navigation Links - Center/Right Side */}
-          <div className="w-full lg:w-2/3 grid grid-cols-3 gap-8">
-            <LinkGroup header="Streaming">
-              <NavLink link="/#" label="Watch Now" />
-              <NavLink link="/#" label="Movie Library" />
-              <NavLink link="/#" label="TV Shows" />
-              <NavLink link="/#" label="Genres" />
-            </LinkGroup>
-
-            <LinkGroup header="Support">
-              <NavLink link="/#" label="Help Center" />
-              <NavLink link="/#" label="Contact Us" />
-              <NavLink link="/#" label="Device Setup" />
-              <NavLink link="/#" label="Account Settings" />
-            </LinkGroup>
-
-            <LinkGroup header="Legal">
-              <NavLink link="/#" label="Terms of Service" />
-              <NavLink link="/#" label="Privacy Policy" />
-              <NavLink link="/#" label="Cookie Policy" />
-              <NavLink link="/#" label="DMCA" />
-            </LinkGroup>
-          </div>
         </div>
 
         {/* Social Links and Copyright - Bottom */}

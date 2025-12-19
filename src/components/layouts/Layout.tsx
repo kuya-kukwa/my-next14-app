@@ -315,7 +315,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Box>
                 </Link>
                 <Link
-                  href={isAuthenticated ? ROUTES.AUTHENTICATED.WATCHLIST : '/auths/signin'}
+                  href={
+                    isAuthenticated
+                      ? ROUTES.AUTHENTICATED.WATCHLIST
+                      : '/auths/signin'
+                  }
                   className="no-underline"
                 >
                   <Box
@@ -536,7 +540,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <ListItemButton
                   onClick={() =>
                     handleMobileNavClick(
-                      isAuthenticated ? ROUTES.AUTHENTICATED.WATCHLIST : '/auths/signin'
+                      isAuthenticated
+                        ? ROUTES.AUTHENTICATED.WATCHLIST
+                        : '/auths/signin'
                     )
                   }
                   sx={{

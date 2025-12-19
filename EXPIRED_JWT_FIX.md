@@ -1,12 +1,15 @@
 # Expired JWT Token Fix
 
 ## Problem
+
 You were seeing this error:
+
 ```
 {"message":"Failed to verify JWT. Invalid token: Expired","code":401,"type":"user_jwt_invalid","version":"1.8.0"}
 ```
 
 This happens when:
+
 1. A JWT token exists in your browser cookies
 2. The token has expired (JWTs have a limited lifetime)
 3. The Appwrite client tries to use the expired token
@@ -18,6 +21,7 @@ Updated [src/lib/appwriteClient.ts](src/lib/appwriteClient.ts) to automatically 
 ### How It Works
 
 **Before:**
+
 ```typescript
 const jwt = getToken();
 if (jwt) {
@@ -26,6 +30,7 @@ if (jwt) {
 ```
 
 **After:**
+
 ```typescript
 const jwt = getToken();
 if (jwt) {
@@ -43,15 +48,25 @@ if (jwt) {
 Since you currently have an expired token in your cookies, you need to clear it once:
 
 ### Option 1: Clear Cookies via Browser DevTools (Recommended)
+
 1. Open your browser DevTools (F12)
 2. Go to the **Console** tab
 3. Paste and run:
+
 ```javascript
-document.cookie.split(';').forEach(c => document.cookie = c.trim().split('=')[0] + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/');
+document.cookie
+  .split(';')
+  .forEach(
+    (c) =>
+      (document.cookie =
+        c.trim().split('=')[0] +
+        '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/')
+  );
 location.reload();
 ```
 
 ### Option 2: Clear Cookies via Browser Settings
+
 1. Open browser settings
 2. Go to Privacy & Security → Cookies
 3. Find `localhost:3000` (or your dev domain)
@@ -59,6 +74,7 @@ location.reload();
 5. Refresh the page
 
 ### Option 3: Sign Out (If Available)
+
 1. If you can access the sign-out button, click it
 2. This will clear the token automatically
 
@@ -76,16 +92,21 @@ After clearing the expired token:
 The fix includes automatic session management:
 
 ### 1. **Expired Token Detection**
+
 Every time `getAppwriteBrowser()` is called (on any page load or API call), it checks if the JWT is expired and clears it automatically.
 
 ### 2. **Session Refresh** (Already implemented in your codebase)
+
 Your app has `useSessionRefresh` hook that:
+
 - Checks if token is expiring soon (within 12 hours)
 - Automatically refreshes it before expiration
 - Runs in the background on authenticated pages
 
 ### 3. **Graceful Sign-In**
+
 Sign-in flow handles expired sessions:
+
 ```typescript
 try {
   await account.deleteSession('current');
@@ -97,18 +118,21 @@ try {
 ## Testing
 
 1. **Sign in successfully:**
+
    ```
    ✅ JWT created and stored
    ✅ No "guests" or "expired" errors
    ```
 
 2. **Upload avatar:**
+
    ```
    ✅ Avatar uploads without "Invalid or expired token" error
    ✅ If token expires during upload, shows clear message to sign in again
    ```
 
 3. **Simulate expiration (optional):**
+
    - Wait for your JWT to expire (usually 3 days)
    - Refresh the page
    - **Expected**: Token automatically cleared, app remains functional
@@ -122,6 +146,7 @@ try {
 ## Technical Details
 
 ### Token Expiry Check
+
 ```typescript
 export function isTokenExpired(): boolean {
   const token = getToken();
@@ -131,7 +156,7 @@ export function isTokenExpired(): boolean {
     const parts = token.split('.');
     const payload = JSON.parse(atob(parts[1]));
     const currentTime = Math.floor(Date.now() / 1000);
-    
+
     return payload.exp && payload.exp < currentTime;
   } catch {
     return true;
@@ -140,7 +165,9 @@ export function isTokenExpired(): boolean {
 ```
 
 ### JWT Structure
+
 JWTs have 3 parts: `header.payload.signature`
+
 - **Header**: Algorithm and token type
 - **Payload**: User data + expiration (`exp` field)
 - **Signature**: Security verification
@@ -161,6 +188,6 @@ The `exp` field is a Unix timestamp (seconds since 1970). When `exp < current_ti
 ✅ **Fixed**: Expired JWT tokens are now automatically detected and cleared  
 ✅ **Fixed**: No more 401 "Invalid token: Expired" errors on page load  
 ✅ **Enhanced**: Graceful token expiration handling throughout the app  
-✅ **Maintained**: Session refresh still works to prevent expiration during use  
+✅ **Maintained**: Session refresh still works to prevent expiration during use
 
 Once you clear your current expired token, everything should work smoothly!

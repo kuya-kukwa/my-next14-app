@@ -27,7 +27,8 @@ const Footer = memo(() => {
               </div>
             </Link>
             <p className="text-sm sm:text-base leading-relaxed transition-colors duration-500 text-muted max-w-sm mx-auto">
-              Your ultimate destination for cinematic entertainment. Discover, watch, and enjoy the best movies.
+              Your ultimate destination for cinematic entertainment. Discover,
+              watch, and enjoy the best movies.
             </p>
           </div>
 

@@ -73,7 +73,9 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
 
       // For network errors, show simple clear message
       if (isNetworkError) {
-        setSubmitError('Error updating your profile. Please check your connection and try again.');
+        setSubmitError(
+          'Error updating your profile. Please check your connection and try again.'
+        );
       } else {
         setSubmitError(errorMessage);
       }
@@ -115,7 +117,9 @@ export function ProfileTab({ username, avatarUrl, bio }: ProfileTabProps) {
 
       // Show simple, clear error message
       if (isNetworkError) {
-        setSubmitError('Error updating your profile. Please check your connection and try again.');
+        setSubmitError(
+          'Error updating your profile. Please check your connection and try again.'
+        );
       } else {
         setSubmitError(errorMessage);
       }

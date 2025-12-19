@@ -39,10 +39,12 @@ export const API_CONFIG = {
  * Session and authentication constants
  */
 export const SESSION_CONFIG = {
-  /** Token max age: 15 minutes */
-  TOKEN_MAX_AGE: 60 * 15,
-  /** Token expiration warning threshold: 5 minutes */
-  TOKEN_WARNING_THRESHOLD: 5 * 60,
-  /** Session check interval: 30 seconds */
-  CHECK_INTERVAL: 30 * 1000,
+  /** Token max age: 3 days */
+  TOKEN_MAX_AGE: 60 * 60 * 24 * 3,
+  /** Token expiration warning threshold: 12 hours */
+  TOKEN_WARNING_THRESHOLD: 60 * 60 * 12,
+  /** Session check interval: 30 minutes */
+  CHECK_INTERVAL: 30 * 60 * 1000,
+  /** Session refresh check interval: 5 minutes */
+  REFRESH_CHECK_INTERVAL: 5 * 60 * 1000,
 } as const;

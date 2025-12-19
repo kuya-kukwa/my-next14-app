@@ -80,7 +80,7 @@ Every time `getAppwriteBrowser()` is called (on any page load or API call), it c
 
 ### 2. **Session Refresh** (Already implemented in your codebase)
 Your app has `useSessionRefresh` hook that:
-- Checks if token is expiring soon (within 2 hours)
+- Checks if token is expiring soon (within 12 hours)
 - Automatically refreshes it before expiration
 - Runs in the background on authenticated pages
 
@@ -109,7 +109,7 @@ try {
    ```
 
 3. **Simulate expiration (optional):**
-   - Wait for your JWT to expire (usually 15 minutes to 1 hour)
+   - Wait for your JWT to expire (usually 3 days)
    - Refresh the page
    - **Expected**: Token automatically cleared, app remains functional
    - Try to upload avatar

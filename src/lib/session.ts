@@ -1,4 +1,5 @@
 import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { SESSION_CONFIG } from '@/config/queryConfig';
 
 const TOKEN_KEY = 'appwrite_jwt';
 const ACTIVITY_KEY = 'last_activity';
@@ -19,13 +20,17 @@ export function getToken(): string | null {
  * - sameSite: 'strict' prevents CSRF attacks
  * - secure: true in production ensures HTTPS-only
  * - httpOnly cannot be set client-side; consider server-side cookie approach
+ * - Cookie expiration synced with JWT expiration to prevent stale auth state
  * 
  * @param jwt - JWT token from Appwrite
- * @param maxAgeSeconds - Cookie lifetime (default 7 days)
+ * @param maxAgeSeconds - Cookie lifetime fallback (default 3 days)
  */
-export function setToken(jwt: string, maxAgeSeconds = 60 * 60 * 24 * 7) {
+export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE) {
+  const expirationTime = getTokenExpirationTime(jwt);
+  const currentTime = Math.floor(Date.now() / 1000);
+  const maxAge = expirationTime ? expirationTime - currentTime : maxAgeSeconds;
   setCookie(TOKEN_KEY, jwt, {
-    maxAge: maxAgeSeconds,
+    maxAge,
     sameSite: 'strict',
     path: '/',
     secure: process.env.NODE_ENV === 'production',
@@ -125,7 +130,23 @@ export function updateLastActivity(): void {
 }
 
 /**
- * Check if session should be refreshed (token expires within 2 hours and not yet expired)
+ * Extract expiration time from JWT token
+ * @param token - JWT token string
+ * @returns Expiration timestamp in seconds since epoch, or null if invalid
+ */
+function getTokenExpirationTime(token: string): number | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1]));
+    return payload.exp || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if session should be refreshed (token expires within 12 hours and not yet expired)
  */
 export function shouldRefreshSession(): boolean {
   if (isTokenExpired()) return false;
@@ -141,8 +162,8 @@ export function shouldRefreshSession(): boolean {
     const currentTime = Math.floor(Date.now() / 1000);
     const timeUntilExpiry = payload.exp - currentTime;
     
-    // Refresh if less than 2 hours remaining (more conservative than 1 hour)
-    return timeUntilExpiry > 0 && timeUntilExpiry < 7200;
+    // Refresh if less than configured warning threshold remaining
+    return timeUntilExpiry > 0 && timeUntilExpiry < SESSION_CONFIG.TOKEN_WARNING_THRESHOLD;
   } catch {
     return false;
   }

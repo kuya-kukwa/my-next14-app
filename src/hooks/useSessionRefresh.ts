@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { shouldRefreshSession, refreshSession, isTokenExpired } from '@/lib/session';
 import { logger } from '@/lib/logger';
+import { SESSION_CONFIG } from '@/config/queryConfig';
 
 /**
  * Hook that automatically refreshes the JWT session when needed
@@ -23,8 +24,8 @@ export function useSessionRefresh() {
     // Check immediately on mount
     checkAndRefreshSession();
 
-    // Set up interval to check every 5 minutes
-    const interval = setInterval(checkAndRefreshSession, 5 * 60 * 1000);
+    // Set up interval to check based on config
+    const interval = setInterval(checkAndRefreshSession, SESSION_CONFIG.REFRESH_CHECK_INTERVAL);
 
     return () => clearInterval(interval);
   }, []);

@@ -33,6 +33,7 @@ import {
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { clearQueryCache } from '@/lib/queryClient';
 import { useRefreshSession } from '@/services/queries/session';
+import { SESSION_CONFIG } from '@/config/queryConfig';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isDark } = useThemeContext();
@@ -94,8 +95,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Check auth on route changes
     router.events?.on('routeChangeComplete', checkAuth);
 
-    // Check auth periodically (every 15 minutes instead of 5 minutes)
-    const interval = setInterval(checkAuth, 15 * 60 * 1000);
+    // Check auth periodically (every 30 minutes instead of 15 minutes)
+    const interval = setInterval(checkAuth, SESSION_CONFIG.CHECK_INTERVAL);
 
     return () => {
       router.events?.off('routeChangeComplete', checkAuth);

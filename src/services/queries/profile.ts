@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/http';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { getAvatarUrl } from '@/lib/appwriteStorage';
+import { getUserIdFromToken } from '@/lib/session';
 import type { Models } from 'appwrite';
 
 export type Profile = { 
@@ -16,13 +17,15 @@ export type Profile = {
 };
 
 export const profileKeys = {
-  all: ['profile'] as const,
+  all: (userId?: string | null) => ['profile', userId] as const,
   user: ['user'] as const,
 };
 
 export function useProfile(jwt?: string) {
+  const userId = getUserIdFromToken();
+  
   return useQuery({
-    queryKey: profileKeys.all,
+    queryKey: profileKeys.all(userId),
     enabled: !!jwt,
     queryFn: async () => {
       const { refreshSession, getToken } = await import('@/lib/session');
@@ -57,6 +60,8 @@ export function useProfile(jwt?: string) {
 
 export function useUpdateProfile(jwt?: string) {
   const qc = useQueryClient();
+  const userId = getUserIdFromToken();
+  
   return useMutation({
     mutationFn: async (data: Partial<Profile>) => {
       const { refreshSession, getToken } = await import('@/lib/session');
@@ -82,7 +87,7 @@ export function useUpdateProfile(jwt?: string) {
       return attemptUpdate(jwt || '');
     },
     onSuccess: (profile) => {
-      qc.setQueryData(profileKeys.all, profile);
+      qc.setQueryData(profileKeys.all(userId), profile);
     },
   });
 }

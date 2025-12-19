@@ -68,7 +68,7 @@ export function useUploadAvatar() {
       return attemptUpload(jwt || '');
     },
     onSuccess: () => {
-      // Invalidate profile query to refresh avatar from database
+      // Invalidate all profile queries to refresh avatar from database
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       // Also invalidate user account query
       queryClient.invalidateQueries({ queryKey: ['user', 'account'] });

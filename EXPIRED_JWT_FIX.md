@@ -9,6 +9,7 @@
 ```
 
 This happens when:
+
 - A JWT token exists in browser cookies
 - The token has expired (JWTs have a limited lifetime)
 - The Appwrite client tries to use the expired token
@@ -16,6 +17,7 @@ This happens when:
 ### 2. Cookie/JWT Expiration Mismatch
 
 Previously, cookies were set with a fixed 3-day expiration while JWT tokens had their own expiration time. This caused:
+
 - Cookies persisting longer than JWT validity
 - Authentication confusion when cookies exist but tokens are expired
 - Unnecessary session refresh attempts with invalid tokens
@@ -27,6 +29,7 @@ Previously, cookies were set with a fixed 3-day expiration while JWT tokens had 
 Updated [src/lib/appwriteClient.ts](src/lib/appwriteClient.ts) to automatically detect and clear expired JWT tokens.
 
 **Before:**
+
 ```typescript
 const jwt = getToken();
 if (jwt) {
@@ -35,6 +38,7 @@ if (jwt) {
 ```
 
 **After:**
+
 ```typescript
 const jwt = getToken();
 if (jwt) {
@@ -52,13 +56,18 @@ if (jwt) {
 Updated [src/lib/session.ts](src/lib/session.ts) to synchronize cookie expiration with JWT token expiration.
 
 **New Features:**
+
 - `getTokenExpirationTime()` - Extracts expiration time from JWT payload
 - `setToken()` - Now calculates cookie `maxAge` dynamically from JWT expiration
 - Prevents setting cookies for already-expired tokens
 
 **Before:**
+
 ```typescript
-export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE) {
+export function setToken(
+  jwt: string,
+  maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE
+) {
   setCookie(TOKEN_KEY, jwt, {
     maxAge: maxAgeSeconds, // ❌ Fixed 3 days, may exceed JWT validity
     sameSite: 'strict',
@@ -69,12 +78,16 @@ export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_A
 ```
 
 **After:**
+
 ```typescript
-export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE) {
+export function setToken(
+  jwt: string,
+  maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_AGE
+) {
   const expirationTime = getTokenExpirationTime(jwt);
   const currentTime = Math.floor(Date.now() / 1000);
   let maxAge = maxAgeSeconds;
-  
+
   if (expirationTime) {
     const calculatedMaxAge = expirationTime - currentTime;
     if (calculatedMaxAge > 0) {
@@ -84,7 +97,7 @@ export function setToken(jwt: string, maxAgeSeconds = SESSION_CONFIG.TOKEN_MAX_A
       return; // ✅ Don't set expired tokens
     }
   }
-  
+
   setCookie(TOKEN_KEY, jwt, {
     maxAge,
     sameSite: 'strict',

@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { getAppwriteBrowser } from '@/lib/appwriteClient';
 import { setToken, updateLastActivity } from '@/lib/session';
+import { clearQueryCache } from '@/lib/queryClient';
 import type { SignInInput, SignUpFormInput } from '@/lib/validation';
 
 const REDIRECT_DELAY_MS = 1500;
@@ -34,6 +35,9 @@ export function useSignUp() {
     mutationFn: async (data: SignUpFormInput) => {
       try {
         const { account } = getAppwriteBrowser();
+
+        // Clear any cached data from previous user
+        clearQueryCache();
 
         // Delete any existing session to avoid conflicts
         try {
@@ -87,6 +91,9 @@ export function useSignIn() {
     mutationFn: async (data: SignInInput) => {
       try {
         const { account } = getAppwriteBrowser();
+
+        // Clear any cached data from previous user
+        clearQueryCache();
 
         // Delete any existing session to avoid conflicts
         try {

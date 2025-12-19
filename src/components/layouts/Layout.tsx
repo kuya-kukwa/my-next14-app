@@ -23,6 +23,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import Footer from '../ui/Footer';
 import { useThemeContext } from '@/contexts/ThemeContext';
+import { ROUTES } from '@/config/routes';
 import {
   getToken,
   clearToken,
@@ -49,7 +50,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isSignInPage = router.pathname === '/signin';
   const isSignUpPage = router.pathname === '/signup';
   const isHomePage = router.pathname === '/home';
-  const isProfilePage = router.pathname === '/authenticated/profile';
+  const isProfilePage = router.pathname === ROUTES.AUTHENTICATED.PROFILE;
 
   // Check auth state and token expiration
   useEffect(() => {
@@ -297,7 +298,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 }}
               >
                 <Link
-                  href={isAuthenticated ? '/home' : '/movies'}
+                  href={isAuthenticated ? '/home' : '/auths/signin'}
                   className="no-underline"
                 >
                   <Box
@@ -313,7 +314,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     Movies
                   </Box>
                 </Link>
-                <Link href="/authenticated/watchlist" className="no-underline">
+                <Link
+                  href={isAuthenticated ? ROUTES.AUTHENTICATED.WATCHLIST : '/auths/signin'}
+                  className="no-underline"
+                >
                   <Box
                     component="span"
                     sx={{
@@ -364,7 +368,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             >
               {isAuthenticated ? (
                 <>
-                  <Link href="/authenticated/profile" className="no-underline">
+                  <Link
+                    href={ROUTES.AUTHENTICATED.PROFILE}
+                    className="no-underline"
+                  >
                     <IconButton
                       aria-label="profile"
                       size="small"
@@ -506,7 +513,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <>
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => handleMobileNavClick('/authenticated/home')}
+                  onClick={() => handleMobileNavClick('/home')}
                   sx={{
                     py: 1.5,
                     '&:hover': {
@@ -528,7 +535,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() =>
-                    handleMobileNavClick('/authenticated/watchlist')
+                    handleMobileNavClick(
+                      isAuthenticated ? ROUTES.AUTHENTICATED.WATCHLIST : '/auths/signin'
+                    )
                   }
                   sx={{
                     py: 1.5,
@@ -606,7 +615,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Box sx={{ px: 2, pb: 2 }}>
               <Button
                 fullWidth
-                onClick={() => handleMobileNavClick('/authenticated/profile')}
+                onClick={() =>
+                  handleMobileNavClick(ROUTES.AUTHENTICATED.PROFILE)
+                }
                 variant="outlined"
                 startIcon={<AccountCircleIcon />}
                 sx={{

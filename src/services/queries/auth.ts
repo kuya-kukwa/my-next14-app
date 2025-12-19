@@ -72,7 +72,7 @@ export function useSignUp() {
         }
 
         // Delayed redirect for UX
-        setTimeout(() => router.push('/authenticated/home'), REDIRECT_DELAY_MS);
+        setTimeout(() => router.push('/home'), REDIRECT_DELAY_MS);
       } catch (err: unknown) {
         const message = normalizeAuthError(err, 'Signup failed. Please try again.');
         throw new Error(message);
@@ -115,7 +115,7 @@ export function useSignIn() {
 
         // Check for redirect parameter
         const params = new URLSearchParams(window.location.search);
-        const redirectTo = params.get('redirect') || '/authenticated/home';
+        const redirectTo = params.get('redirect') || '/home';
 
         await router.push(redirectTo);
       } catch (err: unknown) {

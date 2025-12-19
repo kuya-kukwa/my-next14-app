@@ -18,11 +18,11 @@ export const ROUTES = {
   /** Authenticated user routes */
   AUTHENTICATED: {
     /** Authenticated home/browse page */
-    HOME: '/authenticated/home',
+    HOME: '/home',
     /** User's watchlist page */
-    WATCHLIST: '/authenticated/watchlist',
+    WATCHLIST: '/watchlist',
     /** User profile page */
-    PROFILE: '/authenticated/profile',
+    PROFILE: '/profile',
   },
   
   /** API routes */

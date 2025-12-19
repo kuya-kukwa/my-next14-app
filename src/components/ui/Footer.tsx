@@ -12,7 +12,7 @@ const Footer = memo(() => {
     <footer className="relative z-10 overflow-hidden pb-0 pt-20 lg:pb-0 lg:pt-[100px] transition-colors duration-500 footer-bg">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
-        <div className="flex flex-wrap justify-between gap-8 lg:gap-0">
+        <div className="flex flex-wrap justify-between gap-4 lg:gap-0">
           {/* Logo and Description */}
           <div className="w-full lg:w-1/3 mb-6 lg:mb-0 text-center">
             <Link
@@ -26,15 +26,16 @@ const Footer = memo(() => {
                 </span>
               </div>
             </Link>
-            <p className="mb-2 sm:mb-4 text-sm sm:text-base transition-colors duration-500 text-muted">
+            <p className="mb-0 sm:mb-1 text-sm sm:text-base transition-colors duration-500 text-muted">
               Your ultimate destination for cinematic entertainment.
             </p>
           </div>
         </div>
 
-        {/* Social Links 
+        {/* Social Links */}
+
         <div className="flex justify-center mt-10 mb-6">
-          <div className="flex space-x-20">
+          <div className="flex space-x-6 sm:space-x-8">
             <a
               href="#"
               className="text-muted hover:text-primary transition-colors duration-300"
@@ -80,10 +81,8 @@ const Footer = memo(() => {
           </div>
         </div>
 
-        */}
-
         {/*  Copyright - Bottom */}
-        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 transition-colors duration-500 border-top-muted">
+        <div className="mt-2 sm:mt-3 pt-4 sm:pt-6 transition-colors duration-500 border-top-muted">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <p className="text-xs sm:text-sm order-2 md:order-1 transition-colors duration-500 text-muted">
               &copy; {new Date().getFullYear()} NextFlix. All cinematic rights

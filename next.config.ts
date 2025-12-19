@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
         source: '/watchlist',
         destination: '/authenticated/watchlist',
       },
+      {
+        source: '/profile',
+        destination: '/authenticated/profile',
+      },
     ];
   },
 };

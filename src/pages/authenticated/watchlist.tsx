@@ -232,7 +232,7 @@ export default function WatchlistPage() {
             </Typography>
 
             {!searchTerm && (
-              <Link href="/authenticated/home" className="no-text-decoration">
+              <Link href="/home" className="no-text-decoration">
                 <Button variant="contained" className="watchlist-browse-button">
                   Browse Movies
                 </Button>

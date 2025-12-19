@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { PROTECTED_ROUTES } from '@/config/routes';
 
 // Define protected routes that require authentication
-const protectedRoutes = ['/authenticated/home', '/authenticated/watchlist'];
+const protectedRoutes = [...PROTECTED_ROUTES];
 
 // Define auth routes that should redirect to home if already authenticated
 const authRoutes = ['/auths/signin', '/auths/signup'];
@@ -56,7 +57,7 @@ export function middleware(request: NextRequest) {
 
   // Redirect to home if accessing auth routes while authenticated with valid token
   if (isAuthRoute && hasValidToken) {
-    return NextResponse.redirect(new URL('/authenticated/home', request.url));
+    return NextResponse.redirect(new URL('/home', request.url));
   }
 
   // Add security and cache control headers
